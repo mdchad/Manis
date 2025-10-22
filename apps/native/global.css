@@ -2,6 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
+/*@theme {*/
+/*  --color-magenta-50: oklch(97.1% 0.014 347.71);*/
+/*  --color-magenta-100: oklch(94.983% 0.02317 346.77);*/
+/*  --color-magenta-200: oklch(90.267% 0.05133 347.75);*/
+/*  --color-magenta-300: oklch(82.85% 0.1055 350.53);*/
+/*  --color-magenta-400: oklch(72.533% 0.18267 354.28);*/
+/*  --color-magenta-500: oklch(66.517% 0.21683 358.82);*/
+/*  --color-magenta-600: oklch(60.3% 0.22 5.1); !* primary colour*!*/
+/*  --color-magenta-700: oklch(53.325% 0.20125 8.474);*/
+/*  --color-magenta-800: oklch(46.45% 0.1725 8.331);*/
+/*  --color-magenta-900: oklch(41.075% 0.14575 6.948);*/
+/*  --color-magenta-950: oklch(28.4% 0.109 8.423);*/
+
+/*  --color-mint-50: oklch(98.6% 0.031 114.71);*/
+/*  --color-mint-100: oklch(95.78% 0.0566 116.28);*/
+/*  --color-mint-200: oklch(91.96% 0.1062 118.27);*/
+/*  --color-mint-300: oklch(86.94% 0.1648 120.62);*/
+/*  --color-mint-400: oklch(80.42% 0.1964 122.8);*/
+/*  --color-mint-500: oklch(72.2% 0.181 124.8); !* primary colour*!*/
+/*  --color-mint-600: oklch(61.12% 0.1584 125.63);*/
+/*  --color-mint-700: oklch(50.44% 0.1258 125.54);*/
+/*  --color-mint-800: oklch(43.46% 0.1032 124.88);*/
+/*  --color-mint-900: oklch(39.58% 0.0906 125.01);*/
+/*  --color-mint-950: oklch(27.4% 0.072 126.06);*/
+/*}*/
+
 @layer base {
   :root {
     --background: 0 0% 100%;
