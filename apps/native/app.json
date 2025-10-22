@@ -14,16 +14,16 @@
         "tinted": "./assets/images/ios-tinted.png"
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.manis"
+      "bundleIdentifier": "com.forimanizzati.manis"
     },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#F2F2EA",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.manis"
+      "package": "com.forimanizzati.manis"
     },
     "web": {
       "output": "static",
