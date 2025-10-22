@@ -80,7 +80,7 @@ export function SignIn() {
 				{isLoading ? (
 					<ActivityIndicator size="small" color="#fff" />
 				) : (
-					<Text className="text-primary-foreground font-medium">Sign In</Text>
+					<Text className="text-primary-foreground font-medium" style={{ fontFamily: 'ClashDisplay-Medium' }}>Sign In</Text>
 				)}
 			</TouchableOpacity>
 		</View>
