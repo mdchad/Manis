@@ -10,7 +10,7 @@ import {
 	PlusIcon,
 	SearchIcon
 } from 'lucide-react-native';
-import { Image } from "react-native";
+import {Image, View} from "react-native";
 
 export default function TabLayout() {
 	const { isDarkColorScheme } = useColorScheme();
@@ -25,12 +25,13 @@ export default function TabLayout() {
 				headerTitleAlign: "left",
 				headerShadowVisible: false,
 				headerStyle: {
-					// padding: 0,
 					backgroundColor: "#F2F2EA",
 					borderColor: 'transparent'
 				},
 				headerRight: () => (
-					<MessageCircleIcon />
+					<View className="pr-4">
+						<MessageCircleIcon />
+					</View>
 				),
 				headerTitle: () => (
 					<Image
@@ -41,10 +42,10 @@ export default function TabLayout() {
 				),
 				tabBarActiveTintColor: isDarkColorScheme
 					? "hsl(217.2 91.2% 59.8%)"
-					: "hsl(221.2 83.2% 53.3%)",
+					: "#8cb700",
 				tabBarInactiveTintColor: isDarkColorScheme
 					? "hsl(215 20.2% 65.1%)"
-					: "hsl(215.4 16.3% 46.9%)",
+					: "#e2296f",
 				tabBarStyle: {
 					backgroundColor: isDarkColorScheme
 						? "hsl(222.2 84% 4.9%)"
@@ -60,7 +61,7 @@ export default function TabLayout() {
 				options={{
 					title: "Home",
 					tabBarIcon: ({ color }) => (
-						<HouseIcon />
+						<HouseIcon color={color} />
 					),
 				}}
 			/>
@@ -69,7 +70,7 @@ export default function TabLayout() {
 				options={{
 					title: "Explore",
 					tabBarIcon: ({ color }) => (
-						<SearchIcon />
+						<SearchIcon color={color} />
 					),
 				}}
 			/>
@@ -77,7 +78,7 @@ export default function TabLayout() {
 				name="add"
 				options={{
 					tabBarIcon: ({ color }) => (
-						<PlusIcon />
+						<PlusIcon color={color} />
 					),
 				}}
 			/>
@@ -85,7 +86,7 @@ export default function TabLayout() {
 				name="likes"
 				options={{
 					tabBarIcon: ({ color }) => (
-						<HeartIcon />
+						<HeartIcon color={color} />
 					),
 				}}
 			/>
@@ -93,8 +94,8 @@ export default function TabLayout() {
 				name="settings"
 				options={{
 					tabBarIcon: ({ color }) => (
-						<ContactIcon />
-					),
+						<ContactIcon color={color} />
+					)
 				}}
 			/>
 		</Tabs>
