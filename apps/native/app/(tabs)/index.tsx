@@ -1,11 +1,10 @@
-import { Container } from "@/components/container";
-import { FlatList } from "react-native";
+import { FlatList, View } from "react-native";
 import { FeedPost } from "@/components/feed-post";
 import { mockPosts } from "@/data/mock-posts";
 
 export default function TabOne() {
 	return (
-		<Container>
+		<View className="flex-1 bg-background">
 			<FlatList
 				data={mockPosts}
 				keyExtractor={(item) => item.id}
@@ -20,6 +19,6 @@ export default function TabOne() {
 				)}
 				showsVerticalScrollIndicator={false}
 			/>
-		</Container>
+		</View>
 	);
 }
