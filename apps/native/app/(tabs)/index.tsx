@@ -1,19 +1,25 @@
 import { Container } from "@/components/container";
-import { ScrollView, Text, View } from "react-native";
+import { FlatList } from "react-native";
+import { FeedPost } from "@/components/feed-post";
+import { mockPosts } from "@/data/mock-posts";
 
 export default function TabOne() {
 	return (
 		<Container>
-			<ScrollView className="flex-1 p-6">
-				<View className="py-2">
-					<Text className="text-3xl font-bold text-foreground mb-2">
-						Tab One
-					</Text>
-					<Text className="text-lg text-muted-foreground">
-						Explore the first section of your app
-					</Text>
-				</View>
-			</ScrollView>
+			<FlatList
+				data={mockPosts}
+				keyExtractor={(item) => item.id}
+				renderItem={({ item }) => (
+					<FeedPost
+						userAvatar={item.userAvatar}
+						username={item.username}
+						images={item.images}
+						caption={item.caption}
+						likes={item.likes}
+					/>
+				)}
+				showsVerticalScrollIndicator={false}
+			/>
 		</Container>
 	);
 }
