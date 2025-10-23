@@ -5,7 +5,7 @@ export default function TabOne() {
 	return (
 		<Container>
 			<ScrollView className="flex-1 p-6">
-				<View className="py-8">
+				<View className="py-2">
 					<Text className="text-3xl font-bold text-foreground mb-2">
 						Tab One
 					</Text>

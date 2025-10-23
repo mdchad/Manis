@@ -1,7 +1,16 @@
 import { TabBarIcon } from "@/components/tabbar-icon";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { Tabs } from "expo-router";
-import {ContactIcon, HeartIcon, HouseIcon, PlusIcon, SearchIcon} from 'lucide-react-native';
+import {
+	BubblesIcon,
+	ContactIcon,
+	HeartIcon,
+	HouseIcon,
+	MessageCircleIcon,
+	PlusIcon,
+	SearchIcon
+} from 'lucide-react-native';
+import { Image } from "react-native";
 
 export default function TabLayout() {
 	const { isDarkColorScheme } = useColorScheme();
@@ -9,9 +18,27 @@ export default function TabLayout() {
 	return (
 		<Tabs
 			screenOptions={{
+				sceneStyle: { backgroundColor: "#F2F2EA" },
 				tabBarShowLabel: false,
 				tabBarItemStyle: { paddingTop: 10 },
-				headerShown: false,
+				headerShown: true,
+				headerTitleAlign: "left",
+				headerShadowVisible: false,
+				headerStyle: {
+					// padding: 0,
+					backgroundColor: "#F2F2EA",
+					borderColor: 'transparent'
+				},
+				headerRight: () => (
+					<MessageCircleIcon />
+				),
+				headerTitle: () => (
+					<Image
+						source={require('@/assets/images/app-header-logo.png')}
+						style={{ width: 80, height: 80 }}
+						resizeMode="contain"
+					/>
+				),
 				tabBarActiveTintColor: isDarkColorScheme
 					? "hsl(217.2 91.2% 59.8%)"
 					: "hsl(221.2 83.2% 53.3%)",
