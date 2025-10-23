@@ -1,6 +1,7 @@
 import { TabBarIcon } from "@/components/tabbar-icon";
 import { useColorScheme } from "@/lib/use-color-scheme";
 import { Tabs } from "expo-router";
+import {ContactIcon, HeartIcon, HouseIcon, PlusIcon, SearchIcon} from 'lucide-react-native';
 
 export default function TabLayout() {
 	const { isDarkColorScheme } = useColorScheme();
@@ -8,6 +9,8 @@ export default function TabLayout() {
 	return (
 		<Tabs
 			screenOptions={{
+				tabBarShowLabel: false,
+				tabBarItemStyle: { paddingTop: 10 },
 				headerShown: false,
 				tabBarActiveTintColor: isDarkColorScheme
 					? "hsl(217.2 91.2% 59.8%)"
@@ -29,7 +32,9 @@ export default function TabLayout() {
 				name="index"
 				options={{
 					title: "Home",
-					tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+					tabBarIcon: ({ color }) => (
+						<HouseIcon />
+					),
 				}}
 			/>
 			<Tabs.Screen
@@ -37,7 +42,31 @@ export default function TabLayout() {
 				options={{
 					title: "Explore",
 					tabBarIcon: ({ color }) => (
-						<TabBarIcon name="compass" color={color} />
+						<SearchIcon />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="add"
+				options={{
+					tabBarIcon: ({ color }) => (
+						<PlusIcon />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="likes"
+				options={{
+					tabBarIcon: ({ color }) => (
+						<HeartIcon />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="settings"
+				options={{
+					tabBarIcon: ({ color }) => (
+						<ContactIcon />
 					),
 				}}
 			/>
