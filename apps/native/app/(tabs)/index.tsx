@@ -15,6 +15,7 @@ export default function TabOne() {
 						images={item.images}
 						caption={item.caption}
 						likes={item.likes}
+						listingImages={item.listingImages}
 					/>
 				)}
 				showsVerticalScrollIndicator={false}
