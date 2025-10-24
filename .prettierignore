@@ -42,6 +42,8 @@ lerna-debug.log*
 # Expo
 .expo
 .expo-shared
+ios/
+android/
 
 # Lock files
 package-lock.json
@@ -51,3 +53,13 @@ bun.lockb
 
 # Generated files
 *.tsbuildinfo
+
+# Config and documentation files
+*.json
+*.jsonc
+*.toml
+*.md
+.prettierrc
+
+# Alchemy generated files
+.alchemy/
