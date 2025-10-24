@@ -13,7 +13,7 @@ import { queryClient } from "@/utils/trpc";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
 import { useColorScheme } from "@/lib/use-color-scheme";
-import { Platform } from "react-native";
+import {Platform, TouchableOpacity, View} from "react-native";
 import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
 const LIGHT_THEME: Theme = {
@@ -57,7 +57,13 @@ export default function RootLayout() {
 				<GestureHandlerRootView style={{ flex: 1 }}>
 					<Stack>
 						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-						<Stack.Screen name="listing" options={{ headerShown: false }} />
+						<Stack.Screen
+							name="listing"
+							options={{
+								headerShown: false,
+								presentation: "card"
+							}}
+						/>
 						<Stack.Screen
 							name="modal"
 							options={{ title: "Modal", presentation: "modal" }}
