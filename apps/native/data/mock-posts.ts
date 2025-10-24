@@ -10,6 +10,11 @@ export const mockPosts = [
 		],
 		caption: "selling my entire Kaifiyyah set. click for more details!",
 		likes: 120,
+		listingImages: [
+			"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
+			"https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400",
+			"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400",
+		],
 	},
 	{
 		id: "2",
@@ -20,6 +25,11 @@ export const mockPosts = [
 		],
 		caption: "New collection just dropped! 🔥",
 		likes: 234,
+		listingImages: [
+			"https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400",
+			"https://images.unsplash.com/photo-1560243563-062bfc001d68?w=400",
+			"https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?w=400",
+		],
 	},
 	{
 		id: "3",
@@ -31,6 +41,11 @@ export const mockPosts = [
 		],
 		caption: "Vintage finds from the weekend market 🛍️",
 		likes: 89,
+		listingImages: [
+			"https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
+			"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=400",
+			"https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400",
+		],
 	},
 	{
 		id: "4",
@@ -41,6 +56,11 @@ export const mockPosts = [
 		],
 		caption: "Less is more. Capsule wardrobe essentials ✨",
 		likes: 456,
+		listingImages: [
+			"https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400",
+			"https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=400",
+			"https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=400",
+		],
 	},
 	{
 		id: "5",
@@ -53,5 +73,10 @@ export const mockPosts = [
 		],
 		caption: "Today's thrift haul! Can't believe I found these gems 💎",
 		likes: 178,
+		listingImages: [
+			"https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?w=400",
+			"https://images.unsplash.com/photo-1542060748-10c28b62716f?w=400",
+			"https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400",
+		],
 	},
 ];

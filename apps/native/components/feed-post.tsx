@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -10,6 +11,7 @@ interface FeedPostProps {
 	images: string[];
 	caption: string;
 	likes?: number;
+	listingImages?: string[];
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
@@ -18,10 +20,17 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	images,
 	caption,
 	likes = 0,
+	listingImages = [],
 }) => {
+	const router = useRouter();
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isLiked, setIsLiked] = useState(false);
 	const [isSaved, setIsSaved] = useState(false);
+
+	const handleListingPress = (index: number) => {
+		// Navigate to listing detail page
+		router.push(`/listing/${index + 1}`);
+	};
 
 	return (
 		<View className="mb-4">
@@ -57,38 +66,29 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 				)}
 			</View>
 
-			{/* Action Buttons */}
-			{/*<View className="flex-row items-center justify-between px-4 py-3">*/}
-			{/*	<View className="flex-row items-center gap-4">*/}
-			{/*		<TouchableOpacity onPress={() => setIsLiked(!isLiked)}>*/}
-			{/*			<HeartIcon*/}
-			{/*				size={26}*/}
-			{/*				color={isLiked ? "#e2296f" : "#000"}*/}
-			{/*				fill={isLiked ? "#e2296f" : "none"}*/}
-			{/*			/>*/}
-			{/*		</TouchableOpacity>*/}
-			{/*		<TouchableOpacity>*/}
-			{/*			<MessageCircleIcon size={26} color="#000" />*/}
-			{/*		</TouchableOpacity>*/}
-			{/*		<TouchableOpacity>*/}
-			{/*			<ShareIcon size={24} color="#000" />*/}
-			{/*		</TouchableOpacity>*/}
-			{/*	</View>*/}
-			{/*	<TouchableOpacity onPress={() => setIsSaved(!isSaved)}>*/}
-			{/*		<BookmarkIcon*/}
-			{/*			size={24}*/}
-			{/*			color="#000"*/}
-			{/*			fill={isSaved ? "#000" : "none"}*/}
-			{/*		/>*/}
-			{/*	</TouchableOpacity>*/}
-			{/*</View>*/}
-
-			{/* Likes Count */}
-			{/*{likes > 0 && (*/}
-			{/*	<Text className="px-4 font-semibold text-sm">*/}
-			{/*		{likes.toLocaleString()} likes*/}
-			{/*	</Text>*/}
-			{/*)}*/}
+			{/* Listing Thumbnails */}
+			{listingImages.length > 0 && (
+				<View className="">
+					<View className="flex-row">
+						{listingImages.slice(0, 3).map((image, index) => (
+							<TouchableOpacity
+								key={index}
+								onPress={() => handleListingPress(index)}
+							>
+								<Image
+									source={{ uri: image }}
+									style={{
+										width: 70,
+										height: 70,
+										borderRadius: 2,
+									}}
+									resizeMode="cover"
+								/>
+							</TouchableOpacity>
+						))}
+					</View>
+				</View>
+			)}
 
 			{/* Caption */}
 			<View className="px-4 py-2">
