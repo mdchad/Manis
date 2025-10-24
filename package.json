@@ -21,6 +21,8 @@
   "scripts": {
     "prepare": "husky",
     "check": "oxlint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "dev": "alchemy dev",
     "build": "turbo build",
     "check-types": "turbo check-types",
@@ -39,17 +41,21 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
-    "turbo": "^2.5.4",
+    "@cloudflare/workers-types": "^4.20250822.0",
+    "@types/node": "^22.13.11",
+    "alchemy": "^0.70.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
     "oxlint": "^1.12.0",
+    "prettier": "^3.6.2",
     "tsdown": "^0.15.5",
-    "@types/node": "^22.13.11",
-    "alchemy": "^0.70.0",
-    "@cloudflare/workers-types": "^4.20250822.0"
+    "turbo": "^2.5.4"
   },
   "lint-staged": {
-    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": "oxlint"
+    "**/*.{js,mjs,cjs,jsx,ts,mts,cts,tsx,vue,astro,svelte}": [
+      "prettier --write",
+      "oxlint"
+    ]
   },
   "packageManager": "bun@1.2.16"
 }
