@@ -11,6 +11,7 @@ import {
 	SearchIcon
 } from 'lucide-react-native';
 import {Image, View} from "react-native";
+import React from "react";
 
 export default function TabLayout() {
 	const { isDarkColorScheme } = useColorScheme();
@@ -91,10 +92,13 @@ export default function TabLayout() {
 				}}
 			/>
 			<Tabs.Screen
-				name="settings"
+				name="profile"
 				options={{
 					tabBarIcon: ({ color }) => (
-						<ContactIcon color={color} />
+						<Image
+							source={{ uri: "https://i.pravatar.cc/150?img=2" }}
+							className="mt-1 w-8 h-8 rounded-full"
+						/>
 					)
 				}}
 			/>
