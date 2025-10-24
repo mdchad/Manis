@@ -60,6 +60,11 @@ bun.lockb
 *.toml
 *.md
 .prettierrc
+*.d.ts
+*.gen.ts
+*.config.js
+*.html
+*.css
 
 # Alchemy generated files
 .alchemy/
