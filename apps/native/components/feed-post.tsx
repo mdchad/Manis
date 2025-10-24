@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
@@ -21,13 +22,14 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	likes = 0,
 	listingImages = [],
 }) => {
+	const router = useRouter();
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isLiked, setIsLiked] = useState(false);
 	const [isSaved, setIsSaved] = useState(false);
 
 	const handleListingPress = (index: number) => {
-		console.log(`Listing ${index + 1} clicked`);
-		// Navigate to listing page (to be implemented)
+		// Navigate to listing detail page
+		router.push(`/listing/${index + 1}`);
 	};
 
 	return (
