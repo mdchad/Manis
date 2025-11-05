@@ -37,6 +37,9 @@
     "destroy": "alchemy destroy"
   },
   "dependencies": {
+    "convex": "^1.27.0",
+    "better-auth": "1.3.27",
+    "@convex-dev/better-auth": "^0.9.1",
     "dotenv": "^17.2.2",
     "zod": "^4.1.11"
   },
