@@ -1,13 +1,6 @@
 import { authClient } from "@/lib/auth-client";
-import { queryClient } from "@/utils/trpc";
 import { useState } from "react";
-import {
-	ActivityIndicator,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View,
-} from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export function SignUp() {
 	const [name, setName] = useState("");
@@ -35,20 +28,17 @@ export function SignUp() {
 					setName("");
 					setEmail("");
 					setPassword("");
-					queryClient.refetchQueries();
 				},
 				onFinished: () => {
 					setIsLoading(false);
 				},
-			},
+			}
 		);
 	};
 
 	return (
 		<View className="mt-6 p-4 bg-card rounded-lg border border-border">
-			<Text className="text-lg font-semibold text-foreground mb-4">
-				Create Account
-			</Text>
+			<Text className="text-lg font-semibold text-foreground mb-4">Create Account</Text>
 
 			{error && (
 				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
