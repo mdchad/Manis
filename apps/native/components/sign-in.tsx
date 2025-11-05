@@ -1,13 +1,6 @@
 import { authClient } from "@/lib/auth-client";
-import { queryClient } from "@/utils/trpc";
 import { useState } from "react";
-import {
-	ActivityIndicator,
-	Text,
-	TextInput,
-	TouchableOpacity,
-	View,
-} from "react-native";
+import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 export function SignIn() {
 	const [email, setEmail] = useState("");
@@ -32,20 +25,17 @@ export function SignIn() {
 				onSuccess: () => {
 					setEmail("");
 					setPassword("");
-					queryClient.refetchQueries();
 				},
 				onFinished: () => {
 					setIsLoading(false);
 				},
-			},
+			}
 		);
 	};
 
 	return (
 		<View className="mt-6 p-4 bg-card rounded-lg border border-border">
-			<Text className="text-lg font-semibold text-foreground mb-4">
-				Sign In
-			</Text>
+			<Text className="text-lg font-semibold text-foreground mb-4">Sign In</Text>
 
 			{error && (
 				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
@@ -80,7 +70,7 @@ export function SignIn() {
 				{isLoading ? (
 					<ActivityIndicator size="small" color="#fff" />
 				) : (
-					<Text className="text-primary-foreground font-medium" style={{ fontFamily: 'ClashDisplay-Medium' }}>Sign In</Text>
+					<Text className="text-primary-foreground font-medium">Sign In</Text>
 				)}
 			</TouchableOpacity>
 		</View>
