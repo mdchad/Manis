@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { trpc } from "@/utils/trpc";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "convex/react";
+import { api } from "@manis-convex/backend/convex/_generated/api";
 
 export const Route = createFileRoute("/")({
 	component: HomeComponent,
@@ -23,7 +23,7 @@ const TITLE_TEXT = `
  `;
 
 function HomeComponent() {
-	const healthCheck = useQuery(trpc.healthCheck.queryOptions());
+	const healthCheck = useQuery(api.healthCheck.get);
 
 	return (
 		<div className="container mx-auto max-w-3xl px-4 py-2">
@@ -33,14 +33,14 @@ function HomeComponent() {
 					<h2 className="mb-2 font-medium">API Status</h2>
 					<div className="flex items-center gap-2">
 						<div
-							className={`h-2 w-2 rounded-full ${healthCheck.data ? "bg-green-500" : "bg-red-500"}`}
+							className={`h-2 w-2 rounded-full ${healthCheck === "OK" ? "bg-green-500" : healthCheck === undefined ? "bg-orange-400" : "bg-red-500"}`}
 						/>
 						<span className="text-sm text-muted-foreground">
-							{healthCheck.isLoading
+							{healthCheck === undefined
 								? "Checking..."
-								: healthCheck.data
+								: healthCheck === "OK"
 									? "Connected"
-									: "Disconnected"}
+									: "Error"}
 						</span>
 					</div>
 				</section>
