@@ -1,19 +1,15 @@
-import { QueryClientProvider } from "@tanstack/react-query";
+import { ConvexReactClient } from "convex/react";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { Stack } from "expo-router";
-import {
-	DarkTheme,
-	DefaultTheme,
-	type Theme,
-	ThemeProvider,
-} from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
-import { queryClient } from "@/utils/trpc";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
 import { useColorScheme } from "@/lib/use-color-scheme";
-import {Platform, TouchableOpacity, View} from "react-native";
+import { Platform } from "react-native";
 import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
 const LIGHT_THEME: Theme = {
@@ -28,6 +24,10 @@ const DARK_THEME: Theme = {
 export const unstable_settings = {
 	initialRouteName: "(tabs)",
 };
+
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+	unsavedChangesWarning: false,
+});
 
 export default function RootLayout() {
 	const hasMounted = useRef(false);
@@ -51,7 +51,7 @@ export default function RootLayout() {
 		return null;
 	}
 	return (
-		<QueryClientProvider client={queryClient}>
+		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
 			<ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
 				<StatusBar style={isDarkColorScheme ? "light" : "dark"} />
 				<GestureHandlerRootView style={{ flex: 1 }}>
@@ -61,21 +61,16 @@ export default function RootLayout() {
 							name="listing"
 							options={{
 								headerShown: false,
-								presentation: "card"
+								presentation: "card",
 							}}
 						/>
-						<Stack.Screen
-							name="modal"
-							options={{ title: "Modal", presentation: "modal" }}
-						/>
+						<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
 					</Stack>
 				</GestureHandlerRootView>
 			</ThemeProvider>
-		</QueryClientProvider>
+		</ConvexBetterAuthProvider>
 	);
 }
 
 const useIsomorphicLayoutEffect =
-	Platform.OS === "web" && typeof window === "undefined"
-		? React.useEffect
-		: React.useLayoutEffect;
+	Platform.OS === "web" && typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
