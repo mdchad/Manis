@@ -9,34 +9,22 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
-import { Link } from "@tanstack/react-router";
+import { useQuery } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
 
 export default function UserMenu() {
 	const navigate = useNavigate();
-	const { data: session, isPending } = authClient.useSession();
-
-	if (isPending) {
-		return <Skeleton className="h-9 w-24" />;
-	}
-
-	if (!session) {
-		return (
-			<Button variant="outline" asChild>
-				<Link to="/login">Sign In</Link>
-			</Button>
-		);
-	}
+	const user = useQuery(api.auth.getCurrentUser);
 
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline">{session.user.name}</Button>
+				<Button variant="outline">{user?.name}</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem>{session.user.email}</DropdownMenuItem>
+				<DropdownMenuItem>{user?.email}</DropdownMenuItem>
 				<DropdownMenuItem asChild>
 					<Button
 						variant="destructive"
@@ -46,7 +34,7 @@ export default function UserMenu() {
 								fetchOptions: {
 									onSuccess: () => {
 										navigate({
-											to: "/",
+											to: "/dashboard",
 										});
 									},
 								},

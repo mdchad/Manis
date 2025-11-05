@@ -3,20 +3,14 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-import Loader from "./loader";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-export default function SignInForm({
-	onSwitchToSignUp,
-}: {
-	onSwitchToSignUp: () => void;
-}) {
+export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
 	const navigate = useNavigate({
 		from: "/",
 	});
-	const { isPending } = authClient.useSession();
 
 	const form = useForm({
 		defaultValues: {
@@ -39,7 +33,7 @@ export default function SignInForm({
 					onError: (error) => {
 						toast.error(error.error.message || error.error.statusText);
 					},
-				},
+				}
 			);
 		},
 		validators: {
@@ -49,10 +43,6 @@ export default function SignInForm({
 			}),
 		},
 	});
-
-	if (isPending) {
-		return <Loader />;
-	}
 
 	return (
 		<div className="mx-auto w-full mt-10 max-w-md p-6">
