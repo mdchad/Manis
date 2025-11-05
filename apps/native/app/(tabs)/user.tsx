@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { Container } from "@/components/container";
 import { useConvexAuth, useQuery } from "convex/react";
-import { api } from "@manis-convex/backend/convex/_generated/api";
+import { api } from "@manis/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
 import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
