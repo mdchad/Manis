@@ -1,7 +1,7 @@
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
 import UserMenu from "@/components/user-menu";
-import { api } from "@manis-convex/backend/convex/_generated/api";
+import { api } from "@manis/backend/convex/_generated/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { Authenticated, AuthLoading, Unauthenticated, useQuery } from "convex/react";
 import { useState } from "react";

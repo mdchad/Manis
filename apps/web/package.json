@@ -29,7 +29,7 @@
     "tw-animate-css": "^1.2.5",
     "zod": "^4.0.2",
     "convex": "catalog:",
-    "@manis-convex/backend": "workspace:*",
+    "@manis/backend": "workspace:*",
     "better-auth": "catalog:",
     "@convex-dev/better-auth": "catalog:"
   },

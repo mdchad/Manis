@@ -4,7 +4,7 @@ import { config } from "dotenv";
 
 config({ path: "./.env" });
 
-const app = await alchemy("manis-convex");
+const app = await alchemy("manis");
 
 export const web = await Vite("web", {
 	assets: "dist",
