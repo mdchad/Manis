@@ -1,6 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import "../global.css";
 
 export function SignIn() {
 	const [email, setEmail] = useState("");
@@ -65,7 +66,7 @@ export function SignIn() {
 			<TouchableOpacity
 				onPress={handleLogin}
 				disabled={isLoading}
-				className="bg-primary p-4 rounded-md flex-row justify-center items-center"
+				className="bg-primary-500 p-4 rounded-md flex-row justify-center items-center"
 			>
 				{isLoading ? (
 					<ActivityIndicator size="small" color="#fff" />
