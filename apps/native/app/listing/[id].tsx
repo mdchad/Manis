@@ -87,7 +87,7 @@ export default function ListingDetail() {
 
 						{/* Action Buttons */}
 						<View className="flex-row items-center justify-between mt-8 mb-4">
-							<TouchableOpacity className="flex-1 mr-2">
+							<TouchableOpacity className="flex-1 mr-2" onPress={() => router.push("chat/" + id)}>
 								<View className="bg-primary py-3 items-center rounded-lg">
 									<Text className="text-white font-semibold text-base">CHAT TO BUY</Text>
 								</View>
