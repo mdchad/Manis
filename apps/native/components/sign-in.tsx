@@ -1,6 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import "../global.css";
 
 export function SignIn() {
 	const [email, setEmail] = useState("");

@@ -5,12 +5,12 @@ import { Stack } from "expo-router";
 import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import "../global.css";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
-import { useColorScheme } from "@/lib/use-color-scheme";
+// import { useColorScheme } from "@/lib/use-color-scheme";
 import { Platform } from "react-native";
-import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
+import "../global.css";
+// import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
 const LIGHT_THEME: Theme = {
 	...DefaultTheme,
@@ -31,7 +31,6 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 
 export default function RootLayout() {
 	const hasMounted = useRef(false);
-	const { colorScheme, isDarkColorScheme } = useColorScheme();
 	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
 	useIsomorphicLayoutEffect(() => {
@@ -42,7 +41,7 @@ export default function RootLayout() {
 		if (Platform.OS === "web") {
 			document.documentElement.classList.add("bg-background");
 		}
-		setAndroidNavigationBar(colorScheme);
+		// setAndroidNavigationBar(colorScheme);
 		setIsColorSchemeLoaded(true);
 		hasMounted.current = true;
 	}, []);
@@ -52,22 +51,20 @@ export default function RootLayout() {
 	}
 	return (
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
-			<ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
-				<StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-				<GestureHandlerRootView style={{ flex: 1 }}>
-					<Stack>
-						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-						<Stack.Screen
-							name="listing"
-							options={{
-								headerShown: false,
-								presentation: "card",
-							}}
-						/>
-						<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
-					</Stack>
-				</GestureHandlerRootView>
-			</ThemeProvider>
+			<StatusBar />
+			<GestureHandlerRootView style={{ flex: 1 }}>
+				<Stack>
+					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen
+						name="listing"
+						options={{
+							headerShown: false,
+							presentation: "card",
+						}}
+					/>
+					<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+				</Stack>
+			</GestureHandlerRootView>
 		</ConvexBetterAuthProvider>
 	);
 }

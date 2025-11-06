@@ -13,7 +13,7 @@ export default function User() {
 
 	return (
 		<Container>
-			<ScrollView className="flex-1">
+			<ScrollView>
 				<View className="px-4">
 					<Text className="font-mono text-foreground text-3xl font-bold mb-4">BETTER T STACK</Text>
 

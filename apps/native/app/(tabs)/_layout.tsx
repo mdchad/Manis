@@ -1,5 +1,5 @@
 import { TabBarIcon } from "@/components/tabbar-icon";
-import { useColorScheme } from "@/lib/use-color-scheme";
+// import { useColorScheme } from "@/lib/use-color-scheme";
 import { Tabs } from "expo-router";
 import {
 	BubblesIcon,
@@ -15,7 +15,7 @@ import { Image, View } from "react-native";
 import React from "react";
 
 export default function TabLayout() {
-	const { isDarkColorScheme } = useColorScheme();
+	// const { isDarkColorScheme } = useColorScheme();
 
 	return (
 		<Tabs
@@ -42,11 +42,11 @@ export default function TabLayout() {
 						resizeMode="contain"
 					/>
 				),
-				tabBarActiveTintColor: isDarkColorScheme ? "hsl(217.2 91.2% 59.8%)" : "#8cb700",
-				tabBarInactiveTintColor: isDarkColorScheme ? "hsl(215 20.2% 65.1%)" : "#e2296f",
+				tabBarActiveTintColor: "#8cb700",
+				tabBarInactiveTintColor: "#e2296f",
 				tabBarStyle: {
-					backgroundColor: isDarkColorScheme ? "hsl(222.2 84% 4.9%)" : "hsl(0 0% 100%)",
-					borderTopColor: isDarkColorScheme ? "hsl(217.2 32.6% 17.5%)" : "hsl(214.3 31.8% 91.4%)",
+					backgroundColor: "hsl(0 0% 100%)",
+					borderTopColor: "hsl(214.3 31.8% 91.4%)",
 				},
 			}}
 		>
