@@ -62,6 +62,13 @@ export default function RootLayout() {
 							presentation: "card",
 						}}
 					/>
+					<Stack.Screen
+						name="chat"
+						options={{
+							headerShown: false,
+							presentation: "card",
+						}}
+					/>
 					<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
 				</Stack>
 			</GestureHandlerRootView>
