@@ -31,7 +31,7 @@ export default function User() {
 									authClient.signOut();
 								}}
 							>
-								<Text className="text-white font-medium">Sign Out</Text>
+								<Text className="text-black font-medium">Sign Out</Text>
 							</TouchableOpacity>
 						</View>
 					) : null}
