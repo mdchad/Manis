@@ -6,6 +6,8 @@ export function SignUp() {
 	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [username, setUsername] = useState("");
+	const [displayUsername, setDisplayUsername] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -18,6 +20,8 @@ export function SignUp() {
 				name,
 				email,
 				password,
+				username,
+				displayUsername: displayUsername || undefined,
 			},
 			{
 				onError: (error) => {
@@ -28,6 +32,8 @@ export function SignUp() {
 					setName("");
 					setEmail("");
 					setPassword("");
+					setUsername("");
+					setDisplayUsername("");
 				},
 				onFinished: () => {
 					setIsLoading(false);
@@ -49,8 +55,26 @@ export function SignUp() {
 			<TextInput
 				className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
 				placeholder="Name"
+				autoCorrect={false}
 				value={name}
 				onChangeText={setName}
+				placeholderTextColor="#9CA3AF"
+			/>
+
+			<TextInput
+				className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
+				placeholder="Username"
+				value={username}
+				onChangeText={setUsername}
+				placeholderTextColor="#9CA3AF"
+				autoCapitalize="none"
+			/>
+
+			<TextInput
+				className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
+				placeholder="Display Username (optional)"
+				value={displayUsername}
+				onChangeText={setDisplayUsername}
 				placeholderTextColor="#9CA3AF"
 			/>
 

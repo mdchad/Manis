@@ -7,6 +7,7 @@ import { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
 import { v } from "convex/values";
+import { username } from "better-auth/plugins";
 
 const siteUrl = process.env.SITE_URL!;
 const nativeAppUrl = process.env.NATIVE_APP_URL || "manis://";
@@ -27,7 +28,7 @@ function createAuth(
 			enabled: true,
 			requireEmailVerification: false,
 		},
-		plugins: [expo(), crossDomain({ siteUrl }), convex()],
+		plugins: [expo(), crossDomain({ siteUrl }), convex(), username()],
 	});
 }
 
