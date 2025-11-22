@@ -15,7 +15,7 @@ export default function User() {
 		<Container>
 			<ScrollView>
 				<View className="px-4">
-					<Text className="font-mono text-foreground text-3xl font-bold mb-4">BETTER T STACK</Text>
+					<Text className="font-mono text-foreground text-3xl font-bold mb-4">MANIS</Text>
 
 					{user ? (
 						<View className="mb-6 p-4 bg-card rounded-lg border border-border">
