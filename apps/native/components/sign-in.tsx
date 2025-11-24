@@ -24,10 +24,15 @@ export function SignIn() {
 		return !Array.isArray(result);
 	};
 
-	const socialOpacity = useSharedValue(1);
+	const socialOpacity = useSharedValue(0);
 	const socialTranslateX = useSharedValue(0);
 	const emailOpacity = useSharedValue(0);
 	const emailTranslateX = useSharedValue(50);
+
+	// Fade in social buttons on mount
+	useEffect(() => {
+		socialOpacity.value = withTiming(1, { duration: 500 });
+	}, []);
 
 	useEffect(() => {
 		if (showEmailForm) {
