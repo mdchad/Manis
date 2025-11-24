@@ -1,9 +1,11 @@
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
 import "../global.css";
 
 export function SignIn() {
+	const router = useRouter();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +28,7 @@ export function SignIn() {
 				onSuccess: () => {
 					setEmail("");
 					setPassword("");
+					router.replace("/(tabs)");
 				},
 				onFinished: () => {
 					setIsLoading(false);
@@ -49,6 +52,7 @@ export function SignIn() {
 				},
 				onSuccess: () => {
 					setIsLoading(false);
+					router.replace("/(tabs)");
 				},
 			}
 		);
@@ -69,6 +73,7 @@ export function SignIn() {
 				},
 				onSuccess: () => {
 					setIsLoading(false);
+					router.replace("/(tabs)");
 				},
 			}
 		);

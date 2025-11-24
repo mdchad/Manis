@@ -1,4 +1,4 @@
-import { ConvexReactClient } from "convex/react";
+import { ConvexReactClient, Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { authClient } from "@/lib/auth-client";
 import { Stack } from "expo-router";
@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
 // import { useColorScheme } from "@/lib/use-color-scheme";
-import { Platform } from "react-native";
+import { Platform, View, ActivityIndicator } from "react-native";
 import "../global.css";
 // import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
@@ -22,7 +22,7 @@ const DARK_THEME: Theme = {
 };
 
 export const unstable_settings = {
-	initialRouteName: "(tabs)",
+	initialRouteName: "(auth)",
 };
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
@@ -53,24 +53,36 @@ export default function RootLayout() {
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
 			<StatusBar />
 			<GestureHandlerRootView style={{ flex: 1 }}>
-				<Stack>
-					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-					<Stack.Screen
-						name="listing"
-						options={{
-							headerShown: false,
-							presentation: "card",
-						}}
-					/>
-					<Stack.Screen
-						name="chat"
-						options={{
-							headerShown: false,
-							presentation: "card",
-						}}
-					/>
-					<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
-				</Stack>
+				{/*<AuthLoading>*/}
+				{/*	<View className="flex-1 items-center justify-center bg-background">*/}
+				{/*		<ActivityIndicator size="large" />*/}
+				{/*	</View>*/}
+				{/*</AuthLoading>*/}
+				<Unauthenticated>
+					<Stack>
+						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
+					</Stack>
+				</Unauthenticated>
+				<Authenticated>
+					<Stack>
+						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+						<Stack.Screen
+							name="listing"
+							options={{
+								headerShown: false,
+								presentation: "card",
+							}}
+						/>
+						<Stack.Screen
+							name="chat"
+							options={{
+								headerShown: false,
+								presentation: "card",
+							}}
+						/>
+						<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+					</Stack>
+				</Authenticated>
 			</GestureHandlerRootView>
 		</ConvexBetterAuthProvider>
 	);
