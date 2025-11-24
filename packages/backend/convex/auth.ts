@@ -33,10 +33,10 @@ function createAuth(
 				clientId: process.env.GOOGLE_CLIENT_ID!,
 				clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
 			},
-			apple: {
-				clientId: process.env.APPLE_CLIENT_ID!,
-				clientSecret: process.env.APPLE_CLIENT_SECRET!,
-			},
+			// apple: {
+			// 	clientId: process.env.APPLE_CLIENT_ID!,
+			// 	clientSecret: process.env.APPLE_CLIENT_SECRET!,
+			// },
 		},
 		plugins: [expo(), crossDomain({ siteUrl }), convex(), username()],
 	});
