@@ -70,13 +70,13 @@ export function SignUp() {
 				autoCapitalize="none"
 			/>
 
-			<TextInput
-				className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
-				placeholder="Display Username (optional)"
-				value={displayUsername}
-				onChangeText={setDisplayUsername}
-				placeholderTextColor="#9CA3AF"
-			/>
+			{/*<TextInput*/}
+			{/*	className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"*/}
+			{/*	placeholder="Display Username (optional)"*/}
+			{/*	value={displayUsername}*/}
+			{/*	onChangeText={setDisplayUsername}*/}
+			{/*	placeholderTextColor="#9CA3AF"*/}
+			{/*/>*/}
 
 			<TextInput
 				className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"

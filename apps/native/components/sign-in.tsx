@@ -34,6 +34,46 @@ export function SignIn() {
 		);
 	};
 
+	const handleGoogleSignIn = async () => {
+		setIsLoading(true);
+		setError(null);
+
+		await authClient.signIn.social(
+			{
+				provider: "google",
+			},
+			{
+				onError: (error) => {
+					setError(error.error?.message || "Failed to sign in with Google");
+					setIsLoading(false);
+				},
+				onSuccess: () => {
+					setIsLoading(false);
+				},
+			}
+		);
+	};
+
+	const handleAppleSignIn = async () => {
+		setIsLoading(true);
+		setError(null);
+
+		await authClient.signIn.social(
+			{
+				provider: "apple",
+			},
+			{
+				onError: (error) => {
+					setError(error.error?.message || "Failed to sign in with Apple");
+					setIsLoading(false);
+				},
+				onSuccess: () => {
+					setIsLoading(false);
+				},
+			}
+		);
+	};
+
 	return (
 		<View className="mt-6 p-4 bg-card rounded-lg border border-border">
 			<Text className="text-lg font-semibold text-foreground mb-4">Sign In</Text>
@@ -73,6 +113,28 @@ export function SignIn() {
 				) : (
 					<Text className="text-primary-foreground font-medium">Sign In</Text>
 				)}
+			</TouchableOpacity>
+
+			<View className="mt-4 flex-row items-center">
+				<View className="flex-1 h-px bg-border" />
+				<Text className="mx-4 text-muted-foreground text-sm">OR</Text>
+				<View className="flex-1 h-px bg-border" />
+			</View>
+
+			<TouchableOpacity
+				onPress={handleGoogleSignIn}
+				disabled={isLoading}
+				className="mt-4 bg-white border border-border p-4 rounded-md flex-row justify-center items-center"
+			>
+				<Text className="text-foreground font-medium">Continue with Google</Text>
+			</TouchableOpacity>
+
+			<TouchableOpacity
+				onPress={handleAppleSignIn}
+				disabled={isLoading}
+				className="mt-3 bg-black p-4 rounded-md flex-row justify-center items-center"
+			>
+				<Text className="text-white font-medium">Continue with Apple</Text>
 			</TouchableOpacity>
 		</View>
 	);
