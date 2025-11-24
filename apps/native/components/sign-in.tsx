@@ -111,20 +111,20 @@ export function SignIn() {
 	};
 
 	return (
-		<View className="mt-6 p-4 bg-card">
+		<View className="">
 			{error && (
 				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
 					<Text className="text-destructive text-sm">{error}</Text>
 				</View>
 			)}
 
-			<View style={{ position: "relative", minHeight: 300 }}>
+			<View className="h-svh">
 				{!showEmailForm && (
 					<Animated.View style={[{ position: "absolute", width: "100%" }, socialAnimatedStyle]}>
 						<TouchableOpacity
 							onPress={handleGoogleSignIn}
 							disabled={isLoading}
-							className="bg-white border border-border p-4 rounded-md flex-row justify-center items-center"
+							className="bg-white p-4 rounded-full flex-row justify-center items-center"
 						>
 							<Text className="text-foreground font-medium">Continue with Google</Text>
 						</TouchableOpacity>
@@ -132,7 +132,7 @@ export function SignIn() {
 						<TouchableOpacity
 							onPress={handleAppleSignIn}
 							disabled={isLoading}
-							className="mt-3 bg-black p-4 rounded-md flex-row justify-center items-center"
+							className="mt-3 bg-black p-4 rounded-full flex-row justify-center items-center"
 						>
 							<Text className="text-white font-medium">Continue with Apple</Text>
 						</TouchableOpacity>
@@ -145,7 +145,7 @@ export function SignIn() {
 
 						<TouchableOpacity
 							onPress={() => setShowEmailForm(true)}
-							className="mt-4 p-4 rounded-md flex-row justify-center items-center border border-border"
+							className="p-4 flex-row justify-center items-center"
 						>
 							<Text className="text-foreground font-medium">Continue with Email</Text>
 						</TouchableOpacity>
