@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { useQuery } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
 
 const { width } = Dimensions.get("window");
 
@@ -26,6 +28,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isLiked, setIsLiked] = useState(false);
 	const [isSaved, setIsSaved] = useState(false);
+	const currentUser = useQuery(api.auth.getCurrentUser);
 
 	const handleListingPress = (index: number) => {
 		// Navigate to listing detail page
@@ -36,11 +39,8 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 		<View className="mb-4">
 			{/* Header */}
 			<View className="flex-row items-center px-4 py-3">
-				<Image
-					source={{ uri: userAvatar }}
-					className="w-10 h-10 rounded-full"
-				/>
-				<Text className="ml-3 font-semibold text-base">{username}</Text>
+				<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />
+				<Text className="ml-3 font-semibold text-base">{currentUser?.username}</Text>
 			</View>
 
 			{/* Image Carousel */}
@@ -71,10 +71,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 				<View className="">
 					<View className="flex-row">
 						{listingImages.slice(0, 3).map((image, index) => (
-							<TouchableOpacity
-								key={index}
-								onPress={() => handleListingPress(index)}
-							>
+							<TouchableOpacity key={index} onPress={() => handleListingPress(index)}>
 								<Image
 									source={{ uri: image }}
 									style={{
@@ -93,7 +90,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 			{/* Caption */}
 			<View className="px-4 py-2">
 				<Text className="text-sm">
-					<Text className="font-semibold">{username}</Text>{" "}
+					<Text className="font-semibold">{currentUser?.username}</Text>{" "}
 					<Text className="text-gray-800">{caption}</Text>
 				</Text>
 			</View>
