@@ -21,14 +21,14 @@ export function SignIn() {
 	useEffect(() => {
 		if (showEmailForm) {
 			socialOpacity.value = withTiming(0, { duration: 200 });
-			socialTranslateX.value = withTiming(-50, { duration: 300 });
-			emailOpacity.value = withTiming(1, { duration: 300 });
+			socialTranslateX.value = withTiming(-20, { duration: 300 });
+			emailOpacity.value = withTiming(1, { duration: 700 });
 			emailTranslateX.value = withTiming(0, { duration: 300 });
 		} else {
-			socialOpacity.value = withTiming(1, { duration: 300 });
+			socialOpacity.value = withTiming(1, { duration: 700 });
 			socialTranslateX.value = withTiming(0, { duration: 300 });
 			emailOpacity.value = withTiming(0, { duration: 200 });
-			emailTranslateX.value = withTiming(50, { duration: 300 });
+			emailTranslateX.value = withTiming(20, { duration: 300 });
 		}
 	}, [showEmailForm]);
 
@@ -111,7 +111,7 @@ export function SignIn() {
 	};
 
 	return (
-		<View className="mb-2">
+		<View className="flex-1">
 			{error && (
 				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
 					<Text className="text-destructive text-sm">{error}</Text>
@@ -119,7 +119,7 @@ export function SignIn() {
 			)}
 
 			{!showEmailForm && (
-				<Animated.View style={socialAnimatedStyle}>
+				<Animated.View style={socialAnimatedStyle} className="justify-end flex-1 mb-2">
 					<TouchableOpacity
 						onPress={handleGoogleSignIn}
 						disabled={isLoading}
@@ -152,15 +152,15 @@ export function SignIn() {
 			)}
 
 			{showEmailForm && (
-				<Animated.View style={emailAnimatedStyle}>
+				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center">
 					<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
-						<Text className="text-muted-foreground text-sm">← Back to social login</Text>
+						<Text className="text-white text-sm">← Back to social login</Text>
 					</TouchableOpacity>
 
-					<Text className="text-lg font-semibold text-foreground mb-4">Sign in with Email</Text>
+					<Text className="text-lg font-semibold mb-4 text-white">Sign in with Email</Text>
 
 					<TextInput
-						className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
+						className="mb-3 p-4 rounded-lg  bg-white text-foreground"
 						placeholder="Email"
 						value={email}
 						onChangeText={setEmail}
@@ -170,7 +170,7 @@ export function SignIn() {
 					/>
 
 					<TextInput
-						className="mb-4 p-4 rounded-md bg-input text-foreground border border-input"
+						className="mb-4 p-4 rounded-lg bg-white text-foreground"
 						placeholder="Password"
 						value={password}
 						onChangeText={setPassword}
@@ -181,12 +181,12 @@ export function SignIn() {
 					<TouchableOpacity
 						onPress={handleLogin}
 						disabled={isLoading}
-						className="bg-primary p-4 rounded-md flex-row justify-center items-center"
+						className="p-4 rounded-md flex-row justify-center items-center"
 					>
 						{isLoading ? (
 							<ActivityIndicator size="small" color="#fff" />
 						) : (
-							<Text className="text-primary-foreground font-medium">Sign In</Text>
+							<Text className="text-primary-foreground font-semibold text-lg">Sign In</Text>
 						)}
 					</TouchableOpacity>
 				</Animated.View>

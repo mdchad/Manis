@@ -7,7 +7,7 @@ export default function LoginScreen() {
 	const StyledSafeAreaView = withUniwind(SafeAreaView);
 
 	return (
-		<StyledSafeAreaView className="flex-1 bg-primary justify-end px-6">
+		<StyledSafeAreaView className="flex-1 bg-primary px-6">
 			<SignIn />
 		</StyledSafeAreaView>
 	);

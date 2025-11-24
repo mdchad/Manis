@@ -53,11 +53,11 @@ export default function RootLayout() {
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
 			<StatusBar />
 			<GestureHandlerRootView style={{ flex: 1 }}>
-				{/*<AuthLoading>*/}
-				{/*	<View className="flex-1 items-center justify-center bg-background">*/}
-				{/*		<ActivityIndicator size="large" />*/}
-				{/*	</View>*/}
-				{/*</AuthLoading>*/}
+				<AuthLoading>
+					<View className="flex-1 items-center justify-center bg-primary">
+						{/*<ActivityIndicator size="large" />*/}
+					</View>
+				</AuthLoading>
 				<Unauthenticated>
 					<Stack>
 						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
