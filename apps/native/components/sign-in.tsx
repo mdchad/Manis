@@ -111,88 +111,86 @@ export function SignIn() {
 	};
 
 	return (
-		<View className="">
+		<View className="mb-2">
 			{error && (
 				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
 					<Text className="text-destructive text-sm">{error}</Text>
 				</View>
 			)}
 
-			<View className="h-svh">
-				{!showEmailForm && (
-					<Animated.View style={[{ position: "absolute", width: "100%" }, socialAnimatedStyle]}>
-						<TouchableOpacity
-							onPress={handleGoogleSignIn}
-							disabled={isLoading}
-							className="bg-white p-4 rounded-full flex-row justify-center items-center"
-						>
-							<Text className="text-foreground font-medium">Continue with Google</Text>
-						</TouchableOpacity>
+			{!showEmailForm && (
+				<Animated.View style={socialAnimatedStyle}>
+					<TouchableOpacity
+						onPress={handleGoogleSignIn}
+						disabled={isLoading}
+						className="bg-white p-4 rounded-full flex-row justify-center items-center"
+					>
+						<Text className="text-foreground font-medium">Continue with Google</Text>
+					</TouchableOpacity>
 
-						<TouchableOpacity
-							onPress={handleAppleSignIn}
-							disabled={isLoading}
-							className="mt-3 bg-black p-4 rounded-full flex-row justify-center items-center"
-						>
-							<Text className="text-white font-medium">Continue with Apple</Text>
-						</TouchableOpacity>
+					<TouchableOpacity
+						onPress={handleAppleSignIn}
+						disabled={isLoading}
+						className="mt-3 bg-black p-4 rounded-full flex-row justify-center items-center"
+					>
+						<Text className="text-white font-medium">Continue with Apple</Text>
+					</TouchableOpacity>
 
-						<View className="mt-4 flex-row items-center">
-							<View className="flex-1 h-px bg-border" />
-							<Text className="mx-4 text-muted-foreground text-sm">OR</Text>
-							<View className="flex-1 h-px bg-border" />
-						</View>
+					<View className="mt-4 flex-row items-center">
+						<View className="flex-1 h-px bg-border" />
+						<Text className="mx-4 text-muted-foreground text-sm text-white">OR</Text>
+						<View className="flex-1 h-px bg-border" />
+					</View>
 
-						<TouchableOpacity
-							onPress={() => setShowEmailForm(true)}
-							className="p-4 flex-row justify-center items-center"
-						>
-							<Text className="text-foreground font-medium">Continue with Email</Text>
-						</TouchableOpacity>
-					</Animated.View>
-				)}
+					<TouchableOpacity
+						onPress={() => setShowEmailForm(true)}
+						className="p-4 flex-row justify-center items-center"
+					>
+						<Text className="text-foreground font-medium text-white">Continue with Email</Text>
+					</TouchableOpacity>
+				</Animated.View>
+			)}
 
-				{showEmailForm && (
-					<Animated.View style={[{ position: "absolute", width: "100%" }, emailAnimatedStyle]}>
-						<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
-							<Text className="text-muted-foreground text-sm">← Back to social login</Text>
-						</TouchableOpacity>
+			{showEmailForm && (
+				<Animated.View style={emailAnimatedStyle}>
+					<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
+						<Text className="text-muted-foreground text-sm">← Back to social login</Text>
+					</TouchableOpacity>
 
-						<Text className="text-lg font-semibold text-foreground mb-4">Sign in with Email</Text>
+					<Text className="text-lg font-semibold text-foreground mb-4">Sign in with Email</Text>
 
-						<TextInput
-							className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
-							placeholder="Email"
-							value={email}
-							onChangeText={setEmail}
-							placeholderTextColor="#9CA3AF"
-							keyboardType="email-address"
-							autoCapitalize="none"
-						/>
+					<TextInput
+						className="mb-3 p-4 rounded-md bg-input text-foreground border border-input"
+						placeholder="Email"
+						value={email}
+						onChangeText={setEmail}
+						placeholderTextColor="#9CA3AF"
+						keyboardType="email-address"
+						autoCapitalize="none"
+					/>
 
-						<TextInput
-							className="mb-4 p-4 rounded-md bg-input text-foreground border border-input"
-							placeholder="Password"
-							value={password}
-							onChangeText={setPassword}
-							placeholderTextColor="#9CA3AF"
-							secureTextEntry
-						/>
+					<TextInput
+						className="mb-4 p-4 rounded-md bg-input text-foreground border border-input"
+						placeholder="Password"
+						value={password}
+						onChangeText={setPassword}
+						placeholderTextColor="#9CA3AF"
+						secureTextEntry
+					/>
 
-						<TouchableOpacity
-							onPress={handleLogin}
-							disabled={isLoading}
-							className="bg-primary p-4 rounded-md flex-row justify-center items-center"
-						>
-							{isLoading ? (
-								<ActivityIndicator size="small" color="#fff" />
-							) : (
-								<Text className="text-primary-foreground font-medium">Sign In</Text>
-							)}
-						</TouchableOpacity>
-					</Animated.View>
-				)}
-			</View>
+					<TouchableOpacity
+						onPress={handleLogin}
+						disabled={isLoading}
+						className="bg-primary p-4 rounded-md flex-row justify-center items-center"
+					>
+						{isLoading ? (
+							<ActivityIndicator size="small" color="#fff" />
+						) : (
+							<Text className="text-primary-foreground font-medium">Sign In</Text>
+						)}
+					</TouchableOpacity>
+				</Animated.View>
+			)}
 		</View>
 	);
 }
