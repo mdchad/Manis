@@ -152,7 +152,7 @@ export function SignIn() {
 			)}
 
 			{showEmailForm && (
-				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center">
+				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center bg-primary">
 					<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
 						<Text className="text-white text-sm">← Back to social login</Text>
 					</TouchableOpacity>
