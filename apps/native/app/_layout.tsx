@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
 // import { useColorScheme } from "@/lib/use-color-scheme";
-import { Platform, View, ActivityIndicator } from "react-native";
+import { Platform, View, ActivityIndicator, ImageBackground } from "react-native";
 import "../global.css";
 // import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
@@ -54,9 +54,16 @@ export default function RootLayout() {
 			<StatusBar />
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<AuthLoading>
-					<View className="flex-1 items-center justify-center bg-primary">
-						{/*<ActivityIndicator size="large" />*/}
-					</View>
+					<ImageBackground
+						source={require("@/assets/images/splash-logo.png")}
+						style={{ flex: 1, backgroundColor: "#e2296f" }}
+						imageStyle={{ width: 200, height: "100%", left: "50%", marginLeft: -100 }}
+						resizeMode="contain"
+					>
+						<View className="flex-1 items-center justify-center">
+							{/*<ActivityIndicator size="large" />*/}
+						</View>
+					</ImageBackground>
 				</AuthLoading>
 				<Unauthenticated>
 					<Stack>
