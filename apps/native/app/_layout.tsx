@@ -31,18 +31,16 @@ function StackLayout() {
 					imageStyle={{ width: 200, height: "100%", left: "50%", marginLeft: -100 }}
 					resizeMode="contain"
 				>
-					<View className="flex-1 items-center justify-center">
-						{/*<ActivityIndicator size="large" />*/}
-					</View>
+					<View className="flex-1 items-center justify-center"></View>
 				</ImageBackground>
 			</AuthLoading>
 			<Unauthenticated>
-				<Stack>
+				<Stack screenOptions={{ headerShown: false }}>
 					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 				</Stack>
 			</Unauthenticated>
 			<Authenticated>
-				<Stack>
+				<Stack screenOptions={{ headerShown: false }}>
 					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 					<Stack.Screen
 						name="listing"
@@ -68,7 +66,7 @@ function StackLayout() {
 export default function RootLayout() {
 	// const hasMounted = useRef(false);
 	// const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
-
+	//
 	// useIsomorphicLayoutEffect(() => {
 	// 	if (hasMounted.current) {
 	// 		return;
