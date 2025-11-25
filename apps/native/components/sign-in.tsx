@@ -4,7 +4,7 @@ import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "reac
 import { useRouter } from "expo-router";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { type } from "arktype";
-import "../global.css";
+import { Button } from "heroui-native";
 
 const emailValidator = type("string.email");
 
@@ -96,7 +96,6 @@ export function SignIn() {
 				},
 				{
 					onError: (error) => {
-						console.log(error);
 						setError(error.error?.message || "Failed to sign in");
 						setIsLoading(false);
 					},
@@ -222,17 +221,16 @@ export function SignIn() {
 						secureTextEntry
 					/>
 
-					<TouchableOpacity
+					<Button
+						variant="ghost"
+						size="lg"
 						onPress={handleLogin}
-						disabled={isLoading}
-						className="p-4 rounded-md flex-row justify-center items-center"
+						isIconOnly={isLoading}
+						className="self-center w-full"
+						feedbackVariant="highlight"
 					>
-						{isLoading ? (
-							<ActivityIndicator size="small" color="#fff" />
-						) : (
-							<Text className="text-primary-foreground font-semibold text-lg">Sign In</Text>
-						)}
-					</TouchableOpacity>
+						{isLoading ? <ActivityIndicator size="small" color="#fff" /> : "Sign In"}
+					</Button>
 				</Animated.View>
 			)}
 		</View>
