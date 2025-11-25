@@ -1,4 +1,3 @@
-import { Container } from "@/components/container";
 import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "react-native";
 import { useState } from "react";
 import { useQuery } from "convex/react";
