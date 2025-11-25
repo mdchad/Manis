@@ -3,20 +3,36 @@ import { useState, useEffect } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import { type } from "arktype";
 import "../global.css";
+
+const emailValidator = type("string.email");
 
 export function SignIn() {
 	const router = useRouter();
-	const [email, setEmail] = useState("");
+	const [emailOrUsername, setEmailOrUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [showEmailForm, setShowEmailForm] = useState(false);
 
-	const socialOpacity = useSharedValue(1);
+	// Check if input is email using ArkType
+	const isEmail = (input: string) => {
+		const result = emailValidator(input);
+		// ArkType returns the data itself if valid, or an object with problems if invalid
+		// Check if result is an array (means validation failed and returned problems)
+		return !Array.isArray(result);
+	};
+
+	const socialOpacity = useSharedValue(0);
 	const socialTranslateX = useSharedValue(0);
 	const emailOpacity = useSharedValue(0);
 	const emailTranslateX = useSharedValue(50);
+
+	// Fade in social buttons on mount
+	useEffect(() => {
+		socialOpacity.value = withTiming(1, { duration: 500 });
+	}, []);
 
 	useEffect(() => {
 		if (showEmailForm) {
@@ -46,26 +62,55 @@ export function SignIn() {
 		setIsLoading(true);
 		setError(null);
 
-		await authClient.signIn.email(
-			{
-				email,
-				password,
-			},
-			{
-				onError: (error) => {
-					setError(error.error?.message || "Failed to sign in");
-					setIsLoading(false);
+		// Determine if input is email or username
+		const inputIsEmail = isEmail(emailOrUsername);
+
+		if (inputIsEmail) {
+			// Sign in with email
+			await authClient.signIn.email(
+				{
+					email: emailOrUsername,
+					password,
 				},
-				onSuccess: () => {
-					setEmail("");
-					setPassword("");
-					router.replace("/(tabs)");
+				{
+					onError: (error) => {
+						setError(error.error?.message || "Failed to sign in");
+						setIsLoading(false);
+					},
+					onSuccess: () => {
+						setEmailOrUsername("");
+						setPassword("");
+						router.replace("/(tabs)");
+					},
+					onFinished: () => {
+						setIsLoading(false);
+					},
+				}
+			);
+		} else {
+			// Sign in with username
+			await authClient.signIn.username(
+				{
+					username: emailOrUsername,
+					password,
 				},
-				onFinished: () => {
-					setIsLoading(false);
-				},
-			}
-		);
+				{
+					onError: (error) => {
+						console.log(error);
+						setError(error.error?.message || "Failed to sign in");
+						setIsLoading(false);
+					},
+					onSuccess: () => {
+						setEmailOrUsername("");
+						setPassword("");
+						router.replace("/(tabs)");
+					},
+					onFinished: () => {
+						setIsLoading(false);
+					},
+				}
+			);
+		}
 	};
 
 	const handleGoogleSignIn = async () => {
@@ -152,7 +197,7 @@ export function SignIn() {
 			)}
 
 			{showEmailForm && (
-				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center">
+				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center bg-primary">
 					<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
 						<Text className="text-white text-sm">← Back to social login</Text>
 					</TouchableOpacity>
@@ -161,11 +206,10 @@ export function SignIn() {
 
 					<TextInput
 						className="mb-3 p-4 rounded-lg  bg-white text-foreground"
-						placeholder="Email"
-						value={email}
-						onChangeText={setEmail}
+						placeholder="Email or Username"
+						value={emailOrUsername}
+						onChangeText={setEmailOrUsername}
 						placeholderTextColor="#9CA3AF"
-						keyboardType="email-address"
 						autoCapitalize="none"
 					/>
 
