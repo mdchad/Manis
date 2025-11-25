@@ -10,16 +10,8 @@ import React, { useRef } from "react";
 // import { useColorScheme } from "@/lib/use-color-scheme";
 import { Platform, View, ActivityIndicator, ImageBackground } from "react-native";
 import "../global.css";
+import { HeroUINativeProvider } from "heroui-native";
 // import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
-
-const LIGHT_THEME: Theme = {
-	...DefaultTheme,
-	colors: NAV_THEME.light,
-};
-const DARK_THEME: Theme = {
-	...DarkTheme,
-	colors: NAV_THEME.dark,
-};
 
 export const unstable_settings = {
 	initialRouteName: "(auth)",
@@ -29,67 +21,76 @@ const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 	unsavedChangesWarning: false,
 });
 
+function StackLayout() {
+	return (
+		<>
+			<AuthLoading>
+				<ImageBackground
+					source={require("@/assets/images/splash-logo.png")}
+					style={{ flex: 1, backgroundColor: "#e2296f" }}
+					imageStyle={{ width: 200, height: "100%", left: "50%", marginLeft: -100 }}
+					resizeMode="contain"
+				>
+					<View className="flex-1 items-center justify-center"></View>
+				</ImageBackground>
+			</AuthLoading>
+			<Unauthenticated>
+				<Stack screenOptions={{ headerShown: false }}>
+					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
+				</Stack>
+			</Unauthenticated>
+			<Authenticated>
+				<Stack screenOptions={{ headerShown: false }}>
+					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen
+						name="listing"
+						options={{
+							headerShown: false,
+							presentation: "card",
+						}}
+					/>
+					<Stack.Screen
+						name="chat"
+						options={{
+							headerShown: false,
+							presentation: "card",
+						}}
+					/>
+					<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
+				</Stack>
+			</Authenticated>
+		</>
+	);
+}
+
 export default function RootLayout() {
-	const hasMounted = useRef(false);
-	const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+	// const hasMounted = useRef(false);
+	// const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
+	//
+	// useIsomorphicLayoutEffect(() => {
+	// 	if (hasMounted.current) {
+	// 		return;
+	// 	}
+	//
+	// 	if (Platform.OS === "web") {
+	// 		document.documentElement.classList.add("bg-background");
+	// 	}
+	// 	// setAndroidNavigationBar(colorScheme);
+	// 	setIsColorSchemeLoaded(true);
+	// 	hasMounted.current = true;
+	// }, []);
+	//
+	// if (!isColorSchemeLoaded) {
+	// 	return null;
+	// }
 
-	useIsomorphicLayoutEffect(() => {
-		if (hasMounted.current) {
-			return;
-		}
-
-		if (Platform.OS === "web") {
-			document.documentElement.classList.add("bg-background");
-		}
-		// setAndroidNavigationBar(colorScheme);
-		setIsColorSchemeLoaded(true);
-		hasMounted.current = true;
-	}, []);
-
-	if (!isColorSchemeLoaded) {
-		return null;
-	}
 	return (
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
 			<StatusBar />
 			<GestureHandlerRootView style={{ flex: 1 }}>
-				<AuthLoading>
-					<ImageBackground
-						source={require("@/assets/images/splash-logo.png")}
-						style={{ flex: 1, backgroundColor: "#e2296f" }}
-						imageStyle={{ width: 200, height: "100%", left: "50%", marginLeft: -100 }}
-						resizeMode="contain"
-					>
-						<View className="flex-1 items-center justify-center">
-							{/*<ActivityIndicator size="large" />*/}
-						</View>
-					</ImageBackground>
-				</AuthLoading>
-				<Unauthenticated>
-					<Stack>
-						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
-					</Stack>
-				</Unauthenticated>
-				<Authenticated>
-					<Stack>
-						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-						<Stack.Screen
-							name="listing"
-							options={{
-								headerShown: false,
-								presentation: "card",
-							}}
-						/>
-						<Stack.Screen
-							name="chat"
-							options={{
-								headerShown: false,
-								presentation: "card",
-							}}
-						/>
-						<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
-					</Stack>
-				</Authenticated>
+				<HeroUINativeProvider>
+					<StackLayout />
+				</HeroUINativeProvider>
 			</GestureHandlerRootView>
 		</ConvexBetterAuthProvider>
 	);
