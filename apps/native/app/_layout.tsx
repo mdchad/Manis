@@ -93,7 +93,7 @@ export default function RootLayout() {
 
 	return (
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
-			<StatusBar />
+			<StatusBar style="light" />
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<HeroUINativeProvider>
 					<StackLayout />
