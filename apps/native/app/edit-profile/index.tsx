@@ -8,7 +8,7 @@ import { SignUp } from "@/components/sign-up";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 
-export default function User() {
+export default function Index() {
 	const healthCheck = useQuery(api.healthCheck.get);
 	const { isAuthenticated } = useConvexAuth();
 	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");

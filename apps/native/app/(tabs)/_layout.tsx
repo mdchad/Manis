@@ -87,12 +87,6 @@ export default function TabLayout() {
 					),
 				}}
 			/>
-			<Tabs.Screen
-				name="user"
-				options={{
-					tabBarIcon: ({ color }) => <UserIcon color={color} />,
-				}}
-			/>
 		</Tabs>
 	);
 }
