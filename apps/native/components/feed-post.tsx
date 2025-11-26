@@ -4,6 +4,7 @@ import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-re
 import { useRouter } from "expo-router";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import { Skeleton } from "heroui-native";
 
 const { width } = Dimensions.get("window");
 
@@ -39,8 +40,12 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 		<View className="mb-4">
 			{/* Header */}
 			<View className="flex-row items-center px-4 py-3">
-				<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />
-				<Text className="ml-3 font-semibold text-base">{currentUser?.username}</Text>
+				<Skeleton isLoading={!currentUser?.username} className="h-10 w-10 rounded-full">
+					<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />
+				</Skeleton>
+				<Skeleton isLoading={!currentUser?.username} className="ml-3 h-5 w-32 rounded-md">
+					<Text className="ml-3 font-semibold text-base">{currentUser?.username}</Text>
+				</Skeleton>
 			</View>
 
 			{/* Image Carousel */}
@@ -89,10 +94,12 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
 			{/* Caption */}
 			<View className="px-4 py-2">
-				<Text className="text-sm">
-					<Text className="font-semibold">{currentUser?.username}</Text>{" "}
-					<Text className="text-gray-800">{caption}</Text>
-				</Text>
+				<Skeleton isLoading={!currentUser?.username} className="h-6 w-full rounded-md">
+					<Text className="text-sm">
+						<Text className="font-semibold">{currentUser?.username}</Text>{" "}
+						<Text className="text-gray-800">{caption}</Text>
+					</Text>
+				</Skeleton>
 			</View>
 		</View>
 	);

@@ -2,6 +2,9 @@ import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "rea
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import { Skeleton, Button } from "heroui-native";
+import { Pencil } from "lucide-react-native";
+import { useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 const imageSize = (width - 8) / 3; // 3 columns with 2px gaps
@@ -45,6 +48,7 @@ export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
 	const images = activeTab === "posts" ? mockProfile.postsImages : mockProfile.listingsImages;
 	const currentUser = useQuery(api.auth.getCurrentUser);
+	const router = useRouter();
 
 	return (
 		<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -71,8 +75,22 @@ export default function ProfileScreen() {
 
 				{/* Username and Bio */}
 				<View className="mb-4">
-					<Text className="text-2xl font-bold text-foreground mb-1">{currentUser?.username}</Text>
-					<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+					<View className="flex-row items-center justify-between mb-1">
+						<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
+							<Text className="text-2xl font-bold text-foreground">{currentUser?.username}</Text>
+						</Skeleton>
+						<Button
+							variant="ghost"
+							size="sm"
+							isIconOnly
+							onPress={() => router.push("/edit-profile")}
+						>
+							<Pencil size={18} color="black" />
+						</Button>
+					</View>
+					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
+						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+					</Skeleton>
 				</View>
 
 				{/* Follow Button */}
