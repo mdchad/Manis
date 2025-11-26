@@ -2,6 +2,7 @@ import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "rea
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import { Skeleton } from "heroui-native";
 
 const { width } = Dimensions.get("window");
 const imageSize = (width - 8) / 3; // 3 columns with 2px gaps
@@ -71,8 +72,12 @@ export default function ProfileScreen() {
 
 				{/* Username and Bio */}
 				<View className="mb-4">
-					<Text className="text-2xl font-bold text-foreground mb-1">{currentUser?.username}</Text>
-					<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
+						<Text className="text-2xl font-bold text-foreground mb-1">{currentUser?.username}</Text>
+					</Skeleton>
+					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
+						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+					</Skeleton>
 				</View>
 
 				{/* Follow Button */}
