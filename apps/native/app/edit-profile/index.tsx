@@ -8,7 +8,7 @@ import {
 	Alert,
 } from "react-native";
 import { Container } from "@/components/container";
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
 import { SignIn } from "@/components/sign-in";
@@ -18,13 +18,25 @@ import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Button } from "heroui-native";
 import { Camera, X } from "lucide-react-native";
+import { useUploadFile } from "@convex-dev/r2/react";
 
 export default function Index() {
 	const healthCheck = useQuery(api.healthCheck.get);
 	const { isAuthenticated } = useConvexAuth();
 	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
+	const profile = useQuery(api.userProfiles.getProfile);
 	const [avatar, setAvatar] = useState<string | null>(null);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
 	const router = useRouter();
+	const uploadFile = useUploadFile(api.r2);
+	const updateAvatar = useMutation(api.userProfiles.updateAvatar);
+
+	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
+		const response = await fetch(uri);
+		const blob = await response.blob();
+		return new File([blob], fileName, { type: blob.type });
+	};
 
 	const pickImage = async () => {
 		// Request permission
@@ -47,7 +59,11 @@ export default function Index() {
 		});
 
 		if (!result.canceled && result.assets[0]) {
-			setAvatar(result.assets[0].uri);
+			const asset = result.assets[0];
+			setAvatar(asset.uri);
+			// Convert URI to File for upload
+			const file = await convertUriToFile(asset.uri, `avatar-${Date.now()}.jpg`);
+			setSelectedFile(file);
 		}
 	};
 
@@ -68,7 +84,11 @@ export default function Index() {
 		});
 
 		if (!result.canceled && result.assets[0]) {
-			setAvatar(result.assets[0].uri);
+			const asset = result.assets[0];
+			setAvatar(asset.uri);
+			// Convert URI to File for upload
+			const file = await convertUriToFile(asset.uri, `avatar-${Date.now()}.jpg`);
+			setSelectedFile(file);
 		}
 	};
 
@@ -89,10 +109,32 @@ export default function Index() {
 		]);
 	};
 
-	const handleSave = () => {
-		// TODO: Implement save functionality with Convex mutation
-		console.log("Saving profile with avatar:", avatar);
-		router.back();
+	const handleSave = async () => {
+		if (!selectedFile) {
+			Alert.alert("No changes", "Please select a new photo to upload");
+			return;
+		}
+
+		try {
+			setIsUploading(true);
+
+			// Upload the file to R2 and get the key
+			const key = await uploadFile(selectedFile);
+			console.log("File uploaded with key:", key);
+
+			// Update user profile with the new avatar key
+			await updateAvatar({ avatarKey: key });
+
+			Alert.alert("Success", "Profile picture updated successfully!");
+			setAvatar(null);
+			setSelectedFile(null);
+			router.back();
+		} catch (error) {
+			console.error("Upload error:", error);
+			Alert.alert("Error", "Failed to upload profile picture. Please try again.");
+		} finally {
+			setIsUploading(false);
+		}
 	};
 
 	return (
@@ -149,8 +191,18 @@ export default function Index() {
 						</View>
 
 						{/* Save Button */}
-						<Button variant="primary" size="lg" onPress={handleSave} className="mt-2">
-							<Button.Label>Save Changes</Button.Label>
+						<Button
+							variant="primary"
+							size="lg"
+							onPress={handleSave}
+							className="mt-2"
+							isDisabled={isUploading || !selectedFile}
+						>
+							{isUploading ? (
+								<ActivityIndicator size="small" color="white" />
+							) : (
+								<Button.Label>Save Changes</Button.Label>
+							)}
 						</Button>
 					</View>
 

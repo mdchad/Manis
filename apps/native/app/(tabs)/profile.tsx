@@ -48,6 +48,11 @@ export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
 	const images = activeTab === "posts" ? mockProfile.postsImages : mockProfile.listingsImages;
 	const currentUser = useQuery(api.auth.getCurrentUser);
+	const profile = useQuery(api.userProfiles.getProfile);
+	const avatarUrl = useQuery(
+		api.r2.getAvatarUrl,
+		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
+	);
 	const router = useRouter();
 
 	return (
@@ -56,7 +61,10 @@ export default function ProfileScreen() {
 			<View className="px-6 pt-6">
 				{/* Avatar and Stats */}
 				<View className="flex-row items-center mb-6">
-					<Image source={{ uri: mockProfile.avatar }} className="w-24 h-24 rounded-full" />
+					<Image
+						source={{ uri: avatarUrl || mockProfile.avatar }}
+						className="w-24 h-24 rounded-full"
+					/>
 					<View className="flex-1 flex-row justify-around ml-8">
 						<View className="items-center">
 							<Text className="text-2xl font-bold text-foreground">{mockProfile.followers}</Text>

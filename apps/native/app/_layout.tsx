@@ -25,6 +25,7 @@ function StackLayout() {
 	return (
 		<>
 			<AuthLoading>
+				<StatusBar style="light" />
 				<ImageBackground
 					source={require("@/assets/images/splash-logo.png")}
 					style={{ flex: 1, backgroundColor: "#e2296f" }}
@@ -93,7 +94,7 @@ export default function RootLayout() {
 
 	return (
 		<ConvexBetterAuthProvider client={convex} authClient={authClient}>
-			<StatusBar style="light" />
+			<StatusBar style="dark" />
 			<GestureHandlerRootView style={{ flex: 1 }}>
 				<HeroUINativeProvider>
 					<StackLayout />
