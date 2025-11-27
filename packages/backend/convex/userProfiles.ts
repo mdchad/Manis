@@ -40,28 +40,21 @@ export const updateAvatar = mutation({
 		const user = await authComponent.getAuthUser(ctx);
 		if (!user) throw new Error("Unauthorized");
 
-		// Get or create profile
-		const existingProfile = await ctx.db
+		// Get profile (should always exist due to trigger)
+		const profile = await ctx.db
 			.query("userProfiles")
 			.withIndex("by_userId", (q) => q.eq("userId", user.id))
 			.first();
 
-		if (existingProfile) {
-			// Update existing profile
-			await ctx.db.patch(existingProfile._id, {
-				avatarKey: args.avatarKey,
-				updatedAt: Date.now(),
-			});
-		} else {
-			// Create new profile with avatar
-			const now = Date.now();
-			await ctx.db.insert("userProfiles", {
-				userId: user.id,
-				avatarKey: args.avatarKey,
-				createdAt: now,
-				updatedAt: now,
-			});
+		if (!profile) {
+			throw new Error("User profile not found");
 		}
+
+		// Update profile
+		await ctx.db.patch(profile._id, {
+			avatarKey: args.avatarKey,
+			updatedAt: Date.now(),
+		});
 
 		return { success: true };
 	},
@@ -76,25 +69,19 @@ export const updateBio = mutation({
 		const user = await authComponent.getAuthUser(ctx);
 		if (!user) throw new Error("Unauthorized");
 
-		const existingProfile = await ctx.db
+		const profile = await ctx.db
 			.query("userProfiles")
 			.withIndex("by_userId", (q) => q.eq("userId", user.id))
 			.first();
 
-		if (existingProfile) {
-			await ctx.db.patch(existingProfile._id, {
-				bio: args.bio,
-				updatedAt: Date.now(),
-			});
-		} else {
-			const now = Date.now();
-			await ctx.db.insert("userProfiles", {
-				userId: user.id,
-				bio: args.bio,
-				createdAt: now,
-				updatedAt: now,
-			});
+		if (!profile) {
+			throw new Error("User profile not found");
 		}
+
+		await ctx.db.patch(profile._id, {
+			bio: args.bio,
+			updatedAt: Date.now(),
+		});
 
 		return { success: true };
 	},
@@ -110,10 +97,14 @@ export const updatePreferences = mutation({
 		const user = await authComponent.getAuthUser(ctx);
 		if (!user) throw new Error("Unauthorized");
 
-		const existingProfile = await ctx.db
+		const profile = await ctx.db
 			.query("userProfiles")
 			.withIndex("by_userId", (q) => q.eq("userId", user.id))
 			.first();
+
+		if (!profile) {
+			throw new Error("User profile not found");
+		}
 
 		const updates: any = {
 			updatedAt: Date.now(),
@@ -122,16 +113,7 @@ export const updatePreferences = mutation({
 		if (args.language !== undefined) updates.language = args.language;
 		if (args.theme !== undefined) updates.theme = args.theme;
 
-		if (existingProfile) {
-			await ctx.db.patch(existingProfile._id, updates);
-		} else {
-			const now = Date.now();
-			await ctx.db.insert("userProfiles", {
-				userId: user.id,
-				...updates,
-				createdAt: now,
-			});
-		}
+		await ctx.db.patch(profile._id, updates);
 
 		return { success: true };
 	},
@@ -149,10 +131,14 @@ export const updateProfile = mutation({
 		const user = await authComponent.getAuthUser(ctx);
 		if (!user) throw new Error("Unauthorized");
 
-		const existingProfile = await ctx.db
+		const profile = await ctx.db
 			.query("userProfiles")
 			.withIndex("by_userId", (q) => q.eq("userId", user.id))
 			.first();
+
+		if (!profile) {
+			throw new Error("User profile not found");
+		}
 
 		const updates: any = {
 			updatedAt: Date.now(),
@@ -163,16 +149,7 @@ export const updateProfile = mutation({
 		if (args.location !== undefined) updates.location = args.location;
 		if (args.website !== undefined) updates.website = args.website;
 
-		if (existingProfile) {
-			await ctx.db.patch(existingProfile._id, updates);
-		} else {
-			const now = Date.now();
-			await ctx.db.insert("userProfiles", {
-				userId: user.id,
-				...updates,
-				createdAt: now,
-			});
-		}
+		await ctx.db.patch(profile._id, updates);
 
 		return { success: true };
 	},
