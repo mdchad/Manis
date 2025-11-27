@@ -1,8 +1,8 @@
-import { createClient, type GenericCtx } from "@convex-dev/better-auth";
+import { createClient, type GenericCtx, type AuthFunctions } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { expo } from "@better-auth/expo";
 import { crossDomain } from "@convex-dev/better-auth/plugins";
-import { components } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { betterAuth } from "better-auth";
@@ -12,7 +12,26 @@ import { username } from "better-auth/plugins";
 const siteUrl = process.env.SITE_URL!;
 const nativeAppUrl = process.env.NATIVE_APP_URL || "manis://";
 
-export const authComponent = createClient<DataModel>(components.betterAuth);
+const authFunctions: AuthFunctions = internal.auth;
+
+export const authComponent = createClient<DataModel>(components.betterAuth, {
+	authFunctions,
+	triggers: {
+		user: {
+			onCreate: async (ctx, doc) => {
+				// Automatically create user profile when a new user signs up
+				const now = Date.now();
+				await ctx.db.insert("userProfiles", {
+					userId: doc.id,
+					createdAt: now,
+					updatedAt: now,
+				});
+			},
+		},
+	},
+});
+
+export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
 function createAuth(
 	ctx: GenericCtx<DataModel>,
