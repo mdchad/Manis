@@ -20,9 +20,10 @@ export const authComponent = createClient<DataModel>(components.betterAuth, {
 		user: {
 			onCreate: async (ctx, doc) => {
 				// Automatically create user profile when a new user signs up
+				// Use _id as the unique identifier for the user
 				const now = Date.now();
 				await ctx.db.insert("userProfiles", {
-					userId: doc.id,
+					userId: doc._id,
 					createdAt: now,
 					updatedAt: now,
 				});

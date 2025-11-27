@@ -13,7 +13,7 @@ export const getProfile = query({
 		// Get existing profile
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.first();
 
 		if (profile) {
@@ -43,7 +43,7 @@ export const updateAvatar = mutation({
 		// Get profile (should always exist due to trigger)
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.first();
 
 		if (!profile) {
@@ -71,7 +71,7 @@ export const updateBio = mutation({
 
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.first();
 
 		if (!profile) {
@@ -99,7 +99,7 @@ export const updatePreferences = mutation({
 
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.first();
 
 		if (!profile) {
@@ -133,7 +133,7 @@ export const updateProfile = mutation({
 
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user.id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id))
 			.first();
 
 		if (!profile) {
