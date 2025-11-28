@@ -1,12 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
-import type { Id } from "./_generated/dataModel";
 
 // Follow a user
 export const follow = mutation({
 	args: {
-		userId: v.id("user"), // User to follow
+		userId: v.string(), // Better-Auth user ID
 	},
 	handler: async (ctx, args) => {
 		const user = await authComponent.getAuthUser(ctx);
@@ -21,7 +20,7 @@ export const follow = mutation({
 		const existingFollow = await ctx.db
 			.query("follows")
 			.withIndex("by_user_and_follower", (q) =>
-				q.eq("userId", args.userId).eq("followerId", user._id as Id<"user">)
+				q.eq("userId", args.userId).eq("followerId", user._id)
 			)
 			.first();
 
@@ -30,7 +29,7 @@ export const follow = mutation({
 		}
 
 		// Verify the user being followed exists
-		const targetUser = await ctx.db.get(args.userId);
+		const targetUser = await authComponent.getUserById(ctx, args.userId);
 		if (!targetUser) {
 			throw new Error("User not found");
 		}
@@ -38,7 +37,7 @@ export const follow = mutation({
 		// Create follow relationship
 		await ctx.db.insert("follows", {
 			userId: args.userId,
-			followerId: user._id as Id<"user">,
+			followerId: user._id,
 		});
 
 		return { success: true };
@@ -48,7 +47,7 @@ export const follow = mutation({
 // Unfollow a user
 export const unfollow = mutation({
 	args: {
-		userId: v.id("user"), // User to unfollow
+		userId: v.string(), // Better-Auth user ID
 	},
 	handler: async (ctx, args) => {
 		const user = await authComponent.getAuthUser(ctx);
@@ -58,7 +57,7 @@ export const unfollow = mutation({
 		const existingFollow = await ctx.db
 			.query("follows")
 			.withIndex("by_user_and_follower", (q) =>
-				q.eq("userId", args.userId).eq("followerId", user._id as Id<"user">)
+				q.eq("userId", args.userId).eq("followerId", user._id)
 			)
 			.first();
 
@@ -76,7 +75,7 @@ export const unfollow = mutation({
 // Get follow counts for a user
 export const getFollowCounts = query({
 	args: {
-		userId: v.id("user"),
+		userId: v.string(), // Better-Auth user ID
 	},
 	handler: async (ctx, args) => {
 		const followers = await ctx.db
@@ -99,7 +98,7 @@ export const getFollowCounts = query({
 // Get list of followers for a user
 export const getFollowers = query({
 	args: {
-		userId: v.id("user"),
+		userId: v.string(), // Better-Auth user ID
 		limit: v.optional(v.number()),
 		offset: v.optional(v.number()),
 	},
@@ -122,7 +121,7 @@ export const getFollowers = query({
 		// Fetch follower user data
 		const followers = await Promise.all(
 			paginatedFollows.map(async (follow) => {
-				const followerUser = await ctx.db.get(follow.followerId);
+				const followerUser = await authComponent.getUserById(ctx, follow.followerId);
 				if (!followerUser) return null;
 
 				// Get user profile
@@ -150,7 +149,7 @@ export const getFollowers = query({
 // Get list of users that a user is following
 export const getFollowing = query({
 	args: {
-		userId: v.id("user"),
+		userId: v.string(), // Better-Auth user ID
 		limit: v.optional(v.number()),
 		offset: v.optional(v.number()),
 	},
@@ -173,7 +172,7 @@ export const getFollowing = query({
 		// Fetch followed user data
 		const following = await Promise.all(
 			paginatedFollows.map(async (follow) => {
-				const followedUser = await ctx.db.get(follow.userId);
+				const followedUser = await authComponent.getUserById(ctx, follow.userId);
 				if (!followedUser) return null;
 
 				// Get user profile
@@ -201,7 +200,7 @@ export const getFollowing = query({
 // Check if current user is following a specific user
 export const isFollowing = query({
 	args: {
-		userId: v.id("user"),
+		userId: v.string(), // Better-Auth user ID
 	},
 	handler: async (ctx, args) => {
 		const user = await authComponent.getAuthUser(ctx);
@@ -210,7 +209,7 @@ export const isFollowing = query({
 		const existingFollow = await ctx.db
 			.query("follows")
 			.withIndex("by_user_and_follower", (q) =>
-				q.eq("userId", args.userId).eq("followerId", user._id as Id<"user">)
+				q.eq("userId", args.userId).eq("followerId", user._id)
 			)
 			.first();
 
@@ -232,7 +231,7 @@ export const getSuggestedUsers = query({
 		// Get users that current user follows
 		const following = await ctx.db
 			.query("follows")
-			.withIndex("by_follower", (q) => q.eq("followerId", user._id as Id<"user">))
+			.withIndex("by_follower", (q) => q.eq("followerId", user._id))
 			.collect();
 
 		const followingIds = following.map((f) => f.userId);
@@ -271,7 +270,7 @@ export const getSuggestedUsers = query({
 		// Fetch user data for suggestions
 		const suggestedUsers = await Promise.all(
 			sortedSuggestions.map(async ([userId, mutualCount]) => {
-				const suggestedUser = await ctx.db.get(userId as Id<"user">);
+				const suggestedUser = await authComponent.getUserById(ctx, userId);
 				if (!suggestedUser) return null;
 
 				// Get user profile

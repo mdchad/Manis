@@ -25,10 +25,10 @@ export default defineSchema({
 		updatedAt: v.number(),
 	}).index("by_userId", ["userId"]),
 	follows: defineTable({
-		// User being followed
-		userId: v.id("user"),
-		// User who is following
-		followerId: v.id("user"),
+		// User being followed (Better-Auth user ID from separate component)
+		userId: v.string(),
+		// User who is following (Better-Auth user ID from separate component)
+		followerId: v.string(),
 	})
 		.index("by_user", ["userId"])
 		.index("by_follower", ["followerId"])

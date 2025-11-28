@@ -1,12 +1,11 @@
-import { Alert, TouchableOpacity, Text } from "react-native";
+import { Alert } from "react-native";
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import type { Id } from "@manis/backend/convex/_generated/dataModel";
 import { Button } from "heroui-native";
 
 interface FollowButtonProps {
-	userId: Id<"user">;
+	userId: string; // Better-Auth user ID
 	variant?: "default" | "ghost" | "outline";
 	size?: "sm" | "md" | "lg";
 }

@@ -60,7 +60,6 @@ export default function ProfileScreen() {
 		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
 	);
 
-	console.log(avatarUrl);
 	const router = useRouter();
 
 	return (
