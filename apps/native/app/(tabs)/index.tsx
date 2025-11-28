@@ -24,14 +24,14 @@ export default function TabOne() {
 
 	if (!users) {
 		return (
-			<View className="flex-1 bg-background items-center justify-center">
+			<View className="flex-1 bg-brand-background items-center justify-center">
 				<Text>Loading...</Text>
 			</View>
 		);
 	}
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-brand-background">
 			<FlatList
 				data={feedPosts}
 				keyExtractor={(item) => item.id}
@@ -46,6 +46,7 @@ export default function TabOne() {
 						listingImages={item.listingImages}
 					/>
 				)}
+				contentContainerClassName="bg-brand-background"
 				showsVerticalScrollIndicator={false}
 			/>
 		</View>

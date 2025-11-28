@@ -30,7 +30,7 @@ export default function ListingDetail() {
 
 	return (
 		<Container>
-			<View className="bg-background">
+			<View className="bg-brand-background">
 				{/* Header */}
 				{/*<View className="absolute top-0 left-0 right-0 z-10 flex-row items-center justify-between px-4 pt-12 pb-4">*/}
 				{/*	<TouchableOpacity*/}
