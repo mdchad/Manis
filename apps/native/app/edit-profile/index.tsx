@@ -24,7 +24,6 @@ export default function Index() {
 	const healthCheck = useQuery(api.healthCheck.get);
 	const { isAuthenticated } = useConvexAuth();
 	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
-	const profile = useQuery(api.userProfiles.getProfile);
 	const [avatar, setAvatar] = useState<string | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);

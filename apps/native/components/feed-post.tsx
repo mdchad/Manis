@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
 import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton } from "heroui-native";
 
@@ -29,7 +29,8 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [isLiked, setIsLiked] = useState(false);
 	const [isSaved, setIsSaved] = useState(false);
-	const currentUser = useQuery(api.auth.getCurrentUser);
+	const { isAuthenticated } = useConvexAuth();
+	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 
 	const handleListingPress = (index: number) => {
 		// Navigate to listing detail page
