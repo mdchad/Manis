@@ -19,9 +19,11 @@ export const getProfile = query({
 			.first();
 
 		if (profile) {
+			const avatarUrl = profile.avatarKey ? await r2.getUrl(profile.avatarKey) : null;
 			return {
 				...profile,
 				// Include user data from Better-Auth
+				avatarUrl,
 				username: user.username,
 				email: user.email,
 				name: user.name,
@@ -93,7 +95,7 @@ export const getAllUsers = query({
 				const user = await authComponent.getAnyUserById(ctx, profile.userId);
 
 				// Get avatar URL if avatarKey exists
-				const avatarUrl = profile.avatarKey ? await r2.getUrl(profile.avatarKey, ctx) : null;
+				const avatarUrl = profile.avatarKey ? await r2.getUrl(profile.avatarKey) : null;
 
 				return {
 					userId: profile.userId,
