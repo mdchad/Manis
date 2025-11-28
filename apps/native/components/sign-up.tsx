@@ -1,8 +1,9 @@
 import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { TextField } from "heroui-native";
+import { Button, TextField } from "heroui-native";
 import { type } from "arktype";
+import { Camera } from "lucide-react-native";
 
 const Name = type("string > 0").configure({ actual: () => "" });
 const Email = type("string.email").configure({ actual: () => "" });
@@ -47,7 +48,6 @@ export function SignUp() {
 			},
 			{
 				onError: (error) => {
-					setError(error.error?.message || "Failed to sign up");
 					setIsLoading(false);
 				},
 				onSuccess: () => {
@@ -122,17 +122,22 @@ export function SignUp() {
 				<TextField.ErrorMessage>{getFieldError("password")}</TextField.ErrorMessage>
 			</TextField>
 
-			<TouchableOpacity
-				onPress={handleSignUp}
-				disabled={isLoading}
-				className="bg-primary p-4 rounded-md flex-row justify-center items-center"
-			>
-				{isLoading ? (
-					<ActivityIndicator size="small" color="#fff" />
-				) : (
-					<Text className="text-primary-foreground font-medium">Sign Up</Text>
-				)}
-			</TouchableOpacity>
+			<Button variant="primary" size="lg" onPress={handleSignUp} className="bg-primary">
+				{isLoading ? <ActivityIndicator /> : "Sign Up"}
+				{/*<Button.Label>Sign Up</Button.Label>*/}
+			</Button>
+
+			{/*	<TouchableOpacity*/}
+			{/*		onPress={handleSignUp}*/}
+			{/*		disabled={isLoading}*/}
+			{/*		className="bg-primary p-4 rounded-md flex-row justify-center items-center"*/}
+			{/*	>*/}
+			{/*		{isLoading ? (*/}
+			{/*			<ActivityIndicator size="small" color="#fff" />*/}
+			{/*		) : (*/}
+			{/*			<Text className="text-primary-foreground font-medium">Sign Up</Text>*/}
+			{/*		)}*/}
+			{/*	</TouchableOpacity>*/}
 		</View>
 	);
 }

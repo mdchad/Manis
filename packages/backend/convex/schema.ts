@@ -8,7 +8,7 @@ export default defineSchema({
 	}),
 	userProfiles: defineTable({
 		// Reference to the Better-Auth user (_id from user table)
-		userId: v.id("user"),
+		userId: v.string(),
 		// Avatar stored in R2
 		avatarKey: v.optional(v.string()),
 		// Bio/description
