@@ -2,9 +2,15 @@ import { SignIn } from "@/components/sign-in";
 import { ImageBackground } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
+import { useEffect } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export default function SignInScreen() {
 	const StyledSafeAreaView = withUniwind(SafeAreaView);
+
+	useEffect(() => {
+		authClient.signOut();
+	}, []);
 
 	return (
 		<ImageBackground

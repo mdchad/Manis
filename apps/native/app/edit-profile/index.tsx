@@ -14,19 +14,16 @@ import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Button, TextField } from "heroui-native";
+import { Avatar, Button, TextField } from "heroui-native";
 import { Camera, X } from "lucide-react-native";
 import { useUploadFile } from "@convex-dev/r2/react";
 
 export default function Index() {
-	const healthCheck = useQuery(api.healthCheck.get);
-	const { isAuthenticated } = useConvexAuth();
-	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
-	const [avatar, setAvatar] = useState<string | null>(null);
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [isUploading, setIsUploading] = useState(false);
-	const [bio, setBio] = useState("");
 	const router = useRouter();
+	const { isAuthenticated } = useConvexAuth();
+
+	const healthCheck = useQuery(api.healthCheck.get);
+	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 	const uploadFile = useUploadFile(api.r2);
 	const updateProfile = useMutation(api.userProfiles.updateProfile);
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
@@ -34,6 +31,11 @@ export default function Index() {
 		api.r2.getAvatarUrl,
 		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
 	);
+
+	const [avatar, setAvatar] = useState<string | null>(null);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
+	const [bio, setBio] = useState(profile?.bio || "");
 
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
 		const response = await fetch(uri);
@@ -154,12 +156,10 @@ export default function Index() {
 					{/* Avatar Section */}
 					<View className="items-center mb-8">
 						<View className="relative">
-							<Image
-								source={{
-									uri: avatar || avatarUrl || "https://i.pravatar.cc/150?img=1",
-								}}
-								className="w-32 h-32 rounded-full"
-							/>
+							<Avatar size="lg" alt={"avatar"}>
+								<Avatar.Image source={{ uri: (avatar as string) || (avatarUrl as string) }} />
+								<Avatar.Fallback>IR</Avatar.Fallback>
+							</Avatar>
 							{avatar && (
 								<TouchableOpacity
 									onPress={() => setAvatar(null)}
