@@ -29,7 +29,7 @@ export const follow = mutation({
 		}
 
 		// Verify the user being followed exists
-		const targetUser = await authComponent.getUserById(ctx, args.userId);
+		const targetUser = await authComponent.getAnyUserById(ctx, args.userId);
 		if (!targetUser) {
 			throw new Error("User not found");
 		}
@@ -121,7 +121,7 @@ export const getFollowers = query({
 		// Fetch follower user data
 		const followers = await Promise.all(
 			paginatedFollows.map(async (follow) => {
-				const followerUser = await authComponent.getUserById(ctx, follow.followerId);
+				const followerUser = await authComponent.getAnyUserById(ctx, follow.followerId);
 				if (!followerUser) return null;
 
 				// Get user profile
@@ -172,7 +172,7 @@ export const getFollowing = query({
 		// Fetch followed user data
 		const following = await Promise.all(
 			paginatedFollows.map(async (follow) => {
-				const followedUser = await authComponent.getUserById(ctx, follow.userId);
+				const followedUser = await authComponent.getAnyUserById(ctx, follow.userId);
 				if (!followedUser) return null;
 
 				// Get user profile

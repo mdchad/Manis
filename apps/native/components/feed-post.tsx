@@ -4,11 +4,13 @@ import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-re
 import { useRouter } from "expo-router";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { Skeleton } from "heroui-native";
+import { Avatar, Skeleton } from "heroui-native";
+import { FollowButton } from "./follow-button";
 
 const { width } = Dimensions.get("window");
 
 interface FeedPostProps {
+	userId: string; // Better-Auth user ID of the post author
 	userAvatar: string;
 	username: string;
 	images: string[];
@@ -18,6 +20,7 @@ interface FeedPostProps {
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
+	userId,
 	userAvatar,
 	username,
 	images,
@@ -32,6 +35,9 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	const { isAuthenticated } = useConvexAuth();
 	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 
+	// Check if this post is from the current user
+	const isOwnPost = currentUser?._id === userId;
+
 	const handleListingPress = (index: number) => {
 		// Navigate to listing detail page
 		router.push(`/listing/${index + 1}`);
@@ -40,13 +46,16 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	return (
 		<View className="mb-4">
 			{/* Header */}
-			<View className="flex-row items-center px-4 py-3">
-				<Skeleton isLoading={!currentUser?.username} className="h-10 w-10 rounded-full">
-					<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />
-				</Skeleton>
-				<Skeleton isLoading={!currentUser?.username} className="ml-3 h-5 w-32 rounded-md">
-					<Text className="ml-3 font-semibold text-base">{currentUser?.username}</Text>
-				</Skeleton>
+			<View className="flex-row items-center justify-between px-4 py-3">
+				<View className="flex-row items-center flex-1">
+					<Avatar size="sm" alt={"avatar"}>
+						<Avatar.Image source={{ uri: userAvatar as string }} />
+						<Avatar.Fallback>IR</Avatar.Fallback>
+					</Avatar>
+					{/*<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />*/}
+					<Text className="ml-3 font-semibold text-base">{username}</Text>
+				</View>
+				{!isOwnPost && currentUser && <FollowButton userId={userId} variant="outline" size="sm" />}
 			</View>
 
 			{/* Image Carousel */}
@@ -95,12 +104,10 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
 			{/* Caption */}
 			<View className="px-4 py-2">
-				<Skeleton isLoading={!currentUser?.username} className="h-6 w-full rounded-md">
-					<Text className="text-sm">
-						<Text className="font-semibold">{currentUser?.username}</Text>{" "}
-						<Text className="text-gray-800">{caption}</Text>
-					</Text>
-				</Skeleton>
+				<Text className="text-sm">
+					<Text className="font-semibold">{username}</Text>{" "}
+					<Text className="text-gray-800">{caption}</Text>
+				</Text>
 			</View>
 		</View>
 	);

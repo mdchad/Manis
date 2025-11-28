@@ -34,15 +34,15 @@ export function FollowButton({ userId, variant = "outline", size = "md" }: Follo
 	// Show loading state while checking follow status
 	if (isFollowing === undefined) {
 		return (
-			<Button variant={variant} size={size} isDisabled>
-				<Button.Text>Loading...</Button.Text>
+			<Button size={size} isDisabled>
+				<Button.Label>Loading...</Button.Label>
 			</Button>
 		);
 	}
 
 	return (
-		<Button variant={variant} size={size} onPress={handlePress} isDisabled={isLoading}>
-			<Button.Text>{isFollowing ? "Following" : "Follow"}</Button.Text>
+		<Button size={size} onPress={handlePress} isDisabled={isLoading}>
+			<Button.Label>{isFollowing ? "Following" : "Follow"}</Button.Label>
 		</Button>
 	);
 }

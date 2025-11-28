@@ -103,3 +103,13 @@ export const getCurrentUser = query({
 		return authComponent.getAuthUser(ctx);
 	},
 });
+
+export const getUserById = query({
+	args: {
+		userId: v.id("user"),
+	},
+	returns: v.any(),
+	handler: async function (ctx, args) {
+		return authComponent.getAnyUserById(ctx, args.userId);
+	},
+});
