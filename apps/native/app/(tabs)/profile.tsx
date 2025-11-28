@@ -1,6 +1,6 @@
 import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "react-native";
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton, Button } from "heroui-native";
 import { Pencil } from "lucide-react-native";
@@ -47,8 +47,9 @@ const mockProfile = {
 export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
 	const images = activeTab === "posts" ? mockProfile.postsImages : mockProfile.listingsImages;
-	const currentUser = useQuery(api.auth.getCurrentUser);
-	const profile = useQuery(api.userProfiles.getProfile);
+	const { isAuthenticated } = useConvexAuth();
+	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
+	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
 	const avatarUrl = useQuery(
 		api.r2.getAvatarUrl,
 		profile?.avatarKey ? { key: profile.avatarKey } : "skip"

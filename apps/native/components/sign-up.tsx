@@ -17,7 +17,6 @@ const UserSchema = type({
 
 export function SignUp() {
 	const [user, setUser] = useState<any>({ name: "", email: "", password: "", username: "" });
-	const [displayUsername, setDisplayUsername] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [touched, setTouched] = useState<Record<string, boolean>>({});
 	const [submitted, setSubmitted] = useState(false);
@@ -44,7 +43,7 @@ export function SignUp() {
 		await authClient.signUp.email(
 			{
 				...user,
-				displayUsername: displayUsername || undefined,
+				displayUsername: user.username || undefined,
 			},
 			{
 				onError: (error) => {
@@ -52,7 +51,6 @@ export function SignUp() {
 				},
 				onSuccess: () => {
 					setUser({ name: "", email: "", password: "", username: "" });
-					setDisplayUsername("");
 				},
 				onFinished: () => {
 					setIsLoading(false);
@@ -75,7 +73,6 @@ export function SignUp() {
 					autoComplete="off"
 					onBlur={() => handleBlur("name")}
 				/>
-				{/*<TextField.Description>We'll never share your email</TextField.Description>*/}
 				<TextField.ErrorMessage>{getFieldError("name")}</TextField.ErrorMessage>
 			</TextField>
 
