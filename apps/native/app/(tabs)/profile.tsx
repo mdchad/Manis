@@ -55,12 +55,6 @@ export default function ProfileScreen() {
 		currentUser?._id ? { userId: currentUser._id } : "skip"
 	);
 
-	const avatarUrl = useQuery(
-		api.r2.getAvatarUrl,
-		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
-	);
-
-	console.log(avatarUrl);
 	const router = useRouter();
 
 	return (
@@ -69,9 +63,9 @@ export default function ProfileScreen() {
 			<View className="px-6 pt-6">
 				{/* Avatar and Stats */}
 				<View className="flex-row items-center mb-6">
-					<Avatar size="lg" alt={"avatar"}>
-						<Avatar.Image source={{ uri: avatarUrl as string }} />
-						<Avatar.Fallback>IR</Avatar.Fallback>
+					<Avatar size="lg" alt={"avatar"} color="success">
+						<Avatar.Image source={{ uri: profile?.avatarUrl as string }} />
+						<Avatar.Fallback />
 					</Avatar>
 					<View className="flex-1 flex-row justify-around ml-8">
 						<View className="items-center">

@@ -1,12 +1,11 @@
-import { Alert, TouchableOpacity, Text } from "react-native";
+import { Alert } from "react-native";
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import type { Id } from "@manis/backend/convex/_generated/dataModel";
 import { Button } from "heroui-native";
 
 interface FollowButtonProps {
-	userId: Id<"user">;
+	userId: string; // Better-Auth user ID
 	variant?: "default" | "ghost" | "outline";
 	size?: "sm" | "md" | "lg";
 }
@@ -35,15 +34,15 @@ export function FollowButton({ userId, variant = "outline", size = "md" }: Follo
 	// Show loading state while checking follow status
 	if (isFollowing === undefined) {
 		return (
-			<Button variant={variant} size={size} isDisabled>
-				<Button.Text>Loading...</Button.Text>
+			<Button size={size} isDisabled>
+				<Button.Label>Loading...</Button.Label>
 			</Button>
 		);
 	}
 
 	return (
-		<Button variant={variant} size={size} onPress={handlePress} isDisabled={isLoading}>
-			<Button.Text>{isFollowing ? "Following" : "Follow"}</Button.Text>
+		<Button size={size} onPress={handlePress} isDisabled={isLoading}>
+			<Button.Label>{isFollowing ? "Following" : "Follow"}</Button.Label>
 		</Button>
 	);
 }

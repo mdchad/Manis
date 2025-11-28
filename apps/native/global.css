@@ -8,6 +8,7 @@
 
 @theme {
   --background: #F2F2EA;
+  --color-brand-background: #F2F2EA;
   --color-default-foreground: white;
 
   --color-primary: #e2296f;

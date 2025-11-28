@@ -1,6 +1,7 @@
 export const mockPosts = [
 	{
 		id: "1",
+		userId: "k97f0975ct8eq0v6xb1zb7nw917w80g2", // Replace with actual Better-Auth user ID
 		userAvatar: "https://i.pravatar.cc/150?img=1",
 		username: "fadhilahyacob",
 		images: [
@@ -18,11 +19,10 @@ export const mockPosts = [
 	},
 	{
 		id: "2",
+		userId: "k97fnecwq7718j1p8qrx66xk6x7w0def", // Replace with actual Better-Auth user ID
 		userAvatar: "https://i.pravatar.cc/150?img=2",
 		username: "fashionista_daily",
-		images: [
-			"https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800",
-		],
+		images: ["https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800"],
 		caption: "New collection just dropped! 🔥",
 		likes: 234,
 		listingImages: [
@@ -33,6 +33,7 @@ export const mockPosts = [
 	},
 	{
 		id: "3",
+		userId: "mock_user_3", // Replace with actual Better-Auth user ID
 		userAvatar: "https://i.pravatar.cc/150?img=3",
 		username: "streetwear_lover",
 		images: [
@@ -49,11 +50,10 @@ export const mockPosts = [
 	},
 	{
 		id: "4",
+		userId: "mock_user_4", // Replace with actual Better-Auth user ID
 		userAvatar: "https://i.pravatar.cc/150?img=4",
 		username: "minimal_wardrobe",
-		images: [
-			"https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800",
-		],
+		images: ["https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800"],
 		caption: "Less is more. Capsule wardrobe essentials ✨",
 		likes: 456,
 		listingImages: [
@@ -64,6 +64,7 @@ export const mockPosts = [
 	},
 	{
 		id: "5",
+		userId: "mock_user_5", // Replace with actual Better-Auth user ID
 		userAvatar: "https://i.pravatar.cc/150?img=5",
 		username: "thrift_queen",
 		images: [

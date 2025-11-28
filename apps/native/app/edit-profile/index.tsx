@@ -27,10 +27,6 @@ export default function Index() {
 	const uploadFile = useUploadFile(api.r2);
 	const updateProfile = useMutation(api.userProfiles.updateProfile);
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
-	const avatarUrl = useQuery(
-		api.r2.getAvatarUrl,
-		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
-	);
 
 	const [avatar, setAvatar] = useState<string | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -156,9 +152,11 @@ export default function Index() {
 					{/* Avatar Section */}
 					<View className="items-center mb-8">
 						<View className="relative">
-							<Avatar size="lg" alt={"avatar"}>
-								<Avatar.Image source={{ uri: (avatar as string) || (avatarUrl as string) }} />
-								<Avatar.Fallback>IR</Avatar.Fallback>
+							<Avatar size="lg" alt={"avatar"} variant="soft" color="success">
+								<Avatar.Image
+									source={{ uri: (avatar as string) || (profile?.avatarUrl as string) }}
+								/>
+								<Avatar.Fallback />
 							</Avatar>
 							{avatar && (
 								<TouchableOpacity

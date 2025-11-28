@@ -8,10 +8,6 @@ import { authClient } from "@/lib/auth-client";
 export default function SignInScreen() {
 	const StyledSafeAreaView = withUniwind(SafeAreaView);
 
-	useEffect(() => {
-		authClient.signOut();
-	}, []);
-
 	return (
 		<ImageBackground
 			source={require("@/assets/images/splash-logo.png")}

@@ -3,10 +3,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { useRouter } from "expo-router";
 import { Button } from "heroui-native";
+import { useEffect } from "react";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginScreen() {
 	const StyledSafeAreaView = withUniwind(SafeAreaView);
 	const router = useRouter();
+
+	useEffect(() => {
+		authClient.signOut();
+	}, []);
 
 	return (
 		<ImageBackground
