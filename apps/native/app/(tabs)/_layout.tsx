@@ -88,7 +88,7 @@ export default function TabLayout() {
 					tabBarIcon: ({ color, focused }) => (
 						<Avatar
 							size="sm"
-							className={cn("size-8", focused && "outline-2 outline-secondary-500")}
+							className={cn("size-7", focused && "outline-2 outline-secondary-500")}
 							alt={"avatar"}
 							variant="soft"
 							color="success"
