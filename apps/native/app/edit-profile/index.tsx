@@ -152,11 +152,11 @@ export default function Index() {
 					{/* Avatar Section */}
 					<View className="items-center mb-8">
 						<View className="relative">
-							<Avatar size="lg" alt={"avatar"}>
+							<Avatar size="lg" alt={"avatar"} variant="soft" color="success">
 								<Avatar.Image
 									source={{ uri: (avatar as string) || (profile?.avatarUrl as string) }}
 								/>
-								<Avatar.Fallback>IR</Avatar.Fallback>
+								<Avatar.Fallback />
 							</Avatar>
 							{avatar && (
 								<TouchableOpacity

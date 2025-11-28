@@ -13,9 +13,15 @@ import {
 } from "lucide-react-native";
 import { Image, View } from "react-native";
 import React from "react";
+import { Avatar } from "heroui-native";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
+import { cn } from "tailwind-variants";
 
 export default function TabLayout() {
 	// const { isDarkColorScheme } = useColorScheme();
+	const { isAuthenticated } = useConvexAuth();
+	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
 
 	return (
 		<Tabs
@@ -79,11 +85,17 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="profile"
 				options={{
-					tabBarIcon: ({ color }) => (
-						<Image
-							source={{ uri: "https://i.pravatar.cc/150?img=2" }}
-							className="mt-1 w-8 h-8 rounded-full"
-						/>
+					tabBarIcon: ({ color, focused }) => (
+						<Avatar
+							size="sm"
+							className={cn("size-8", focused && "outline-2 outline-secondary-500")}
+							alt={"avatar"}
+							variant="soft"
+							color="success"
+						>
+							<Avatar.Image source={{ uri: profile?.avatarUrl as string }} />
+							<Avatar.Fallback />
+						</Avatar>
 					),
 				}}
 			/>
