@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
+import type { Id } from "./_generated/dataModel";
 
 // Get user profile (read-only)
 // Profile is automatically created via Better Auth trigger when user signs up
@@ -68,16 +69,33 @@ export const updateProfile = mutation({
 		if (args.language !== undefined) updates.language = args.language;
 		if (args.theme !== undefined) updates.theme = args.theme;
 
-		await ctx.db.patch(profile._id, updates);
+		await ctx.db.patch(profile._id as Id<"userProfiles">, updates);
 
 		return { success: true };
 	},
 });
 
-// Backwards compatibility - these will be removed in future versions
+// Backwards compatibility - deprecated, use updateProfile instead
 export const updateAvatar = mutation({
 	args: { avatarKey: v.string() },
 	handler: async (ctx, args) => {
-		return await updateProfile(ctx, { avatarKey: args.avatarKey });
+		const user = await authComponent.getAuthUser(ctx);
+		if (!user) throw new Error("Unauthorized");
+
+		const profile = await ctx.db
+			.query("userProfiles")
+			.withIndex("by_userId", (q) => q.eq("userId", user._id as string))
+			.first();
+
+		if (!profile) {
+			throw new Error("User profile not found");
+		}
+
+		await ctx.db.patch(profile._id as Id<"userProfiles">, {
+			avatarKey: args.avatarKey,
+			updatedAt: Date.now(),
+		});
+
+		return { success: true };
 	},
 });

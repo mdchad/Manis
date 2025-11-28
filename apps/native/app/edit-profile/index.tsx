@@ -11,15 +11,12 @@ import { Container } from "@/components/container";
 import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
-import { SignIn } from "@/components/sign-in";
-import { SignUp } from "@/components/sign-up";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Button, TextField } from "heroui-native";
 import { Camera, X } from "lucide-react-native";
 import { useUploadFile } from "@convex-dev/r2/react";
-import { updateBio } from "@manis/backend/convex/userProfiles";
 
 export default function Index() {
 	const healthCheck = useQuery(api.healthCheck.get);
@@ -31,8 +28,12 @@ export default function Index() {
 	const [bio, setBio] = useState("");
 	const router = useRouter();
 	const uploadFile = useUploadFile(api.r2);
-	const updateAvatar = useMutation(api.userProfiles.updateAvatar);
-	const updateBio = useMutation(api.userProfiles.updateBio);
+	const updateProfile = useMutation(api.userProfiles.updateProfile);
+	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+	const avatarUrl = useQuery(
+		api.r2.getAvatarUrl,
+		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
+	);
 
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
 		const response = await fetch(uri);
@@ -112,54 +113,37 @@ export default function Index() {
 	};
 
 	const handleSave = async () => {
+		if (!selectedFile && !bio) {
+			Alert.alert("No changes", "Please make some changes before saving");
+			return;
+		}
+
 		try {
 			setIsUploading(true);
 
-			// Upload the file to R2 and get the key
+			// Upload avatar if selected (profile will be updated automatically via onUpload)
+			if (selectedFile) {
+				await uploadFile(selectedFile);
+				console.log("Avatar uploaded successfully");
+			}
 
-			// Update user profile with the new avatar key
-			await updateBio({ bio });
+			// Update bio if provided
+			if (bio) {
+				await updateProfile({ bio });
+			}
 
-			Alert.alert("Success", "Profile picture updated successfully!");
+			Alert.alert("Success", "Profile updated successfully!");
 			setAvatar(null);
 			setBio("");
-			// setSelectedFile(null);
-			// router.back();
+			setSelectedFile(null);
+			router.back();
 		} catch (error) {
 			console.error("Upload error:", error);
-			Alert.alert("Error", "Failed to upload profile picture. Please try again.");
+			Alert.alert("Error", "Failed to update profile. Please try again.");
 		} finally {
 			setIsUploading(false);
 		}
 	};
-
-	// const handleSave = async () => {
-	// 	if (!selectedFile) {
-	// 		Alert.alert("No changes", "Please select a new photo to upload");
-	// 		return;
-	// 	}
-	//
-	// 	try {
-	// 		setIsUploading(true);
-	//
-	// 		// Upload the file to R2 and get the key
-	// 		const key = await uploadFile(selectedFile);
-	// 		console.log("File uploaded with key:", key);
-	//
-	// 		// Update user profile with the new avatar key
-	// 		await updateAvatar({ avatarKey: key });
-	//
-	// 		Alert.alert("Success", "Profile picture updated successfully!");
-	// 		setAvatar(null);
-	// 		setSelectedFile(null);
-	// 		router.back();
-	// 	} catch (error) {
-	// 		console.error("Upload error:", error);
-	// 		Alert.alert("Error", "Failed to upload profile picture. Please try again.");
-	// 	} finally {
-	// 		setIsUploading(false);
-	// 	}
-	// };
 
 	return (
 		<Container>
@@ -172,7 +156,7 @@ export default function Index() {
 						<View className="relative">
 							<Image
 								source={{
-									uri: avatar || user?.image || "https://i.pravatar.cc/150?img=1",
+									uri: avatar || avatarUrl || "https://i.pravatar.cc/150?img=1",
 								}}
 								className="w-32 h-32 rounded-full"
 							/>
@@ -234,7 +218,7 @@ export default function Index() {
 							size="lg"
 							onPress={handleSave}
 							className="mt-2"
-							// isDisabled={isUploading || !selectedFile}
+							isDisabled={isUploading || (!selectedFile && !bio)}
 						>
 							{isUploading ? (
 								<ActivityIndicator size="small" color="white" />

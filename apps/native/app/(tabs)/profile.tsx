@@ -50,10 +50,13 @@ export default function ProfileScreen() {
 	const { isAuthenticated } = useConvexAuth();
 	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+
 	const avatarUrl = useQuery(
 		api.r2.getAvatarUrl,
 		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
 	);
+
+	console.log(avatarUrl);
 	const router = useRouter();
 
 	return (
