@@ -2,7 +2,7 @@ import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "rea
 import { useState } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { Skeleton, Button } from "heroui-native";
+import { Skeleton, Button, Avatar } from "heroui-native";
 import { Pencil } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -65,10 +65,10 @@ export default function ProfileScreen() {
 			<View className="px-6 pt-6">
 				{/* Avatar and Stats */}
 				<View className="flex-row items-center mb-6">
-					<Image
-						source={{ uri: avatarUrl || mockProfile.avatar }}
-						className="w-24 h-24 rounded-full"
-					/>
+					<Avatar size="lg" alt={"avatar"}>
+						<Avatar.Image source={{ uri: avatarUrl as string }} />
+						<Avatar.Fallback>IR</Avatar.Fallback>
+					</Avatar>
 					<View className="flex-1 flex-row justify-around ml-8">
 						<View className="items-center">
 							<Text className="text-2xl font-bold text-foreground">{mockProfile.followers}</Text>
