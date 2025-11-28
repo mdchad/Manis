@@ -16,9 +16,10 @@ import { SignUp } from "@/components/sign-up";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Button } from "heroui-native";
+import { Button, TextField } from "heroui-native";
 import { Camera, X } from "lucide-react-native";
 import { useUploadFile } from "@convex-dev/r2/react";
+import { updateBio } from "@manis/backend/convex/userProfiles";
 
 export default function Index() {
 	const healthCheck = useQuery(api.healthCheck.get);
@@ -27,9 +28,11 @@ export default function Index() {
 	const [avatar, setAvatar] = useState<string | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [bio, setBio] = useState("");
 	const router = useRouter();
 	const uploadFile = useUploadFile(api.r2);
 	const updateAvatar = useMutation(api.userProfiles.updateAvatar);
+	const updateBio = useMutation(api.userProfiles.updateBio);
 
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
 		const response = await fetch(uri);
@@ -109,25 +112,19 @@ export default function Index() {
 	};
 
 	const handleSave = async () => {
-		if (!selectedFile) {
-			Alert.alert("No changes", "Please select a new photo to upload");
-			return;
-		}
-
 		try {
 			setIsUploading(true);
 
 			// Upload the file to R2 and get the key
-			const key = await uploadFile(selectedFile);
-			console.log("File uploaded with key:", key);
 
 			// Update user profile with the new avatar key
-			await updateAvatar({ avatarKey: key });
+			await updateBio({ bio });
 
 			Alert.alert("Success", "Profile picture updated successfully!");
 			setAvatar(null);
-			setSelectedFile(null);
-			router.back();
+			setBio("");
+			// setSelectedFile(null);
+			// router.back();
 		} catch (error) {
 			console.error("Upload error:", error);
 			Alert.alert("Error", "Failed to upload profile picture. Please try again.");
@@ -135,6 +132,34 @@ export default function Index() {
 			setIsUploading(false);
 		}
 	};
+
+	// const handleSave = async () => {
+	// 	if (!selectedFile) {
+	// 		Alert.alert("No changes", "Please select a new photo to upload");
+	// 		return;
+	// 	}
+	//
+	// 	try {
+	// 		setIsUploading(true);
+	//
+	// 		// Upload the file to R2 and get the key
+	// 		const key = await uploadFile(selectedFile);
+	// 		console.log("File uploaded with key:", key);
+	//
+	// 		// Update user profile with the new avatar key
+	// 		await updateAvatar({ avatarKey: key });
+	//
+	// 		Alert.alert("Success", "Profile picture updated successfully!");
+	// 		setAvatar(null);
+	// 		setSelectedFile(null);
+	// 		router.back();
+	// 	} catch (error) {
+	// 		console.error("Upload error:", error);
+	// 		Alert.alert("Error", "Failed to upload profile picture. Please try again.");
+	// 	} finally {
+	// 		setIsUploading(false);
+	// 	}
+	// };
 
 	return (
 		<Container>
@@ -189,13 +214,27 @@ export default function Index() {
 							</View>
 						</View>
 
+						<TextField>
+							<TextField.Label>Bio</TextField.Label>
+							<TextField.Input
+								placeholder="Enter your bio"
+								value={bio}
+								onChangeText={setBio}
+								autoCapitalize="none"
+								autoComplete="off"
+								// onBlur={() => handleBlur("email")}
+							/>
+							{/*<TextField.Description>We'll never share your email</TextField.Description>*/}
+							{/*<TextField.ErrorMessage>{getFieldError("email")}</TextField.ErrorMessage>*/}
+						</TextField>
+
 						{/* Save Button */}
 						<Button
 							variant="primary"
 							size="lg"
 							onPress={handleSave}
 							className="mt-2"
-							isDisabled={isUploading || !selectedFile}
+							// isDisabled={isUploading || !selectedFile}
 						>
 							{isUploading ? (
 								<ActivityIndicator size="small" color="white" />
