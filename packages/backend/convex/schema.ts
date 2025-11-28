@@ -8,7 +8,7 @@ export default defineSchema({
 	}),
 	userProfiles: defineTable({
 		// Reference to the Better-Auth user (_id from user table)
-		userId: v.id("user"),
+		userId: v.string(),
 		// Avatar stored in R2
 		avatarKey: v.optional(v.string()),
 		// Bio/description
@@ -24,4 +24,13 @@ export default defineSchema({
 		createdAt: v.number(),
 		updatedAt: v.number(),
 	}).index("by_userId", ["userId"]),
+	follows: defineTable({
+		// User being followed
+		userId: v.id("user"),
+		// User who is following
+		followerId: v.id("user"),
+	})
+		.index("by_user", ["userId"])
+		.index("by_follower", ["followerId"])
+		.index("by_user_and_follower", ["userId", "followerId"]),
 });

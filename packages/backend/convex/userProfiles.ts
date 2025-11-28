@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
+import type { Id } from "./_generated/dataModel";
 
 // Get user profile (read-only)
 // Profile is automatically created via Better Auth trigger when user signs up
@@ -31,65 +32,14 @@ export const getProfile = query({
 	},
 });
 
-// Update user avatar
-export const updateAvatar = mutation({
+// Update user profile - unified mutation for all profile updates
+export const updateProfile = mutation({
 	args: {
-		avatarKey: v.string(),
-	},
-	handler: async (ctx, args) => {
-		const user = await authComponent.getAuthUser(ctx);
-		if (!user) throw new Error("Unauthorized");
-
-		// Get profile (should always exist due to trigger)
-		const profile = await ctx.db
-			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.first();
-
-		if (!profile) {
-			throw new Error("User profile not found");
-		}
-
-		// Update profile
-		await ctx.db.patch(profile._id, {
-			avatarKey: args.avatarKey,
-			updatedAt: Date.now(),
-		});
-
-		return { success: true };
-	},
-});
-
-// Update user bio
-export const updateBio = mutation({
-	args: {
-		bio: v.string(),
-	},
-	handler: async (ctx, args) => {
-		const user = await authComponent.getAuthUser(ctx);
-		if (!user) throw new Error("Unauthorized");
-
-		const profile = await ctx.db
-			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.first();
-
-		if (!profile) {
-			throw new Error("User profile not found");
-		}
-
-		await ctx.db.patch(profile._id, {
-			bio: args.bio,
-			updatedAt: Date.now(),
-		});
-
-		return { success: true };
-	},
-});
-
-// Update user preferences
-export const updatePreferences = mutation({
-	args: {
+		avatarKey: v.optional(v.string()),
+		displayName: v.optional(v.string()),
+		bio: v.optional(v.string()),
+		location: v.optional(v.string()),
+		website: v.optional(v.string()),
 		language: v.optional(v.string()),
 		theme: v.optional(v.string()),
 	},
@@ -106,50 +56,45 @@ export const updatePreferences = mutation({
 			throw new Error("User profile not found");
 		}
 
-		const updates: any = {
+		// Build updates object with only provided fields
+		const updates: Record<string, any> = {
 			updatedAt: Date.now(),
 		};
 
+		if (args.avatarKey !== undefined) updates.avatarKey = args.avatarKey;
+		if (args.displayName !== undefined) updates.displayName = args.displayName;
+		if (args.bio !== undefined) updates.bio = args.bio;
+		if (args.location !== undefined) updates.location = args.location;
+		if (args.website !== undefined) updates.website = args.website;
 		if (args.language !== undefined) updates.language = args.language;
 		if (args.theme !== undefined) updates.theme = args.theme;
 
-		await ctx.db.patch(profile._id, updates);
+		await ctx.db.patch(profile._id as Id<"userProfiles">, updates);
 
 		return { success: true };
 	},
 });
 
-// Update profile information
-export const updateProfile = mutation({
-	args: {
-		displayName: v.optional(v.string()),
-		bio: v.optional(v.string()),
-		location: v.optional(v.string()),
-		website: v.optional(v.string()),
-	},
+// Backwards compatibility - deprecated, use updateProfile instead
+export const updateAvatar = mutation({
+	args: { avatarKey: v.string() },
 	handler: async (ctx, args) => {
 		const user = await authComponent.getAuthUser(ctx);
 		if (!user) throw new Error("Unauthorized");
 
 		const profile = await ctx.db
 			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user._id))
+			.withIndex("by_userId", (q) => q.eq("userId", user._id as string))
 			.first();
 
 		if (!profile) {
 			throw new Error("User profile not found");
 		}
 
-		const updates: any = {
+		await ctx.db.patch(profile._id as Id<"userProfiles">, {
+			avatarKey: args.avatarKey,
 			updatedAt: Date.now(),
-		};
-
-		if (args.displayName !== undefined) updates.displayName = args.displayName;
-		if (args.bio !== undefined) updates.bio = args.bio;
-		if (args.location !== undefined) updates.location = args.location;
-		if (args.website !== undefined) updates.website = args.website;
-
-		await ctx.db.patch(profile._id, updates);
+		});
 
 		return { success: true };
 	},

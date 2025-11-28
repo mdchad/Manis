@@ -11,26 +11,31 @@ import { Container } from "@/components/container";
 import { useConvexAuth, useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { authClient } from "@/lib/auth-client";
-import { SignIn } from "@/components/sign-in";
-import { SignUp } from "@/components/sign-up";
 import { useState } from "react";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
-import { Button } from "heroui-native";
+import { Avatar, Button, TextField } from "heroui-native";
 import { Camera, X } from "lucide-react-native";
 import { useUploadFile } from "@convex-dev/r2/react";
 
 export default function Index() {
-	const healthCheck = useQuery(api.healthCheck.get);
+	const router = useRouter();
 	const { isAuthenticated } = useConvexAuth();
+
+	const healthCheck = useQuery(api.healthCheck.get);
 	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
-	const profile = useQuery(api.userProfiles.getProfile);
+	const uploadFile = useUploadFile(api.r2);
+	const updateProfile = useMutation(api.userProfiles.updateProfile);
+	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+	const avatarUrl = useQuery(
+		api.r2.getAvatarUrl,
+		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
+	);
+
 	const [avatar, setAvatar] = useState<string | null>(null);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
-	const router = useRouter();
-	const uploadFile = useUploadFile(api.r2);
-	const updateAvatar = useMutation(api.userProfiles.updateAvatar);
+	const [bio, setBio] = useState(profile?.bio || "");
 
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
 		const response = await fetch(uri);
@@ -110,28 +115,33 @@ export default function Index() {
 	};
 
 	const handleSave = async () => {
-		if (!selectedFile) {
-			Alert.alert("No changes", "Please select a new photo to upload");
+		if (!selectedFile && !bio) {
+			Alert.alert("No changes", "Please make some changes before saving");
 			return;
 		}
 
 		try {
 			setIsUploading(true);
 
-			// Upload the file to R2 and get the key
-			const key = await uploadFile(selectedFile);
-			console.log("File uploaded with key:", key);
+			// Upload avatar if selected (profile will be updated automatically via onUpload)
+			if (selectedFile) {
+				await uploadFile(selectedFile);
+				console.log("Avatar uploaded successfully");
+			}
 
-			// Update user profile with the new avatar key
-			await updateAvatar({ avatarKey: key });
+			// Update bio if provided
+			if (bio) {
+				await updateProfile({ bio });
+			}
 
-			Alert.alert("Success", "Profile picture updated successfully!");
+			Alert.alert("Success", "Profile updated successfully!");
 			setAvatar(null);
+			setBio("");
 			setSelectedFile(null);
 			router.back();
 		} catch (error) {
 			console.error("Upload error:", error);
-			Alert.alert("Error", "Failed to upload profile picture. Please try again.");
+			Alert.alert("Error", "Failed to update profile. Please try again.");
 		} finally {
 			setIsUploading(false);
 		}
@@ -146,12 +156,10 @@ export default function Index() {
 					{/* Avatar Section */}
 					<View className="items-center mb-8">
 						<View className="relative">
-							<Image
-								source={{
-									uri: avatar || user?.image || "https://i.pravatar.cc/150?img=1",
-								}}
-								className="w-32 h-32 rounded-full"
-							/>
+							<Avatar size="lg" alt={"avatar"}>
+								<Avatar.Image source={{ uri: (avatar as string) || (avatarUrl as string) }} />
+								<Avatar.Fallback>IR</Avatar.Fallback>
+							</Avatar>
 							{avatar && (
 								<TouchableOpacity
 									onPress={() => setAvatar(null)}
@@ -190,13 +198,27 @@ export default function Index() {
 							</View>
 						</View>
 
+						<TextField>
+							<TextField.Label>Bio</TextField.Label>
+							<TextField.Input
+								placeholder="Enter your bio"
+								value={bio}
+								onChangeText={setBio}
+								autoCapitalize="none"
+								autoComplete="off"
+								// onBlur={() => handleBlur("email")}
+							/>
+							{/*<TextField.Description>We'll never share your email</TextField.Description>*/}
+							{/*<TextField.ErrorMessage>{getFieldError("email")}</TextField.ErrorMessage>*/}
+						</TextField>
+
 						{/* Save Button */}
 						<Button
 							variant="primary"
 							size="lg"
 							onPress={handleSave}
 							className="mt-2"
-							isDisabled={isUploading || !selectedFile}
+							isDisabled={isUploading || (!selectedFile && !bio)}
 						>
 							{isUploading ? (
 								<ActivityIndicator size="small" color="white" />

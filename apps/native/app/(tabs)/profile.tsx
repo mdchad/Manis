@@ -1,8 +1,8 @@
 import { ScrollView, Text, View, Image, TouchableOpacity, Dimensions } from "react-native";
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { Skeleton, Button } from "heroui-native";
+import { Skeleton, Button, Avatar } from "heroui-native";
 import { Pencil } from "lucide-react-native";
 import { useRouter } from "expo-router";
 
@@ -47,12 +47,20 @@ const mockProfile = {
 export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
 	const images = activeTab === "posts" ? mockProfile.postsImages : mockProfile.listingsImages;
-	const currentUser = useQuery(api.auth.getCurrentUser);
-	const profile = useQuery(api.userProfiles.getProfile);
+	const { isAuthenticated } = useConvexAuth();
+	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
+	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+	const followCounts = useQuery(
+		api.follows.getFollowCounts,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
+
 	const avatarUrl = useQuery(
 		api.r2.getAvatarUrl,
 		profile?.avatarKey ? { key: profile.avatarKey } : "skip"
 	);
+
+	console.log(avatarUrl);
 	const router = useRouter();
 
 	return (
@@ -61,22 +69,26 @@ export default function ProfileScreen() {
 			<View className="px-6 pt-6">
 				{/* Avatar and Stats */}
 				<View className="flex-row items-center mb-6">
-					<Image
-						source={{ uri: avatarUrl || mockProfile.avatar }}
-						className="w-24 h-24 rounded-full"
-					/>
+					<Avatar size="lg" alt={"avatar"}>
+						<Avatar.Image source={{ uri: avatarUrl as string }} />
+						<Avatar.Fallback>IR</Avatar.Fallback>
+					</Avatar>
 					<View className="flex-1 flex-row justify-around ml-8">
 						<View className="items-center">
-							<Text className="text-2xl font-bold text-foreground">{mockProfile.followers}</Text>
+							<Text className="text-2xl font-bold text-foreground">
+								{followCounts?.followerCount ?? 0}
+							</Text>
 							<Text className="text-sm text-muted-foreground">followers</Text>
+						</View>
+						<View className="items-center">
+							<Text className="text-2xl font-bold text-foreground">
+								{followCounts?.followingCount ?? 0}
+							</Text>
+							<Text className="text-sm text-muted-foreground">following</Text>
 						</View>
 						<View className="items-center">
 							<Text className="text-2xl font-bold text-foreground">{mockProfile.posts}</Text>
 							<Text className="text-sm text-muted-foreground">posts</Text>
-						</View>
-						<View className="items-center">
-							<Text className="text-2xl font-bold text-foreground">{mockProfile.listings}</Text>
-							<Text className="text-sm text-muted-foreground">listings</Text>
 						</View>
 					</View>
 				</View>
@@ -100,11 +112,6 @@ export default function ProfileScreen() {
 						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
 					</Skeleton>
 				</View>
-
-				{/* Follow Button */}
-				<TouchableOpacity className="bg-transparent border border-gray-300 rounded-md py-2 mb-6">
-					<Text className="text-primary text-center font-semibold text-base">FOLLOW</Text>
-				</TouchableOpacity>
 			</View>
 
 			{/* Tabs */}
