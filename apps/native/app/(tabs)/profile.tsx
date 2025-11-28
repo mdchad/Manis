@@ -50,6 +50,10 @@ export default function ProfileScreen() {
 	const { isAuthenticated } = useConvexAuth();
 	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+	const followCounts = useQuery(
+		api.follows.getFollowCounts,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
 
 	const avatarUrl = useQuery(
 		api.r2.getAvatarUrl,
@@ -71,16 +75,20 @@ export default function ProfileScreen() {
 					</Avatar>
 					<View className="flex-1 flex-row justify-around ml-8">
 						<View className="items-center">
-							<Text className="text-2xl font-bold text-foreground">{mockProfile.followers}</Text>
+							<Text className="text-2xl font-bold text-foreground">
+								{followCounts?.followerCount ?? 0}
+							</Text>
 							<Text className="text-sm text-muted-foreground">followers</Text>
+						</View>
+						<View className="items-center">
+							<Text className="text-2xl font-bold text-foreground">
+								{followCounts?.followingCount ?? 0}
+							</Text>
+							<Text className="text-sm text-muted-foreground">following</Text>
 						</View>
 						<View className="items-center">
 							<Text className="text-2xl font-bold text-foreground">{mockProfile.posts}</Text>
 							<Text className="text-sm text-muted-foreground">posts</Text>
-						</View>
-						<View className="items-center">
-							<Text className="text-2xl font-bold text-foreground">{mockProfile.listings}</Text>
-							<Text className="text-sm text-muted-foreground">listings</Text>
 						</View>
 					</View>
 				</View>
@@ -104,11 +112,6 @@ export default function ProfileScreen() {
 						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
 					</Skeleton>
 				</View>
-
-				{/* Follow Button */}
-				<TouchableOpacity className="bg-transparent border border-gray-300 rounded-md py-2 mb-6">
-					<Text className="text-primary text-center font-semibold text-base">FOLLOW</Text>
-				</TouchableOpacity>
 			</View>
 
 			{/* Tabs */}

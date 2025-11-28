@@ -28,6 +28,38 @@ export const authComponent = createClient<DataModel>(components.betterAuth, {
 					updatedAt: now,
 				});
 			},
+			onDelete: async (ctx, doc) => {
+				// Clean up orphaned follow relationships when a user is deleted
+				// Delete where this user is the follower (following others)
+				const followingRecords = await ctx.db
+					.query("follows")
+					.withIndex("by_follower", (q) => q.eq("followerId", doc._id))
+					.collect();
+
+				for (const record of followingRecords) {
+					await ctx.db.delete(record._id);
+				}
+
+				// Delete where this user is being followed (followers)
+				const followerRecords = await ctx.db
+					.query("follows")
+					.withIndex("by_user", (q) => q.eq("userId", doc._id))
+					.collect();
+
+				for (const record of followerRecords) {
+					await ctx.db.delete(record._id);
+				}
+
+				// Also delete the user profile
+				const profile = await ctx.db
+					.query("userProfiles")
+					.withIndex("by_userId", (q) => q.eq("userId", doc._id))
+					.first();
+
+				if (profile) {
+					await ctx.db.delete(profile._id);
+				}
+			},
 		},
 	},
 });
