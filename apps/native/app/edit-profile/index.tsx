@@ -169,7 +169,7 @@ export default function Index() {
 						</View>
 						<Button variant="ghost" size="sm" onPress={showImageOptions} className="mt-4">
 							<Camera size={18} color="white" />
-							<Button.Label>Change Photo</Button.Label>
+							<Button.Label className="text-black">Change Photo</Button.Label>
 						</Button>
 					</View>
 
