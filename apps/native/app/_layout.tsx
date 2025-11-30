@@ -36,6 +36,7 @@ function StackLayout() {
 				</ImageBackground>
 			</AuthLoading>
 			<Unauthenticated>
+				<StatusBar style="light" />
 				<Stack screenOptions={{ headerShown: false }}>
 					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
 				</Stack>

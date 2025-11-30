@@ -156,11 +156,11 @@ export function SignIn() {
 
 	return (
 		<View className="flex-1">
-			{error && (
-				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
-					<Text className="text-destructive text-sm">{error}</Text>
-				</View>
-			)}
+			{/*{error && (*/}
+			{/*	<View className="mb-4 p-3 bg-destructive/10 rounded-md">*/}
+			{/*		<Text className="text-destructive text-sm">{error}</Text>*/}
+			{/*	</View>*/}
+			{/*)}*/}
 
 			{!showEmailForm && (
 				<Animated.View style={socialAnimatedStyle} className="justify-end flex-1 mb-2">
@@ -185,7 +185,10 @@ export function SignIn() {
 			)}
 
 			{showEmailForm && (
-				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center bg-primary">
+				<Animated.View
+					style={emailAnimatedStyle}
+					className="flex-1 gap-2 justify-center bg-primary"
+				>
 					<Button
 						variant="ghost"
 						size="md"
@@ -197,7 +200,7 @@ export function SignIn() {
 
 					<Text className="text-lg font-semibold mb-4 text-white">Sign in with Email</Text>
 
-					<TextField isRequired className="mb-3">
+					<TextField isRequired isInvalid={!!error}>
 						<TextField.Input
 							placeholder="Email or Username"
 							value={emailOrUsername}
@@ -208,13 +211,14 @@ export function SignIn() {
 						/>
 					</TextField>
 
-					<TextField isRequired>
+					<TextField isRequired isInvalid={!!error}>
 						<TextField.Input
 							placeholder="Password"
 							value={password}
 							onChangeText={setPassword}
 							secureTextEntry
 						/>
+						<TextField.ErrorMessage>{error}</TextField.ErrorMessage>
 					</TextField>
 
 					<Button
