@@ -98,10 +98,12 @@ export default function AddScreen() {
 
 	const handleNext = () => {
 		if (selectedPhoto) {
-			// TODO: Navigate to the next screen with the selected photo
-			// You can pass the photo URI to the next screen
-			console.log("Selected photo:", selectedPhoto.uri);
-			Alert.alert("Next", `Selected photo: ${selectedPhoto.uri}`);
+			router.push({
+				pathname: "/post/edit",
+				params: {
+					photoUri: selectedPhoto.uri,
+				},
+			});
 		}
 	};
 
