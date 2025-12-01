@@ -4,7 +4,7 @@ import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "reac
 import { useRouter } from "expo-router";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { type } from "arktype";
-import { Button } from "heroui-native";
+import { Button, TextField } from "heroui-native";
 
 const emailValidator = type("string.email");
 
@@ -156,70 +156,70 @@ export function SignIn() {
 
 	return (
 		<View className="flex-1">
-			{error && (
-				<View className="mb-4 p-3 bg-destructive/10 rounded-md">
-					<Text className="text-destructive text-sm">{error}</Text>
-				</View>
-			)}
+			{/*{error && (*/}
+			{/*	<View className="mb-4 p-3 bg-destructive/10 rounded-md">*/}
+			{/*		<Text className="text-destructive text-sm">{error}</Text>*/}
+			{/*	</View>*/}
+			{/*)}*/}
 
 			{!showEmailForm && (
 				<Animated.View style={socialAnimatedStyle} className="justify-end flex-1 mb-2">
-					<TouchableOpacity
-						onPress={handleGoogleSignIn}
-						disabled={isLoading}
-						className="bg-white p-4 rounded-full flex-row justify-center items-center"
-					>
-						<Text className="text-foreground font-medium">Continue with Google</Text>
-					</TouchableOpacity>
+					<Button size="md" className="bg-white mb-2" onPress={handleGoogleSignIn}>
+						<Button.Label className="text-foreground text-sm">Continue with Google</Button.Label>
+					</Button>
 
-					<TouchableOpacity
-						onPress={handleAppleSignIn}
-						disabled={isLoading}
-						className="mt-3 bg-black p-4 rounded-full flex-row justify-center items-center"
-					>
-						<Text className="text-white font-medium">Continue with Apple</Text>
-					</TouchableOpacity>
+					<Button size="md" className="bg-black" onPress={handleAppleSignIn}>
+						<Button.Label className="text-white text-sm">Continue with Apple</Button.Label>
+					</Button>
 
 					<View className="mt-4 flex-row items-center">
 						<View className="flex-1 h-px bg-border" />
-						<Text className="mx-4 text-muted-foreground text-sm text-white">OR</Text>
+						<Text className="mx-4 text-sm text-white">OR</Text>
 						<View className="flex-1 h-px bg-border" />
 					</View>
 
-					<TouchableOpacity
-						onPress={() => setShowEmailForm(true)}
-						className="p-4 flex-row justify-center items-center"
-					>
-						<Text className="text-foreground font-medium text-white">Continue with Email</Text>
-					</TouchableOpacity>
+					<Button variant="ghost" size="md" onPress={() => setShowEmailForm(true)}>
+						<Button.Label className="text-white text-sm">Continue with Email</Button.Label>
+					</Button>
 				</Animated.View>
 			)}
 
 			{showEmailForm && (
-				<Animated.View style={emailAnimatedStyle} className="flex-1 justify-center bg-primary">
-					<TouchableOpacity onPress={() => setShowEmailForm(false)} className="mb-4">
-						<Text className="text-white text-sm">← Back to social login</Text>
-					</TouchableOpacity>
+				<Animated.View
+					style={emailAnimatedStyle}
+					className="flex-1 gap-2 justify-center bg-primary"
+				>
+					<Button
+						variant="ghost"
+						size="md"
+						className="mb-4"
+						onPress={() => setShowEmailForm(false)}
+					>
+						<Button.Label className="text-white text-sm">← Back to social login</Button.Label>
+					</Button>
 
 					<Text className="text-lg font-semibold mb-4 text-white">Sign in with Email</Text>
 
-					<TextInput
-						className="mb-3 p-4 rounded-lg  bg-white text-foreground"
-						placeholder="Email or Username"
-						value={emailOrUsername}
-						onChangeText={setEmailOrUsername}
-						placeholderTextColor="#9CA3AF"
-						autoCapitalize="none"
-					/>
+					<TextField isRequired isInvalid={!!error}>
+						<TextField.Input
+							placeholder="Email or Username"
+							value={emailOrUsername}
+							onChangeText={setEmailOrUsername}
+							keyboardType="email-address"
+							autoCapitalize="none"
+							autoComplete="off"
+						/>
+					</TextField>
 
-					<TextInput
-						className="mb-4 p-4 rounded-lg bg-white text-foreground"
-						placeholder="Password"
-						value={password}
-						onChangeText={setPassword}
-						placeholderTextColor="#9CA3AF"
-						secureTextEntry
-					/>
+					<TextField isRequired isInvalid={!!error}>
+						<TextField.Input
+							placeholder="Password"
+							value={password}
+							onChangeText={setPassword}
+							secureTextEntry
+						/>
+						<TextField.ErrorMessage>{error}</TextField.ErrorMessage>
+					</TextField>
 
 					<Button
 						variant="ghost"
