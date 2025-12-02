@@ -114,19 +114,8 @@ export default function EditPostScreen() {
 		<Container>
 			<ScrollView>
 				<View className="bg-brand-background">
-					{/* Header */}
-					<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-						<Pressable onPress={handleClose}>
-							<X size={28} color="currentColor" className="text-foreground" />
-						</Pressable>
-						<Text className="text-lg font-semibold text-foreground">EDIT POST</Text>
-						<Pressable onPress={handlePost}>
-							<ChevronRight size={28} color="#007AFF" />
-						</Pressable>
-					</View>
-
 					<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-						{/* Image Carousel */}
+						{/* Image Carousel with Header Overlay */}
 						<View className="relative">
 							<ScrollView
 								ref={scrollViewRef}
@@ -148,6 +137,17 @@ export default function EditPostScreen() {
 									/>
 								))}
 							</ScrollView>
+
+							{/* Header Overlay */}
+							<View className="absolute top-0 left-0 right-0 flex-row items-center justify-between px-4 py-3">
+								<Pressable onPress={handleClose} className="bg-black/30 rounded-full p-1">
+									<X size={28} color="white" />
+								</Pressable>
+								<Text className="text-lg font-semibold text-white">EDIT POST</Text>
+								<Pressable onPress={handlePost} className="bg-black/30 rounded-full p-1">
+									<ChevronRight size={28} color="white" />
+								</Pressable>
+							</View>
 
 							{/* Dots Indicator */}
 							{photos.length > 1 && (

@@ -167,21 +167,10 @@ export default function AddScreen() {
 	return (
 		<Container>
 			<View className="bg-brand-background">
-				{/* Header */}
-				<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-					<Pressable onPress={() => router.back()}>
-						<X size={28} color="currentColor" className="text-foreground" />
-					</Pressable>
-					<Text className="text-lg font-semibold text-foreground">NEW POST</Text>
-					<Pressable onPress={handleNext} disabled={!selectedPhoto}>
-						<ChevronRight size={28} color={selectedPhoto ? "#007AFF" : "#999"} />
-					</Pressable>
-				</View>
-
-				{/* Selected Photo Preview */}
+				{/* Selected Photo Preview with Header Inside */}
 				{selectedPhoto && (
 					<View
-						className="bg-black"
+						className="bg-black relative"
 						style={{
 							width: width,
 							height: width,
@@ -192,6 +181,21 @@ export default function AddScreen() {
 							style={{ width: "100%", height: "100%" }}
 							resizeMode="cover"
 						/>
+
+						{/* Header Overlay */}
+						<View className="absolute top-0 left-0 right-0 flex-row items-center justify-between px-4 py-3">
+							<Pressable onPress={() => router.back()} className="bg-black/30 rounded-full p-1">
+								<X size={28} color="white" />
+							</Pressable>
+							<Text className="text-lg font-semibold text-white">NEW POST</Text>
+							<Pressable
+								onPress={handleNext}
+								disabled={!selectedPhoto}
+								className="bg-black/30 rounded-full p-1"
+							>
+								<ChevronRight size={28} color="white" />
+							</Pressable>
+						</View>
 					</View>
 				)}
 
