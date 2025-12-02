@@ -52,8 +52,9 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 						<Avatar.Image source={{ uri: userAvatar as string }} />
 						<Avatar.Fallback>IR</Avatar.Fallback>
 					</Avatar>
-					{/*<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />*/}
-					<Text className="ml-3 font-semibold text-base">{username}</Text>
+					<Skeleton isLoading={!username} className="ml-3 h-5 w-32 rounded-md">
+						<Text className="ml-3 font-semibold text-base">{username}</Text>
+					</Skeleton>
 				</View>
 				{!isOwnPost && currentUser && <FollowButton userId={userId} variant="outline" size="sm" />}
 			</View>
@@ -104,10 +105,12 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
 			{/* Caption */}
 			<View className="px-4 py-2">
-				<Text className="text-sm">
-					<Text className="font-semibold">{username}</Text>{" "}
-					<Text className="text-gray-800">{caption}</Text>
-				</Text>
+				<Skeleton isLoading={!username} className="h-6 w-full rounded-md">
+					<Text className="text-sm">
+						<Text className="font-semibold">{username}</Text>{" "}
+						<Text className="text-gray-800">{caption}</Text>
+					</Text>
+				</Skeleton>
 			</View>
 		</View>
 	);
