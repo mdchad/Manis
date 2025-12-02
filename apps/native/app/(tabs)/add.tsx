@@ -18,7 +18,7 @@ import { Container } from "@/components/container";
 import { Checkbox } from "heroui-native";
 
 const { width } = Dimensions.get("window");
-const GRID_COLUMNS = 3;
+const GRID_COLUMNS = 4;
 const GRID_SPACING = 2;
 const GRID_ITEM_SIZE = (width - GRID_SPACING * (GRID_COLUMNS + 1)) / GRID_COLUMNS;
 
@@ -170,9 +170,9 @@ export default function AddScreen() {
 					<Checkbox
 						isSelected={isSelected}
 						onSelectedChange={() => handlePhotoSelect(item)}
-						className="w-6 h-6"
+						className="w-6 h-6 rounded-full"
 					>
-						<Checkbox.Indicator>
+						<Checkbox.Indicator className="bg-primary">
 							{({ isSelected }) =>
 								isSelected && selectionNumber ? (
 									<Text className="text-white text-xs font-bold">{selectionNumber}</Text>
