@@ -35,7 +35,6 @@ export default function Index() {
 	const [bio, setBio] = useState(profile?.bio || "");
 
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
-		console.log("URI:", uri);
 		const response = await fetch(uri);
 		const blob = await response.blob();
 		return new File([blob], fileName, { type: blob.type });

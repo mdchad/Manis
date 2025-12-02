@@ -31,7 +31,6 @@ interface Photo {
 export default function EditPostScreen() {
 	const params = useLocalSearchParams();
 	const photoUris = params.photoUris as string;
-	console.log("PHOTOURIS", photoUris);
 
 	// Parse multiple photo URIs from comma-separated string
 	const [photos] = useState<Photo[]>(() => {
@@ -89,7 +88,6 @@ export default function EditPostScreen() {
 	};
 
 	const handlePost = async () => {
-		console.log("POSSTTT");
 		if (!caption.trim()) {
 			Alert.alert("Caption Required", "Please add a caption to your post.");
 			return;
@@ -105,7 +103,6 @@ export default function EditPostScreen() {
 
 			// Upload all photos to R2 and get their keys
 			const imageKeys: string[] = [];
-			console.log("POSSTTT", photos);
 			for (let i = 0; i < photos.length; i++) {
 				const photo = photos[i];
 				const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
