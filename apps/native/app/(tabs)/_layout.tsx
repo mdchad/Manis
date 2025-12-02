@@ -21,6 +21,7 @@ import { cn } from "tailwind-variants";
 export default function TabLayout() {
 	// const { isDarkColorScheme } = useColorScheme();
 	const { isAuthenticated } = useConvexAuth();
+
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
 
 	return (

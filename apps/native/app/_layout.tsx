@@ -17,6 +17,7 @@ export const unstable_settings = {
 };
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+	expectAuth: true,
 	unsavedChangesWarning: false,
 });
 
