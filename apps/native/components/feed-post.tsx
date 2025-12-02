@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
-import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { Avatar, Skeleton } from "heroui-native";
+import { Avatar } from "heroui-native";
 import { FollowButton } from "./follow-button";
 
 const { width } = Dimensions.get("window");
@@ -52,7 +51,6 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 						<Avatar.Image source={{ uri: userAvatar as string }} />
 						<Avatar.Fallback>IR</Avatar.Fallback>
 					</Avatar>
-					{/*<Image source={{ uri: userAvatar }} className="w-10 h-10 rounded-full" />*/}
 					<Text className="ml-3 font-semibold text-base">{username}</Text>
 				</View>
 				{!isOwnPost && currentUser && <FollowButton userId={userId} variant="outline" size="sm" />}

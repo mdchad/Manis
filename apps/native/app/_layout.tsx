@@ -2,7 +2,6 @@ import { ConvexReactClient, Authenticated, Unauthenticated, AuthLoading } from "
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { authClient } from "@/lib/auth-client";
 import { Stack } from "expo-router";
-import { DarkTheme, DefaultTheme, type Theme, ThemeProvider } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { NAV_THEME } from "@/lib/constants";
@@ -18,6 +17,7 @@ export const unstable_settings = {
 };
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+	expectAuth: true,
 	unsavedChangesWarning: false,
 });
 

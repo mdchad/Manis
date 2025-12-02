@@ -77,12 +77,18 @@ export default function AddScreen() {
 						sortBy: [MediaLibrary.SortBy.creationTime],
 					});
 
-			const photoData: Photo[] = albumAssets.assets.map((asset) => ({
-				id: asset.id,
-				uri: asset.uri,
-				width: asset.width,
-				height: asset.height,
-			}));
+			// Get actual file URIs (not ph:// URIs)
+			const photoData: Photo[] = await Promise.all(
+				albumAssets.assets.map(async (asset) => {
+					const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
+					return {
+						id: asset.id,
+						uri: assetInfo.localUri || assetInfo.uri,
+						width: asset.width,
+						height: asset.height,
+					};
+				})
+			);
 
 			setPhotos(photoData);
 			if (photoData.length > 0) {
@@ -219,7 +225,7 @@ export default function AddScreen() {
 	}
 
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<View className="bg-brand-background">
 				{/* Selected Photo Preview with Header Inside */}
 				{primaryPhoto && (

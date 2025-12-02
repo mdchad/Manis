@@ -10,10 +10,15 @@ import {
 	Pressable,
 	FlatList,
 	Alert,
+	ActivityIndicator,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { X, ChevronRight, Paperclip } from "lucide-react-native";
 import { Container } from "@/components/container";
+import { Button } from "heroui-native";
+import { useUploadFile } from "@convex-dev/r2/react";
+import { useMutation } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
 
 const { width } = Dimensions.get("window");
 
@@ -41,8 +46,20 @@ export default function EditPostScreen() {
 	const [tags, setTags] = useState<string[]>([]);
 	const [location, setLocation] = useState("");
 	const [taggedListings, setTaggedListings] = useState<any[]>([]);
+	const [isPosting, setIsPosting] = useState(false);
 
 	const scrollViewRef = useRef<ScrollView>(null);
+
+	// Convex hooks
+	const uploadFile = useUploadFile(api.r2);
+	const createPost = useMutation(api.posts.createPost);
+
+	// Helper function to convert URI to File
+	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
+		const response = await fetch(uri);
+		const blob = await response.blob();
+		return new File([blob], fileName, { type: blob.type });
+	};
 
 	const handleClose = () => {
 		if (caption.trim() || tags.length > 0 || location.trim() || taggedListings.length > 0) {
@@ -70,27 +87,52 @@ export default function EditPostScreen() {
 		}
 	};
 
-	const handlePost = () => {
+	const handlePost = async () => {
 		if (!caption.trim()) {
 			Alert.alert("Caption Required", "Please add a caption to your post.");
 			return;
 		}
 
-		// TODO: Implement post creation
-		console.log({
-			photos,
-			caption,
-			tags,
-			location,
-			taggedListings,
-		});
+		if (photos.length === 0) {
+			Alert.alert("Photos Required", "Please select at least one photo.");
+			return;
+		}
 
-		Alert.alert("Success", "Post created successfully!", [
-			{
-				text: "OK",
-				onPress: () => router.back(),
-			},
-		]);
+		try {
+			setIsPosting(true);
+
+			// Upload all photos to R2 and get their keys
+			const imageKeys: string[] = [];
+			for (let i = 0; i < photos.length; i++) {
+				const photo = photos[i];
+				const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
+				console.log("Uploading photo:", file);
+				const key = await uploadFile(file);
+				imageKeys.push(key);
+				console.log(`Uploaded photo ${i + 1}/${photos.length} with key:`, key);
+			}
+
+			// Create the post with the uploaded image keys
+			await createPost({
+				caption: caption.trim(),
+				imageKeys,
+				tags: tags.length > 0 ? tags : undefined,
+				location: location.trim() || undefined,
+				taggedListings: taggedListings.length > 0 ? taggedListings.map((l) => l._id) : undefined,
+			});
+
+			Alert.alert("Success", "Post created successfully!", [
+				{
+					text: "OK",
+					onPress: () => router.back(),
+				},
+			]);
+		} catch (error) {
+			console.error("Post creation error:", error);
+			Alert.alert("Error", "Failed to create post. Please try again.");
+		} finally {
+			setIsPosting(false);
+		}
 	};
 
 	const handleScroll = (event: any) => {
@@ -112,7 +154,7 @@ export default function EditPostScreen() {
 	};
 
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<ScrollView>
 				<View className="bg-brand-background">
 					<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -211,7 +253,7 @@ export default function EditPostScreen() {
 
 							<TouchableOpacity
 								onPress={handleAddTaggedListings}
-								className="w-20 h-20 border border-border items-center justify-center rounded-lg"
+								className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
 							>
 								<View className="items-center justify-center">
 									<Text className="text-3xl text-muted-foreground mb-1">+</Text>
@@ -231,22 +273,28 @@ export default function EditPostScreen() {
 						</View>
 
 						{/* Caption Drafting Note */}
-						<View className="px-4 py-6">
-							<Text className="text-sm text-muted-foreground italic">
-								caption drafting^ <Text className="not-italic">paper clip</Text> logo to tag
-								listings
-							</Text>
-						</View>
+						{/*<View className="px-4 py-6">*/}
+						{/*	<Text className="text-sm text-muted-foreground italic">*/}
+						{/*		caption drafting^ <Text className="not-italic">paper clip</Text> logo to tag*/}
+						{/*		listings*/}
+						{/*	</Text>*/}
+						{/*</View>*/}
 					</ScrollView>
 
 					{/* Post Button */}
 					<View className="border-t border-border p-4">
-						<TouchableOpacity
+						<Button
 							onPress={handlePost}
-							className="bg-primary py-3 rounded-lg items-center"
+							variant="secondary"
+							className="bg-white"
+							isDisabled={isPosting}
 						>
-							<Text className="text-primary-foreground font-semibold text-base">POST</Text>
-						</TouchableOpacity>
+							{isPosting ? (
+								<ActivityIndicator size="small" color="#000" />
+							) : (
+								<Button.Label className="text-primary">POST</Button.Label>
+							)}
+						</Button>
 					</View>
 				</View>
 			</ScrollView>
