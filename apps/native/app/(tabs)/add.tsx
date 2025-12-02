@@ -9,10 +9,12 @@ import {
 	ActivityIndicator,
 	Alert,
 	Pressable,
+	ScrollView,
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
 import { X, ChevronRight } from "lucide-react-native";
 import { router } from "expo-router";
+import { Container } from "@/components/container";
 
 const { width } = Dimensions.get("window");
 const GRID_COLUMNS = 3;
@@ -163,52 +165,54 @@ export default function AddScreen() {
 	}
 
 	return (
-		<View className="flex-1 bg-background">
-			{/* Header */}
-			<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-				<Pressable onPress={() => router.back()}>
-					<X size={28} color="currentColor" className="text-foreground" />
-				</Pressable>
-				<Text className="text-lg font-semibold text-foreground">NEW POST</Text>
-				<Pressable onPress={handleNext} disabled={!selectedPhoto}>
-					<ChevronRight size={28} color={selectedPhoto ? "#007AFF" : "#999"} />
-				</Pressable>
-			</View>
-
-			{/* Selected Photo Preview */}
-			{selectedPhoto && (
-				<View
-					className="bg-black"
-					style={{
-						width: width,
-						height: width,
-					}}
-				>
-					<Image
-						source={{ uri: selectedPhoto.uri }}
-						style={{ width: "100%", height: "100%" }}
-						resizeMode="cover"
-					/>
+		<Container>
+			<View className="bg-brand-background">
+				{/* Header */}
+				<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
+					<Pressable onPress={() => router.back()}>
+						<X size={28} color="currentColor" className="text-foreground" />
+					</Pressable>
+					<Text className="text-lg font-semibold text-foreground">NEW POST</Text>
+					<Pressable onPress={handleNext} disabled={!selectedPhoto}>
+						<ChevronRight size={28} color={selectedPhoto ? "#007AFF" : "#999"} />
+					</Pressable>
 				</View>
-			)}
 
-			{/* Recent Photos Label */}
-			<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
-				<Text className="text-base font-medium text-foreground">RECENTS</Text>
-				<Text className="text-sm text-muted-foreground">DRAFTS</Text>
+				{/* Selected Photo Preview */}
+				{selectedPhoto && (
+					<View
+						className="bg-black"
+						style={{
+							width: width,
+							height: width,
+						}}
+					>
+						<Image
+							source={{ uri: selectedPhoto.uri }}
+							style={{ width: "100%", height: "100%" }}
+							resizeMode="cover"
+						/>
+					</View>
+				)}
+
+				{/* Recent Photos Label */}
+				<View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-[#262627]">
+					<Text className="text-base font-medium text-white">RECENTS</Text>
+					<Text className="text-sm text-white">DRAFTS</Text>
+				</View>
+
+				{/* Photo Grid */}
+				<FlatList
+					data={photos}
+					renderItem={renderPhotoItem}
+					keyExtractor={(item) => item.id}
+					numColumns={GRID_COLUMNS}
+					contentContainerStyle={{
+						padding: GRID_SPACING / 2,
+					}}
+					showsVerticalScrollIndicator={false}
+				/>
 			</View>
-
-			{/* Photo Grid */}
-			<FlatList
-				data={photos}
-				renderItem={renderPhotoItem}
-				keyExtractor={(item) => item.id}
-				numColumns={GRID_COLUMNS}
-				contentContainerStyle={{
-					padding: GRID_SPACING / 2,
-				}}
-				showsVerticalScrollIndicator={false}
-			/>
-		</View>
+		</Container>
 	);
 }

@@ -113,7 +113,7 @@ export default function EditPostScreen() {
 	return (
 		<Container>
 			<ScrollView>
-				<View className="bg-background">
+				<View className="bg-brand-background">
 					{/* Header */}
 					<View className="flex-row items-center justify-between px-4 py-3 border-b border-border">
 						<Pressable onPress={handleClose}>

@@ -73,6 +73,7 @@ export default function TabLayout() {
 			<Tabs.Screen
 				name="add"
 				options={{
+					headerShown: false,
 					tabBarIcon: ({ color }) => <PlusIcon color={color} />,
 				}}
 			/>
