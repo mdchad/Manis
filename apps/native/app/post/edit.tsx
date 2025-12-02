@@ -14,6 +14,7 @@ import {
 import { router, useLocalSearchParams } from "expo-router";
 import { X, ChevronRight, Paperclip } from "lucide-react-native";
 import { Container } from "@/components/container";
+import { Button } from "heroui-native";
 
 const { width } = Dimensions.get("window");
 
@@ -112,7 +113,7 @@ export default function EditPostScreen() {
 	};
 
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<ScrollView>
 				<View className="bg-brand-background">
 					<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -211,7 +212,7 @@ export default function EditPostScreen() {
 
 							<TouchableOpacity
 								onPress={handleAddTaggedListings}
-								className="w-20 h-20 border border-border items-center justify-center rounded-lg"
+								className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
 							>
 								<View className="items-center justify-center">
 									<Text className="text-3xl text-muted-foreground mb-1">+</Text>
@@ -231,22 +232,19 @@ export default function EditPostScreen() {
 						</View>
 
 						{/* Caption Drafting Note */}
-						<View className="px-4 py-6">
-							<Text className="text-sm text-muted-foreground italic">
-								caption drafting^ <Text className="not-italic">paper clip</Text> logo to tag
-								listings
-							</Text>
-						</View>
+						{/*<View className="px-4 py-6">*/}
+						{/*	<Text className="text-sm text-muted-foreground italic">*/}
+						{/*		caption drafting^ <Text className="not-italic">paper clip</Text> logo to tag*/}
+						{/*		listings*/}
+						{/*	</Text>*/}
+						{/*</View>*/}
 					</ScrollView>
 
 					{/* Post Button */}
 					<View className="border-t border-border p-4">
-						<TouchableOpacity
-							onPress={handlePost}
-							className="bg-primary py-3 rounded-lg items-center"
-						>
-							<Text className="text-primary-foreground font-semibold text-base">POST</Text>
-						</TouchableOpacity>
+						<Button onPress={handlePost} variant="secondary" className="bg-white">
+							<Button.Label className="text-primary">POST</Button.Label>
+						</Button>
 					</View>
 				</View>
 			</ScrollView>

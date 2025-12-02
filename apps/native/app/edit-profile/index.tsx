@@ -147,7 +147,7 @@ export default function Index() {
 	const StyledArrowLeft = withUniwind(ArrowLeft);
 
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<ScrollView>
 				<View className="px-4 bg-brand-background">
 					<View className="flex flex-row items-center">

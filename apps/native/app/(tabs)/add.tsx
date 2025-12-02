@@ -219,7 +219,7 @@ export default function AddScreen() {
 	}
 
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<View className="bg-brand-background">
 				{/* Selected Photo Preview with Header Inside */}
 				{primaryPhoto && (
