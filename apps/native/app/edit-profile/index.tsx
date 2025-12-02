@@ -120,16 +120,19 @@ export default function Index() {
 		try {
 			setIsUploading(true);
 
-			// Upload avatar if selected (profile will be updated automatically via onUpload)
+			let avatarKey: string | undefined;
+
+			// Upload avatar if selected and get the key
 			if (selectedFile) {
-				await uploadFile(selectedFile);
-				console.log("Avatar uploaded successfully");
+				avatarKey = await uploadFile(selectedFile);
+				console.log("Avatar uploaded successfully with key:", avatarKey);
 			}
 
-			// Update bio if provided
-			if (bio) {
-				await updateProfile({ bio });
-			}
+			// Update profile with avatar key and/or bio
+			await updateProfile({
+				...(avatarKey && { avatarKey }),
+				...(bio && { bio }),
+			});
 
 			Alert.alert("Success", "Profile updated successfully!");
 			setAvatar(null);

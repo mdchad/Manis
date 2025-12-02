@@ -15,25 +15,8 @@ export const { generateUploadUrl, syncMetadata } = r2.clientApi({
 	},
 	onUpload: async (ctx, _bucket, key) => {
 		console.log("File uploaded with key:", key);
-
-		// Automatically update user profile with avatar key
-		const user = await authComponent.getAuthUser(ctx);
-		if (!user) throw new Error("Unauthorized");
-
-		const profile = await ctx.db
-			.query("userProfiles")
-			.withIndex("by_userId", (q) => q.eq("userId", user._id))
-			.first();
-
-		if (!profile) {
-			throw new Error("User profile not found");
-		}
-
-		await ctx.db.patch(profile._id as Id<"userProfiles">, {
-			avatarKey: key,
-			updatedAt: Date.now(),
-		});
-		console.log("Updated user profile with avatar key:", key);
+		// Just log the upload - don't auto-update anything
+		// The calling mutation (updateProfile or createPost) will handle storing the keys
 	},
 });
 
@@ -44,6 +27,17 @@ export const getAvatarUrl = query({
 	},
 	handler: async (ctx, args) => {
 		console.log("argument", args);
+		if (!args.key) return null;
+		return await r2.getUrl(args.key, ctx);
+	},
+});
+
+// Query to get image URL from R2 key (generic for any image)
+export const getImageUrl = query({
+	args: {
+		key: v.string(),
+	},
+	handler: async (ctx, args) => {
 		if (!args.key) return null;
 		return await r2.getUrl(args.key, ctx);
 	},
