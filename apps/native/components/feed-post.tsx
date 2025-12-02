@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
-import { HeartIcon, MessageCircleIcon, ShareIcon, BookmarkIcon } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { Avatar, Skeleton } from "heroui-native";
+import { Avatar } from "heroui-native";
 import { FollowButton } from "./follow-button";
 
 const { width } = Dimensions.get("window");
@@ -52,9 +51,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 						<Avatar.Image source={{ uri: userAvatar as string }} />
 						<Avatar.Fallback>IR</Avatar.Fallback>
 					</Avatar>
-					<Skeleton isLoading={!username} className="ml-3 h-5 w-32 rounded-md">
-						<Text className="ml-3 font-semibold text-base">{username}</Text>
-					</Skeleton>
+					<Text className="ml-3 font-semibold text-base">{username}</Text>
 				</View>
 				{!isOwnPost && currentUser && <FollowButton userId={userId} variant="outline" size="sm" />}
 			</View>
@@ -105,12 +102,10 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
 			{/* Caption */}
 			<View className="px-4 py-2">
-				<Skeleton isLoading={!username} className="h-6 w-full rounded-md">
-					<Text className="text-sm">
-						<Text className="font-semibold">{username}</Text>{" "}
-						<Text className="text-gray-800">{caption}</Text>
-					</Text>
-				</Skeleton>
+				<Text className="text-sm">
+					<Text className="font-semibold">{username}</Text>{" "}
+					<Text className="text-gray-800">{caption}</Text>
+				</Text>
 			</View>
 		</View>
 	);

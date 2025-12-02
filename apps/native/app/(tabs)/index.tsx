@@ -1,9 +1,10 @@
-import { FlatList, View, Text, RefreshControl } from "react-native";
+import { FlatList, View, Text, RefreshControl, Image, Dimensions } from "react-native";
 import { FeedPost } from "@/components/feed-post";
 import { mockPosts } from "@/data/mock-posts";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { Skeleton } from "heroui-native";
 
 export default function TabOne() {
 	const [refreshing, setRefreshing] = useState(false);
@@ -57,8 +58,19 @@ export default function TabOne() {
 
 	if (!realPosts && !users) {
 		return (
-			<View className="flex-1 bg-brand-background items-center justify-center">
-				<Text className="text-foreground">Loading...</Text>
+			<View className="flex-1 bg-brand-background">
+				<View className="flex-row items-center px-4 py-3">
+					<Skeleton className="h-10 w-10 rounded-full" />
+					<Skeleton className="ml-3 h-5 w-32 rounded-md" />
+				</View>
+				{/*<Text className="text-foreground">Loading...</Text>*/}
+				<View className="mt-4">
+					<Skeleton className="h-100 w-full rounded-md" />
+				</View>
+
+				<View className="px-4 py-2">
+					<Skeleton className="h-6 w-full rounded-md" />
+				</View>
 			</View>
 		);
 	}
@@ -90,7 +102,7 @@ export default function TabOne() {
 				)}
 				contentContainerClassName="bg-brand-background"
 				showsVerticalScrollIndicator={false}
-				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+				// refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			/>
 		</View>
 	);
