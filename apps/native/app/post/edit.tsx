@@ -25,16 +25,17 @@ interface Photo {
 
 export default function EditPostScreen() {
 	const params = useLocalSearchParams();
-	const photoUri = params.photoUri as string;
+	const photoUris = params.photoUris as string;
 
-	// For now, we're handling a single photo, but this structure supports multiple
-	const [photos] = useState<Photo[]>([
-		{
-			uri: photoUri,
+	// Parse multiple photo URIs from comma-separated string
+	const [photos] = useState<Photo[]>(() => {
+		const uris = photoUris ? photoUris.split(",") : [];
+		return uris.map((uri) => ({
+			uri: uri.trim(),
 			width: width,
 			height: width,
-		},
-	]);
+		}));
+	});
 	const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 	const [caption, setCaption] = useState("");
 	const [tags, setTags] = useState<string[]>([]);

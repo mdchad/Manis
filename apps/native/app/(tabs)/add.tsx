@@ -12,9 +12,10 @@ import {
 	ScrollView,
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
-import { X, ChevronRight, ArrowRightIcon } from "lucide-react-native";
+import { X, ChevronRight, ArrowRightIcon, CheckIcon } from "lucide-react-native";
 import { router } from "expo-router";
 import { Container } from "@/components/container";
+import { Checkbox } from "heroui-native";
 
 const { width } = Dimensions.get("window");
 const GRID_COLUMNS = 3;
@@ -30,7 +31,8 @@ interface Photo {
 
 export default function AddScreen() {
 	const [photos, setPhotos] = useState<Photo[]>([]);
-	const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+	const [selectedPhotos, setSelectedPhotos] = useState<Photo[]>([]);
+	const [primaryPhoto, setPrimaryPhoto] = useState<Photo | null>(null);
 	const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 	const [loading, setLoading] = useState(true);
 
@@ -84,7 +86,8 @@ export default function AddScreen() {
 
 			setPhotos(photoData);
 			if (photoData.length > 0) {
-				setSelectedPhoto(photoData[0]);
+				setPrimaryPhoto(photoData[0]);
+				setSelectedPhotos([photoData[0]]);
 			}
 		} catch (error) {
 			console.error("Error loading photos:", error);
@@ -95,22 +98,56 @@ export default function AddScreen() {
 	};
 
 	const handlePhotoSelect = (photo: Photo) => {
-		setSelectedPhoto(photo);
+		const isAlreadySelected = selectedPhotos.some((p) => p.id === photo.id);
+
+		if (isAlreadySelected) {
+			// Deselect the photo - must keep at least one selected
+			if (selectedPhotos.length > 1) {
+				const newSelectedPhotos = selectedPhotos.filter((p) => p.id !== photo.id);
+				setSelectedPhotos(newSelectedPhotos);
+
+				// If we deselected the primary photo, set the first remaining photo as primary
+				if (primaryPhoto?.id === photo.id) {
+					setPrimaryPhoto(newSelectedPhotos[0]);
+				}
+			}
+			// If only one photo is selected, don't allow deselection
+		} else {
+			// Add to selection (max 10 photos like Instagram)
+			if (selectedPhotos.length < 10) {
+				setSelectedPhotos([...selectedPhotos, photo]);
+				// If this is the first photo being selected, make it primary
+				if (selectedPhotos.length === 0) {
+					setPrimaryPhoto(photo);
+				}
+			} else {
+				Alert.alert("Maximum Reached", "You can select up to 10 photos.");
+			}
+		}
+	};
+
+	const handlePhotoPrimarySelect = (photo: Photo) => {
+		// Tap to make this photo the primary preview
+		setPrimaryPhoto(photo);
 	};
 
 	const handleNext = () => {
-		if (selectedPhoto) {
+		if (selectedPhotos.length > 0) {
+			const photoUris = selectedPhotos.map((p) => p.uri).join(",");
 			router.push({
 				pathname: "/post/edit",
 				params: {
-					photoUri: selectedPhoto.uri,
+					photoUris: photoUris,
 				},
 			});
 		}
 	};
 
 	const renderPhotoItem = ({ item }: { item: Photo }) => {
-		const isSelected = selectedPhoto?.id === item.id;
+		const selectedIndex = selectedPhotos.findIndex((p) => p.id === item.id);
+		const isSelected = selectedIndex !== -1;
+		const selectionNumber = isSelected ? selectedIndex + 1 : null;
+
 		return (
 			<TouchableOpacity
 				onPress={() => handlePhotoSelect(item)}
@@ -127,6 +164,23 @@ export default function AddScreen() {
 					resizeMode="cover"
 				/>
 				{isSelected && <View className="absolute inset-0 border-2 border-primary bg-primary/20" />}
+
+				{/* Checkbox with selection number */}
+				<View className="absolute top-2 right-2">
+					<Checkbox
+						isSelected={isSelected}
+						onSelectedChange={() => handlePhotoSelect(item)}
+						className="w-6 h-6"
+					>
+						<Checkbox.Indicator>
+							{({ isSelected }) =>
+								isSelected && selectionNumber ? (
+									<Text className="text-white text-xs font-bold">{selectionNumber}</Text>
+								) : null
+							}
+						</Checkbox.Indicator>
+					</Checkbox>
+				</View>
 			</TouchableOpacity>
 		);
 	};
@@ -168,7 +222,7 @@ export default function AddScreen() {
 		<Container>
 			<View className="bg-brand-background">
 				{/* Selected Photo Preview with Header Inside */}
-				{selectedPhoto && (
+				{primaryPhoto && (
 					<View
 						className="bg-black relative"
 						style={{
@@ -177,7 +231,7 @@ export default function AddScreen() {
 						}}
 					>
 						<Image
-							source={{ uri: selectedPhoto.uri }}
+							source={{ uri: primaryPhoto.uri }}
 							style={{ width: "100%", height: "100%" }}
 							resizeMode="cover"
 						/>
@@ -190,12 +244,22 @@ export default function AddScreen() {
 							<Text className="text-lg font-semibold text-white">NEW POST</Text>
 							<Pressable
 								onPress={handleNext}
-								disabled={!selectedPhoto}
+								disabled={selectedPhotos.length === 0}
 								className="bg-black/30 rounded-full p-1"
 							>
 								<ArrowRightIcon size={28} color="white" />
 							</Pressable>
 						</View>
+
+						{/* Multiple Selection Indicator */}
+						{selectedPhotos.length > 1 && (
+							<View className="absolute top-16 right-4 bg-black/60 px-3 py-1 rounded-full">
+								<Text className="text-white text-sm font-semibold">
+									{selectedPhotos.findIndex((p) => p.id === primaryPhoto.id) + 1}/
+									{selectedPhotos.length}
+								</Text>
+							</View>
+						)}
 					</View>
 				)}
 
