@@ -15,8 +15,9 @@ import { useState } from "react";
 import { useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
 import { Avatar, Button, TextField } from "heroui-native";
-import { Camera, X } from "lucide-react-native";
+import { ArrowLeft, Camera, X } from "lucide-react-native";
 import { useUploadFile } from "@convex-dev/r2/react";
+import { withUniwind } from "uniwind";
 
 export default function Index() {
 	const router = useRouter();
@@ -143,11 +144,20 @@ export default function Index() {
 		}
 	};
 
+	const StyledArrowLeft = withUniwind(ArrowLeft);
+
 	return (
 		<Container>
 			<ScrollView>
-				<View className="px-4">
-					<Text className="font-mono text-foreground text-3xl font-bold mb-4">Edit Profile</Text>
+				<View className="px-4 bg-brand-background">
+					<View className="flex flex-row items-center">
+						<Button isIconOnly variant="ghost" onPress={() => router.back()}>
+							<Button.Label>
+								<StyledArrowLeft size={24} />
+							</Button.Label>
+						</Button>
+						<Text className="font-mono text-foreground text-3xl font-bold">Edit Profile</Text>
+					</View>
 
 					{/* Avatar Section */}
 					<View className="items-center mb-8">
@@ -215,7 +225,7 @@ export default function Index() {
 							variant="primary"
 							size="lg"
 							onPress={handleSave}
-							className="mt-2"
+							className="mt-6 bg-primary"
 							isDisabled={isUploading || (!selectedFile && !bio)}
 						>
 							{isUploading ? (

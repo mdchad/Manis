@@ -12,7 +12,7 @@ import {
 	ScrollView,
 } from "react-native";
 import * as MediaLibrary from "expo-media-library";
-import { X, ChevronRight } from "lucide-react-native";
+import { X, ChevronRight, ArrowRightIcon } from "lucide-react-native";
 import { router } from "expo-router";
 import { Container } from "@/components/container";
 
@@ -193,7 +193,7 @@ export default function AddScreen() {
 								disabled={!selectedPhoto}
 								className="bg-black/30 rounded-full p-1"
 							>
-								<ChevronRight size={28} color="white" />
+								<ArrowRightIcon size={28} color="white" />
 							</Pressable>
 						</View>
 					</View>
@@ -201,8 +201,8 @@ export default function AddScreen() {
 
 				{/* Recent Photos Label */}
 				<View className="flex-row items-center justify-between px-4 py-3 border-b border-border bg-[#262627]">
-					<Text className="text-base font-medium text-white">RECENTS</Text>
-					<Text className="text-sm text-white">DRAFTS</Text>
+					<Text className="text-xs font-medium text-white">RECENTS</Text>
+					<Text className="text-xs text-white">DRAFTS</Text>
 				</View>
 
 				{/* Photo Grid */}
