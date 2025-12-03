@@ -93,6 +93,54 @@ export const getFeedPosts = query({
 	},
 });
 
+// Get a single post by ID
+export const getPostById = query({
+	args: {
+		postId: v.id("posts"),
+	},
+	handler: async (ctx, args) => {
+		const post = await ctx.db.get(args.postId);
+		if (!post) throw new Error("Post not found");
+
+		// Get user data
+		const user = await authComponent.getAnyUserById(ctx, post.userId);
+		const profile = await ctx.db
+			.query("userProfiles")
+			.withIndex("by_userId", (q) => q.eq("userId", post.userId))
+			.first();
+
+		// Get image URLs from R2
+		const imageUrls = await Promise.all(
+			post.imageKeys.map(async (key) => await r2.getUrl(key, ctx))
+		);
+
+		// Get like count
+		const likes = await ctx.db
+			.query("postLikes")
+			.withIndex("by_post", (q) => q.eq("postId", post._id))
+			.collect();
+
+		// Get comment count
+		const comments = await ctx.db
+			.query("postComments")
+			.withIndex("by_post", (q) => q.eq("postId", post._id))
+			.collect();
+
+		// Get avatar URL
+		const avatarUrl = profile?.avatarKey ? await r2.getUrl(profile.avatarKey, ctx) : null;
+
+		return {
+			...post,
+			username: user?.username || "Unknown",
+			displayName: profile?.displayName,
+			avatarUrl,
+			imageUrls,
+			likeCount: likes.length,
+			commentCount: comments.length,
+		};
+	},
+});
+
 // Get posts by user (for profile view)
 export const getUserPosts = query({
 	args: {

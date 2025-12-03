@@ -66,6 +66,12 @@ export default function ProfileScreen() {
 	const postsImages = userPosts?.map((post) => post.imageUrls[0]).filter(Boolean) ?? [];
 	const images = activeTab === "posts" ? postsImages : mockProfile.listingsImages;
 
+	const handlePostPress = (index: number) => {
+		if (activeTab === "posts" && userPosts && userPosts[index]) {
+			router.push(`/post/${userPosts[index]._id}`);
+		}
+	};
+
 	const router = useRouter();
 
 	return (
@@ -150,7 +156,7 @@ export default function ProfileScreen() {
 			{/* Image Grid */}
 			<View className="flex-row flex-wrap gap-[2px]">
 				{images.map((image, index) => (
-					<TouchableOpacity key={index}>
+					<TouchableOpacity key={index} onPress={() => handlePostPress(index)}>
 						<Image
 							source={{ uri: image }}
 							style={{
