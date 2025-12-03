@@ -12,7 +12,7 @@ export default function ChatMessage() {
 
 	// Mock data - in real app, fetch based on id
 	return (
-		<Container>
+		<Container edges={["top"]}>
 			<ScrollView>
 				<Text>Chat {id}</Text>
 			</ScrollView>
