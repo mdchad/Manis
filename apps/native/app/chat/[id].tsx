@@ -12,6 +12,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Send, ImageIcon, Smile } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Avatar } from "heroui-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Mock message data
 const mockMessages = [
@@ -70,6 +71,7 @@ export default function ChatMessage() {
 	const { id } = useLocalSearchParams();
 	const router = useRouter();
 	const [message, setMessage] = useState("");
+	const insets = useSafeAreaInsets();
 
 	const handleSend = () => {
 		if (message.trim()) {
@@ -80,7 +82,7 @@ export default function ChatMessage() {
 	};
 
 	return (
-		<Container edges={["top", "bottom"]}>
+		<Container edges={["top"]}>
 			<View className="flex-1 bg-brand-background">
 				{/* Header */}
 				<View className="flex-row items-center px-4 py-3 border-b border-gray-200">
@@ -141,7 +143,10 @@ export default function ChatMessage() {
 					behavior={Platform.OS === "ios" ? "padding" : "height"}
 					keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
 				>
-					<View className="bg-white border-t border-gray-200 px-4 py-3">
+					<View
+						className="bg-white border-t border-gray-200 px-4 py-3"
+						style={{ paddingBottom: insets.bottom + 12 }}
+					>
 						<View className="flex-row items-center">
 							{/* Image Button */}
 							<TouchableOpacity className="mr-3">
