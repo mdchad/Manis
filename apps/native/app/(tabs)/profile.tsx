@@ -68,7 +68,7 @@ export default function ProfileScreen() {
 
 	const handlePostPress = (index: number) => {
 		if (activeTab === "posts" && userPosts && userPosts[index]) {
-			router.push(`/post/${userPosts[index]._id}`);
+			router.push({ pathname: "/post/[id]", params: { id: userPosts[index]._id } });
 		}
 	};
 

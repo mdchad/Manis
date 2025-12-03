@@ -52,7 +52,7 @@ function StackLayout() {
 						}}
 					/>
 					<Stack.Screen
-						name="post/[id]"
+						name="post"
 						options={{
 							headerShown: false,
 							presentation: "card",
