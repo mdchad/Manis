@@ -29,8 +29,8 @@ export default function ListingDetail() {
 	};
 
 	return (
-		<Container>
-			<View className="bg-brand-background">
+		<Container edges={["top"]}>
+			<ScrollView>
 				{/* Header */}
 				{/*<View className="absolute top-0 left-0 right-0 z-10 flex-row items-center justify-between px-4 pt-12 pb-4">*/}
 				{/*	<TouchableOpacity*/}
@@ -87,7 +87,10 @@ export default function ListingDetail() {
 
 						{/* Action Buttons */}
 						<View className="flex-row items-center justify-between mt-8 mb-4">
-							<TouchableOpacity className="flex-1 mr-2" onPress={() => router.push("chat/" + id)}>
+							<TouchableOpacity
+								className="flex-1 mr-2"
+								onPress={() => router.push({ pathname: "/chat/[id]", params: id })}
+							>
 								<View className="bg-primary py-3 items-center rounded-lg">
 									<Text className="text-white font-semibold text-base">CHAT TO BUY</Text>
 								</View>
@@ -98,7 +101,7 @@ export default function ListingDetail() {
 						</View>
 					</View>
 				</ScrollView>
-			</View>
+			</ScrollView>
 		</Container>
 	);
 }

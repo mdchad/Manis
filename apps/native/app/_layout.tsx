@@ -1,30 +1,27 @@
-import { ConvexReactClient, Authenticated, Unauthenticated, AuthLoading } from "convex/react";
+import { ConvexReactClient, useConvexAuth } from "convex/react";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { authClient } from "@/lib/auth-client";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
-// import { useColorScheme } from "@/lib/use-color-scheme";
-import { Platform, View, ActivityIndicator, ImageBackground } from "react-native";
+import { View, ImageBackground } from "react-native";
 import "../global.css";
 import { HeroUINativeProvider } from "heroui-native";
-// import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
-
-export const unstable_settings = {
-	initialRouteName: "(auth)",
-};
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 	expectAuth: true,
 	unsavedChangesWarning: false,
+	// verbose: true, // Enable verbose logging to debug auth issues
 });
 
 function StackLayout() {
-	return (
-		<>
-			<AuthLoading>
+	const { isAuthenticated, isLoading } = useConvexAuth();
+
+	// Show loading splash while auth initializes
+	if (isLoading) {
+		return (
+			<>
 				<StatusBar style="light" />
 				<ImageBackground
 					source={require("@/assets/images/splash-logo.png")}
@@ -34,15 +31,21 @@ function StackLayout() {
 				>
 					<View className="flex-1 items-center justify-center"></View>
 				</ImageBackground>
-			</AuthLoading>
-			<Unauthenticated>
-				<StatusBar style="light" />
-				<Stack screenOptions={{ headerShown: false }}>
+			</>
+		);
+	}
+
+	return (
+		<>
+			<StatusBar style={isAuthenticated ? "dark" : "light"} />
+			<Stack screenOptions={{ headerShown: false }}>
+				{/* Auth screens - only accessible when NOT authenticated */}
+				<Stack.Protected guard={!isAuthenticated}>
 					<Stack.Screen name="(auth)" options={{ headerShown: false }} />
-				</Stack>
-			</Unauthenticated>
-			<Authenticated>
-				<Stack screenOptions={{ headerShown: false }}>
+				</Stack.Protected>
+
+				{/* Protected screens - only accessible when authenticated */}
+				<Stack.Protected guard={isAuthenticated}>
 					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 					<Stack.Screen
 						name="listing"
@@ -73,8 +76,8 @@ function StackLayout() {
 						}}
 					/>
 					<Stack.Screen name="modal" options={{ title: "Modal", presentation: "modal" }} />
-				</Stack>
-			</Authenticated>
+				</Stack.Protected>
+			</Stack>
 		</>
 	);
 }
@@ -111,6 +114,3 @@ export default function RootLayout() {
 		</ConvexBetterAuthProvider>
 	);
 }
-
-const useIsomorphicLayoutEffect =
-	Platform.OS === "web" && typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
