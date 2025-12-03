@@ -95,6 +95,11 @@ export default defineSchema({
 		// Category, brand, etc.
 		category: v.optional(v.string()),
 		brand: v.optional(v.string()),
+		// Core search metadata (keyword search)
+		type: v.optional(v.string()), // e.g., shawl, pashmina, scarf
+		colors: v.optional(v.array(v.string())), // e.g., ["black", "red"]
+		// Filter metadata (dropdown filters)
+		size: v.optional(v.string()), // e.g., S, M, L, Free Size
 		// Status (available, sold, etc.)
 		status: v.string(),
 		// Timestamps
@@ -103,5 +108,9 @@ export default defineSchema({
 	})
 		.index("by_userId", ["userId"])
 		.index("by_status", ["status"])
-		.index("by_createdAt", ["createdAt"]),
+		.index("by_createdAt", ["createdAt"])
+		// Search indexes for core metadata
+		.index("by_brand", ["brand"])
+		.index("by_type", ["type"])
+		.index("by_status_and_createdAt", ["status", "createdAt"]),
 });
