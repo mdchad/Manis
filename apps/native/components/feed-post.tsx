@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { View, Text, Image, TouchableOpacity, Dimensions } from "react-native";
+import {
+	View,
+	Text,
+	Image,
+	TouchableOpacity,
+	Dimensions,
+	ScrollView,
+	NativeScrollEvent,
+	NativeSyntheticEvent,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
@@ -42,6 +51,12 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 		router.push(`/listing/${index + 1}`);
 	};
 
+	const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+		const contentOffsetX = event.nativeEvent.contentOffset.x;
+		const index = Math.round(contentOffsetX / width);
+		setCurrentImageIndex(index);
+	};
+
 	return (
 		<View className="mb-4 bg-brand-background">
 			{/* Header */}
@@ -58,11 +73,22 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
 			{/* Image Carousel */}
 			<View className="relative">
-				<Image
-					source={{ uri: images[currentImageIndex] }}
-					style={{ width, height: width * 1.2 }}
-					resizeMode="cover"
-				/>
+				<ScrollView
+					horizontal
+					pagingEnabled
+					showsHorizontalScrollIndicator={false}
+					onScroll={handleScroll}
+					scrollEventThrottle={16}
+				>
+					{images.map((image, index) => (
+						<Image
+							key={index}
+							source={{ uri: image }}
+							style={{ width, height: width * 1.2 }}
+							resizeMode="cover"
+						/>
+					))}
+				</ScrollView>
 
 				{/* Pagination Dots */}
 				{images.length > 1 && (

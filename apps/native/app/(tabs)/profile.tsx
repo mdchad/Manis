@@ -5,6 +5,7 @@ import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton, Button, Avatar } from "heroui-native";
 import { Pencil } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { getUserPosts } from "@manis/backend/convex/posts";
 
 const { width } = Dimensions.get("window");
 const imageSize = (width - 8) / 3; // 3 columns with 2px gaps
@@ -46,14 +47,30 @@ const mockProfile = {
 
 export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
-	const images = activeTab === "posts" ? mockProfile.postsImages : mockProfile.listingsImages;
+
 	const { isAuthenticated } = useConvexAuth();
+
 	const currentUser = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
+
 	const followCounts = useQuery(
 		api.follows.getFollowCounts,
 		currentUser?._id ? { userId: currentUser._id } : "skip"
 	);
+	const userPosts = useQuery(
+		api.posts.getUserPosts,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
+
+	// Extract first image from each post for grid display
+	const postsImages = userPosts?.map((post) => post.imageUrls[0]).filter(Boolean) ?? [];
+	const images = activeTab === "posts" ? postsImages : mockProfile.listingsImages;
+
+	const handlePostPress = (index: number) => {
+		if (activeTab === "posts" && userPosts && userPosts[index]) {
+			router.push({ pathname: "/post/[id]", params: { id: userPosts[index]._id } });
+		}
+	};
 
 	const router = useRouter();
 
@@ -81,7 +98,7 @@ export default function ProfileScreen() {
 							<Text className="text-sm text-muted-foreground">following</Text>
 						</View>
 						<View className="items-center">
-							<Text className="text-2xl font-bold text-foreground">{mockProfile.posts}</Text>
+							<Text className="text-2xl font-bold text-foreground">{userPosts?.length ?? 0}</Text>
 							<Text className="text-sm text-muted-foreground">posts</Text>
 						</View>
 					</View>
@@ -103,7 +120,7 @@ export default function ProfileScreen() {
 						</Button>
 					</View>
 					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
-						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+						<Text className="text-sm text-blue-600">{profile?.bio}</Text>
 					</Skeleton>
 				</View>
 			</View>
@@ -139,7 +156,7 @@ export default function ProfileScreen() {
 			{/* Image Grid */}
 			<View className="flex-row flex-wrap gap-[2px]">
 				{images.map((image, index) => (
-					<TouchableOpacity key={index}>
+					<TouchableOpacity key={index} onPress={() => handlePostPress(index)}>
 						<Image
 							source={{ uri: image }}
 							style={{

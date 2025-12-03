@@ -6,6 +6,9 @@ export default function PostLayout() {
 			screenOptions={{
 				headerShown: false,
 			}}
-		/>
+		>
+			<Stack.Screen name="[id]" />
+			<Stack.Screen name="edit" />
+		</Stack>
 	);
 }

@@ -52,6 +52,13 @@ function StackLayout() {
 						}}
 					/>
 					<Stack.Screen
+						name="post"
+						options={{
+							headerShown: false,
+							presentation: "card",
+						}}
+					/>
+					<Stack.Screen
 						name="edit-profile"
 						options={{
 							headerShown: false,
