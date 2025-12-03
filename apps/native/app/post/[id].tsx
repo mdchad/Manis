@@ -5,6 +5,7 @@ import { api } from "@manis/backend/convex/_generated/api";
 import { FeedPost } from "@/components/feed-post";
 import { Skeleton } from "heroui-native";
 import { Id } from "@manis/backend/convex/_generated/dataModel";
+import { Container } from "@/components/container";
 
 export default function PostScreen() {
 	const { id } = useLocalSearchParams<{ id: string }>();
@@ -31,16 +32,18 @@ export default function PostScreen() {
 	}
 
 	return (
-		<ScrollView className="flex-1 bg-brand-background" showsVerticalScrollIndicator={false}>
-			<FeedPost
-				userId={post.userId}
-				userAvatar={post.avatarUrl || `https://i.pravatar.cc/150?u=${post.userId}`}
-				username={post.username}
-				images={post.imageUrls}
-				caption={post.caption}
-				likes={post.likeCount}
-				listingImages={[]}
-			/>
-		</ScrollView>
+		<Container edges={["top"]}>
+			<ScrollView>
+				<FeedPost
+					userId={post.userId}
+					userAvatar={post.avatarUrl || `https://i.pravatar.cc/150?u=${post.userId}`}
+					username={post.username}
+					images={post.imageUrls}
+					caption={post.caption}
+					likes={post.likeCount}
+					listingImages={[]}
+				/>
+			</ScrollView>
+		</Container>
 	);
 }
