@@ -103,7 +103,7 @@ export default function ProfileScreen() {
 						</Button>
 					</View>
 					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
-						<Text className="text-sm text-blue-600">{mockProfile.bio}</Text>
+						<Text className="text-sm text-blue-600">{profile?.bio}</Text>
 					</Skeleton>
 				</View>
 			</View>
