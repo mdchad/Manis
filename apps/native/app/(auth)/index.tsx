@@ -10,10 +10,6 @@ export default function LoginScreen() {
 	const StyledSafeAreaView = withUniwind(SafeAreaView);
 	const router = useRouter();
 
-	useEffect(() => {
-		authClient.signOut();
-	}, []);
-
 	return (
 		<ImageBackground
 			source={require("@/assets/images/splash-logo.png")}
