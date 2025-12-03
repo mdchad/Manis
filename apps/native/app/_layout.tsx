@@ -1,22 +1,13 @@
-import {
-	ConvexReactClient,
-	Authenticated,
-	Unauthenticated,
-	AuthLoading,
-	useConvexAuth,
-} from "convex/react";
+import { ConvexReactClient, useConvexAuth } from "convex/react";
 import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
 import { authClient } from "@/lib/auth-client";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { NAV_THEME } from "@/lib/constants";
 import React, { useRef } from "react";
-// import { useColorScheme } from "@/lib/use-color-scheme";
-import { Platform, View, ActivityIndicator, ImageBackground } from "react-native";
+import { View, ImageBackground } from "react-native";
 import "../global.css";
 import { HeroUINativeProvider } from "heroui-native";
-// import { setAndroidNavigationBar } from "@/lib/android-navigation-bar";
 
 const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
 	expectAuth: true,

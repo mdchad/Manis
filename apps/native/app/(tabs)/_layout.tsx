@@ -1,6 +1,6 @@
 import { TabBarIcon } from "@/components/tabbar-icon";
 // import { useColorScheme } from "@/lib/use-color-scheme";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import {
 	BubblesIcon,
 	ContactIcon,
@@ -13,14 +13,14 @@ import {
 } from "lucide-react-native";
 import { Image, View } from "react-native";
 import React from "react";
-import { Avatar } from "heroui-native";
+import { Avatar, Button } from "heroui-native";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { cn } from "tailwind-variants";
 
 export default function TabLayout() {
-	// const { isDarkColorScheme } = useColorScheme();
 	const { isAuthenticated } = useConvexAuth();
+	const router = useRouter();
 
 	const profile = useQuery(api.userProfiles.getProfile, isAuthenticated ? {} : "skip");
 
@@ -38,9 +38,9 @@ export default function TabLayout() {
 					borderColor: "transparent",
 				},
 				headerRight: () => (
-					<View className="pr-4">
+					<Button isIconOnly variant="ghost" className="pr-4" onPress={() => router.push("/chat")}>
 						<MessageCircleIcon />
-					</View>
+					</Button>
 				),
 				headerTitle: () => (
 					<Image
