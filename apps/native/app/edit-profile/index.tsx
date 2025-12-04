@@ -217,6 +217,7 @@ export default function Index() {
 								onChangeText={setBio}
 								autoCapitalize="none"
 								autoComplete="off"
+								multiline
 								// onBlur={() => handleBlur("email")}
 							/>
 							{/*<TextField.Description>We'll never share your email</TextField.Description>*/}
@@ -242,13 +243,13 @@ export default function Index() {
 					{/* Sign Out Section */}
 					<View className="mb-6 p-4 bg-card rounded-lg border border-border">
 						<Button
-							variant="destructive"
+							variant="ghost"
 							size="md"
 							onPress={() => {
 								authClient.signOut();
 							}}
 						>
-							<Button.Label>Sign Out</Button.Label>
+							<Button.Label className="text-red-500">Sign Out</Button.Label>
 						</Button>
 					</View>
 				</View>

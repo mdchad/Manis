@@ -11,7 +11,7 @@ import {
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Send, ImageIcon, Smile } from "lucide-react-native";
 import { Container } from "@/components/container";
-import { Avatar } from "heroui-native";
+import { Avatar, Button, TextField } from "heroui-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 // Mock message data
@@ -144,42 +144,63 @@ export default function ChatMessage() {
 					keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
 				>
 					<View
-						className="bg-white border-t border-gray-200 px-4 py-3"
+						className="bg-white border-t flex flex-row items-center border-gray-200 px-4 py-3 w-full"
 						style={{ paddingBottom: insets.bottom + 12 }}
 					>
-						<View className="flex-row items-center">
-							{/* Image Button */}
-							<TouchableOpacity className="mr-3">
-								<ImageIcon size={24} color="#9ca3af" />
-							</TouchableOpacity>
+						{/*<View className="flex-row items-center w-full">*/}
+						{/* Image Button */}
+						{/*<TouchableOpacity className="mr-3">*/}
+						{/*	<ImageIcon size={24} color="#9ca3af" />*/}
+						{/*</TouchableOpacity>*/}
 
-							{/* Text Input */}
-							<View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2">
-								<TextInput
-									className="flex-1 text-base text-foreground"
-									placeholder="Type a message..."
-									placeholderTextColor="#9ca3af"
-									value={message}
-									onChangeText={setMessage}
-									multiline
-									maxLength={500}
-								/>
-								<TouchableOpacity className="ml-2">
-									<Smile size={20} color="#9ca3af" />
-								</TouchableOpacity>
-							</View>
-
-							{/* Send Button */}
-							<TouchableOpacity
-								onPress={handleSend}
-								className={`ml-3 w-10 h-10 rounded-full items-center justify-center ${
-									message.trim() ? "bg-primary" : "bg-gray-300"
-								}`}
-								disabled={!message.trim()}
-							>
-								<Send size={20} color="white" />
-							</TouchableOpacity>
+						{/* Text Input */}
+						<View className="w-5/6">
+							<TextField>
+								<TextField.Input
+									colors={{
+										focusBackground: "#f3f4f6",
+										blurBackground: "#f3f4f6",
+									}}
+									placeholder="Type your message..."
+									// multiline
+									// maxLength={500}
+									// numberOfLines={4}
+								>
+									{/*<TextField.InputEndContent>*/}
+									{/*	<Button isIconOnly variant="ghost" size="sm">*/}
+									{/*		<Smile size={20} color="#9ca3af" />*/}
+									{/*	</Button>*/}
+									{/*</TextField.InputEndContent>*/}
+								</TextField.Input>
+							</TextField>
 						</View>
+						{/*<View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2">*/}
+						{/*	<TextInput*/}
+						{/*		className="flex-1 text-base text-foreground"*/}
+						{/*		placeholder="Type a message..."*/}
+						{/*		placeholderTextColor="#9ca3af"*/}
+						{/*		value={message}*/}
+						{/*		onChangeText={setMessage}*/}
+						{/*		multiline*/}
+						{/*		maxLength={500}*/}
+						{/*	/>*/}
+						{/*	<Button isIconOnly variant="ghost" size="sm">*/}
+						{/*		<Smile size={20} color="#9ca3af" />*/}
+						{/*	</Button>*/}
+						{/*</View>*/}
+
+						{/* Send Button */}
+						<Button
+							isIconOnly
+							variant="ghost"
+							onPress={handleSend}
+							className="ml-3 bg-primary w-10"
+						>
+							<Button.Label>
+								<Send size={20} color="white" />
+							</Button.Label>
+						</Button>
+						{/*</View>*/}
 					</View>
 				</KeyboardAvoidingView>
 			</View>
