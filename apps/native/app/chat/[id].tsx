@@ -9,77 +9,116 @@ import {
 	Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Send, ImageIcon, Smile } from "lucide-react-native";
+import { ArrowLeft, Send, ImageIcon, Smile, DollarSign } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Avatar, Button, TextField } from "heroui-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
+import type { Id } from "@manis/backend/convex/_generated/dataModel";
+import { OfferCard } from "@/components/offer-card";
+import { ChatMessage } from "@/components/chat-message";
 
-// Mock message data
-const mockMessages = [
-	{
-		id: "1",
-		text: "Hey! I'm interested in the dress you posted",
-		senderId: "user1",
-		timestamp: "10:30 AM",
-		isCurrentUser: false,
-	},
-	{
-		id: "2",
-		text: "Hi! Yes, it's still available. Which one are you interested in?",
-		senderId: "currentUser",
-		timestamp: "10:32 AM",
-		isCurrentUser: true,
-	},
-	{
-		id: "3",
-		text: "The floral midi dress! Is it in good condition?",
-		senderId: "user1",
-		timestamp: "10:33 AM",
-		isCurrentUser: false,
-	},
-	{
-		id: "4",
-		text: "Yes, it's in excellent condition! Only worn twice. I can send you more photos if you'd like",
-		senderId: "currentUser",
-		timestamp: "10:35 AM",
-		isCurrentUser: true,
-	},
-	{
-		id: "5",
-		text: "That would be great, thanks!",
-		senderId: "user1",
-		timestamp: "10:36 AM",
-		isCurrentUser: false,
-	},
-	{
-		id: "6",
-		text: "What's your offer for it?",
-		senderId: "user1",
-		timestamp: "10:37 AM",
-		isCurrentUser: false,
-	},
-];
-
-// Mock user data
-const mockUser = {
-	id: "user1",
-	username: "fadhilahyacob",
-	avatarUrl: "https://i.pravatar.cc/150?img=1",
-};
-
-export default function ChatMessage() {
+export default function ChatMessageScreen() {
 	const { id } = useLocalSearchParams();
 	const router = useRouter();
 	const [message, setMessage] = useState("");
+	const [showMakeOffer, setShowMakeOffer] = useState(false);
+	const [offerAmount, setOfferAmount] = useState("");
+	const [offerMessage, setOfferMessage] = useState("");
 	const insets = useSafeAreaInsets();
 
-	const handleSend = () => {
-		if (message.trim()) {
-			// In real app, send message to backend
-			console.log("Sending message:", message);
-			setMessage("");
+	// Get chat data
+	const chat = useQuery(api.chats.getChatById, { chatId: id as Id<"chats"> });
+	const messages = useQuery(api.messages.getMessages, { chatId: id as Id<"chats"> });
+	const activeOffer = useQuery(api.offers.getActiveOffer, { chatId: id as Id<"chats"> });
+
+	// Mutations
+	const sendMessageMutation = useMutation(api.messages.sendMessage);
+	const makeOfferMutation = useMutation(api.offers.makeOffer);
+	const acceptOfferMutation = useMutation(api.offers.acceptOffer);
+	const declineOfferMutation = useMutation(api.offers.declineOffer);
+	const cancelOfferMutation = useMutation(api.offers.cancelOffer);
+
+	const handleSend = async () => {
+		if (message.trim() && chat) {
+			try {
+				await sendMessageMutation({
+					chatId: chat._id,
+					text: message.trim(),
+				});
+				setMessage("");
+			} catch (error) {
+				console.error("Failed to send message:", error);
+			}
 		}
 	};
+
+	const handleMakeOffer = async () => {
+		const amount = parseFloat(offerAmount);
+		if (!isNaN(amount) && amount > 0 && chat) {
+			try {
+				await makeOfferMutation({
+					chatId: chat._id,
+					amount,
+					message: offerMessage.trim() || undefined,
+				});
+				setOfferAmount("");
+				setOfferMessage("");
+				setShowMakeOffer(false);
+			} catch (error) {
+				console.error("Failed to make offer:", error);
+			}
+		}
+	};
+
+	const handleEditOffer = async (amount: number, msg?: string) => {
+		if (chat) {
+			try {
+				await makeOfferMutation({
+					chatId: chat._id,
+					amount,
+					message: msg,
+				});
+			} catch (error) {
+				console.error("Failed to edit offer:", error);
+			}
+		}
+	};
+
+	const handleAcceptOffer = async (offerId: Id<"offers">) => {
+		try {
+			await acceptOfferMutation({ offerId });
+		} catch (error) {
+			console.error("Failed to accept offer:", error);
+		}
+	};
+
+	const handleDeclineOffer = async (offerId: Id<"offers">) => {
+		try {
+			await declineOfferMutation({ offerId });
+		} catch (error) {
+			console.error("Failed to decline offer:", error);
+		}
+	};
+
+	const handleCancelOffer = async (offerId: Id<"offers">) => {
+		try {
+			await cancelOfferMutation({ offerId });
+		} catch (error) {
+			console.error("Failed to cancel offer:", error);
+		}
+	};
+
+	if (!chat || !messages) {
+		return (
+			<Container edges={["top"]}>
+				<View className="flex-1 bg-brand-background items-center justify-center">
+					<Text className="text-gray-500">Loading...</Text>
+				</View>
+			</Container>
+		);
+	}
 
 	return (
 		<Container edges={["top"]}>
@@ -90,53 +129,112 @@ export default function ChatMessage() {
 						<ArrowLeft size={24} color="black" />
 					</TouchableOpacity>
 
-					<Avatar size="sm" alt={mockUser.username} className="mr-3">
-						<Avatar.Image source={{ uri: mockUser.avatarUrl }} />
+					<Avatar size="sm" alt={chat.otherUser.name} className="mr-3">
+						{chat.otherUser.avatarKey && (
+							<Avatar.Image source={{ uri: `your-r2-url/${chat.otherUser.avatarKey}` }} />
+						)}
 						<Avatar.Fallback />
 					</Avatar>
 
-					<Text className="flex-1 text-lg font-semibold text-foreground">{mockUser.username}</Text>
+					<View className="flex-1">
+						<Text className="text-lg font-semibold text-foreground">{chat.otherUser.name}</Text>
+						{chat.listing && (
+							<Text className="text-xs text-gray-500" numberOfLines={1}>
+								{chat.listing.title}
+							</Text>
+						)}
+					</View>
 				</View>
+
+				{/* Listing Preview (Optional - can add listing image and price here) */}
+				{chat.listing && (
+					<View className="px-4 py-2 bg-white border-b border-gray-200">
+						<Text className="text-sm font-medium text-foreground">{chat.listing.title}</Text>
+						{chat.listing.price && (
+							<Text className="text-sm text-primary font-semibold">
+								RM {chat.listing.price.toFixed(2)}
+							</Text>
+						)}
+					</View>
+				)}
+
+				{/* Offer Card (Pinned below header) */}
+				{activeOffer && (
+					<OfferCard
+						offer={activeOffer}
+						onAccept={handleAcceptOffer}
+						onDecline={handleDeclineOffer}
+						onEdit={handleEditOffer}
+						onCancel={handleCancelOffer}
+					/>
+				)}
 
 				{/* Messages */}
 				<ScrollView
-					className="px-4 py-4"
+					className="flex-1 py-4"
 					contentContainerStyle={{ paddingBottom: 20 }}
 					showsVerticalScrollIndicator={false}
 				>
-					{mockMessages.map((msg) => (
-						<View
-							key={msg.id}
-							className={`flex-1 mb-3 flex-row ${msg.isCurrentUser ? "justify-end" : "justify-start"}`}
-						>
-							{!msg.isCurrentUser && (
-								<Avatar size="sm" alt={mockUser.username} className="mr-2 mt-1">
-									<Avatar.Image source={{ uri: mockUser.avatarUrl }} />
-									<Avatar.Fallback />
-								</Avatar>
-							)}
-
-							<View
-								className={`max-w-[75%] px-4 py-3 rounded-2xl ${
-									msg.isCurrentUser
-										? "bg-primary rounded-br-sm"
-										: "bg-white rounded-bl-sm border border-gray-200"
-								}`}
-							>
-								<Text className={`text-sm ${msg.isCurrentUser ? "text-white" : "text-foreground"}`}>
-									{msg.text}
-								</Text>
-								<Text
-									className={`text-xs mt-1 ${
-										msg.isCurrentUser ? "text-white/70" : "text-gray-400"
-									}`}
-								>
-									{msg.timestamp}
-								</Text>
-							</View>
-						</View>
+					{messages.map((msg) => (
+						<ChatMessage
+							key={msg._id}
+							message={{
+								id: msg._id,
+								text: msg.text,
+								type: msg.type,
+								isCurrentUser: msg.senderId === chat.otherUser.id ? false : true,
+								timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
+									hour: "2-digit",
+									minute: "2-digit",
+								}),
+							}}
+							userAvatarUrl={
+								chat.otherUser.avatarKey ? `your-r2-url/${chat.otherUser.avatarKey}` : undefined
+							}
+							username={chat.otherUser.name}
+						/>
 					))}
 				</ScrollView>
+
+				{/* Make Offer Form (shown when showMakeOffer is true) */}
+				{showMakeOffer && (
+					<View className="bg-white border-t border-gray-200 p-4">
+						<View className="flex-row items-center justify-between mb-3">
+							<Text className="text-lg font-semibold text-foreground">Make an Offer</Text>
+							<TouchableOpacity onPress={() => setShowMakeOffer(false)}>
+								<Text className="text-gray-500">Cancel</Text>
+							</TouchableOpacity>
+						</View>
+
+						<View className="mb-3">
+							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (RM)</Text>
+							<TextField>
+								<TextField.Input
+									keyboardType="numeric"
+									value={offerAmount}
+									onChangeText={setOfferAmount}
+									placeholder="Enter amount"
+								/>
+							</TextField>
+						</View>
+
+						<View className="mb-3">
+							<Text className="text-sm font-medium text-gray-700 mb-1">Message (Optional)</Text>
+							<TextField>
+								<TextField.Input
+									value={offerMessage}
+									onChangeText={setOfferMessage}
+									placeholder="Add a message..."
+									multiline
+								/>
+							</TextField>
+						</View>
+
+						<Button onPress={handleMakeOffer} size="md">
+							<Button.Label>Send Offer</Button.Label>
+						</Button>
+					</View>
+				)}
 
 				{/* Input Area */}
 				<KeyboardAvoidingView
@@ -147,14 +245,15 @@ export default function ChatMessage() {
 						className="bg-white border-t flex flex-row items-center border-gray-200 px-4 py-3 w-full"
 						style={{ paddingBottom: insets.bottom + 12 }}
 					>
-						{/*<View className="flex-row items-center w-full">*/}
-						{/* Image Button */}
-						{/*<TouchableOpacity className="mr-3">*/}
-						{/*	<ImageIcon size={24} color="#9ca3af" />*/}
-						{/*</TouchableOpacity>*/}
+						{/* Make Offer Button (only show for buyer when no active offer) */}
+						{!chat.isSeller && !activeOffer && (
+							<TouchableOpacity onPress={() => setShowMakeOffer(!showMakeOffer)} className="mr-3">
+								<DollarSign size={24} color="#3b82f6" />
+							</TouchableOpacity>
+						)}
 
 						{/* Text Input */}
-						<View className="w-5/6">
+						<View className="flex-1">
 							<TextField>
 								<TextField.Input
 									colors={{
@@ -162,32 +261,11 @@ export default function ChatMessage() {
 										blurBackground: "#f3f4f6",
 									}}
 									placeholder="Type your message..."
-									// multiline
-									// maxLength={500}
-									// numberOfLines={4}
-								>
-									{/*<TextField.InputEndContent>*/}
-									{/*	<Button isIconOnly variant="ghost" size="sm">*/}
-									{/*		<Smile size={20} color="#9ca3af" />*/}
-									{/*	</Button>*/}
-									{/*</TextField.InputEndContent>*/}
-								</TextField.Input>
+									value={message}
+									onChangeText={setMessage}
+								/>
 							</TextField>
 						</View>
-						{/*<View className="flex-1 flex-row items-center bg-gray-100 rounded-full px-4 py-2">*/}
-						{/*	<TextInput*/}
-						{/*		className="flex-1 text-base text-foreground"*/}
-						{/*		placeholder="Type a message..."*/}
-						{/*		placeholderTextColor="#9ca3af"*/}
-						{/*		value={message}*/}
-						{/*		onChangeText={setMessage}*/}
-						{/*		multiline*/}
-						{/*		maxLength={500}*/}
-						{/*	/>*/}
-						{/*	<Button isIconOnly variant="ghost" size="sm">*/}
-						{/*		<Smile size={20} color="#9ca3af" />*/}
-						{/*	</Button>*/}
-						{/*</View>*/}
 
 						{/* Send Button */}
 						<Button
@@ -200,7 +278,6 @@ export default function ChatMessage() {
 								<Send size={20} color="white" />
 							</Button.Label>
 						</Button>
-						{/*</View>*/}
 					</View>
 				</KeyboardAvoidingView>
 			</View>
