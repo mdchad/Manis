@@ -9,9 +9,13 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as chats from "../chats.js";
 import type * as follows from "../follows.js";
 import type * as healthCheck from "../healthCheck.js";
 import type * as http from "../http.js";
+import type * as listings from "../listings.js";
+import type * as messages from "../messages.js";
+import type * as offers from "../offers.js";
 import type * as posts from "../posts.js";
 import type * as privateData from "../privateData.js";
 import type * as r2 from "../r2.js";
@@ -26,9 +30,13 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  chats: typeof chats;
   follows: typeof follows;
   healthCheck: typeof healthCheck;
   http: typeof http;
+  listings: typeof listings;
+  messages: typeof messages;
+  offers: typeof offers;
   posts: typeof posts;
   privateData: typeof privateData;
   r2: typeof r2;

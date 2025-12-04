@@ -3,47 +3,13 @@ import { useState } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton, Button, Avatar } from "heroui-native";
-import { Pencil } from "lucide-react-native";
+import { Pencil, Plus } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { getUserPosts } from "@manis/backend/convex/posts";
+import { withUniwind } from "uniwind";
 
 const { width } = Dimensions.get("window");
 const imageSize = (width - 8) / 3; // 3 columns with 2px gaps
-
-// Mock data for the profile
-const mockProfile = {
-	avatar: "https://i.pravatar.cc/150?img=1",
-	username: "fadhilahyacob",
-	bio: "modest fashion, preppy aesthetic",
-	followers: 1342,
-	posts: 35,
-	listings: 128,
-	postsImages: [
-		"https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400",
-		"https://images.unsplash.com/photo-1467043237213-65f2da53396f?w=400",
-		"https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400",
-		"https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400",
-		"https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=400",
-		// "https://images.unsplash.com/photo-1558769132-cb1aea3c8565?w=400",
-		"https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=400",
-		"https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=400",
-		"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400",
-		"https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400",
-		"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
-		"https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400",
-	],
-	listingsImages: [
-		"https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400",
-		"https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=400",
-		"https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=400",
-		"https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400",
-		"https://images.unsplash.com/photo-1560243563-062bfc001d68?w=400",
-		"https://images.unsplash.com/photo-1618932260643-eee4a2f652a6?w=400",
-		"https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=400",
-		"https://images.unsplash.com/photo-1578681994506-b8f463449011?w=400",
-		"https://images.unsplash.com/photo-1562157873-818bc0726f68?w=400",
-	],
-};
 
 export default function ProfileScreen() {
 	const [activeTab, setActiveTab] = useState<"posts" | "listings">("posts");
@@ -62,17 +28,27 @@ export default function ProfileScreen() {
 		currentUser?._id ? { userId: currentUser._id } : "skip"
 	);
 
+	const userListings = useQuery(
+		api.listings.getUserListings,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
+
 	// Extract first image from each post for grid display
 	const postsImages = userPosts?.map((post) => post.imageUrls[0]).filter(Boolean) ?? [];
-	const images = activeTab === "posts" ? postsImages : mockProfile.listingsImages;
+	const listingsImages = userListings?.map((listing) => listing.imageUrl).filter(Boolean) ?? [];
+
+	const images = activeTab === "posts" ? postsImages : listingsImages;
 
 	const handlePostPress = (index: number) => {
 		if (activeTab === "posts" && userPosts && userPosts[index]) {
 			router.push({ pathname: "/post/[id]", params: { id: userPosts[index]._id } });
+		} else if (activeTab === "listings" && userListings && userListings[index]) {
+			router.push({ pathname: "/listing/[id]", params: { id: userListings[index]._id } });
 		}
 	};
 
 	const router = useRouter();
+	const StyledPlus = withUniwind(Plus);
 
 	return (
 		<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -106,7 +82,7 @@ export default function ProfileScreen() {
 
 				{/* Username and Bio */}
 				<View className="mb-4">
-					<View className="flex-row items-center justify-between mb-1">
+					<View className="flex-row items-center mb-1">
 						<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
 							<Text className="text-2xl font-bold text-foreground">{currentUser?.username}</Text>
 						</Skeleton>
@@ -120,7 +96,7 @@ export default function ProfileScreen() {
 						</Button>
 					</View>
 					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
-						<Text className="text-sm text-blue-600">{profile?.bio}</Text>
+						<Text className="text-sm text-gray-700">{profile?.bio}</Text>
 					</Skeleton>
 				</View>
 			</View>
@@ -155,6 +131,22 @@ export default function ProfileScreen() {
 
 			{/* Image Grid */}
 			<View className="flex-row flex-wrap gap-[2px]">
+				{/* Add Listing Button (only show in listings tab, always first) */}
+				{activeTab === "listings" && (
+					<TouchableOpacity
+						onPress={() => router.push("/listing/create")}
+						style={{
+							width: imageSize,
+							height: imageSize,
+						}}
+						className="bg-gray-200 items-center justify-center"
+					>
+						<View className="items-center">
+							<StyledPlus size={32} strokeWidth={2} className="text-primary " />
+						</View>
+					</TouchableOpacity>
+				)}
+
 				{images.map((image, index) => (
 					<TouchableOpacity key={index} onPress={() => handlePostPress(index)}>
 						<Image

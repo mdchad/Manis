@@ -113,4 +113,73 @@ export default defineSchema({
 		.index("by_brand", ["brand"])
 		.index("by_type", ["type"])
 		.index("by_status_and_createdAt", ["status", "createdAt"]),
+	chats: defineTable({
+		// The listing being discussed
+		listingId: v.id("listings"),
+		// Buyer (user initiating the chat)
+		buyerId: v.string(),
+		// Seller (listing owner)
+		sellerId: v.string(),
+		// Last message timestamp (for sorting chat list)
+		lastMessageAt: v.number(),
+		// Last message preview (for chat list UI)
+		lastMessageText: v.optional(v.string()),
+		// Timestamps
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	})
+		.index("by_listing", ["listingId"])
+		.index("by_buyer", ["buyerId"])
+		.index("by_seller", ["sellerId"])
+		// Prevent duplicate chats: one chat per listing per buyer
+		.index("by_listing_and_buyer", ["listingId", "buyerId"])
+		// For displaying user's chat list sorted by recent activity
+		.index("by_buyer_and_lastMessage", ["buyerId", "lastMessageAt"])
+		.index("by_seller_and_lastMessage", ["sellerId", "lastMessageAt"]),
+	messages: defineTable({
+		// Chat this message belongs to
+		chatId: v.id("chats"),
+		// Sender (Better-Auth user ID)
+		senderId: v.string(),
+		// Message content
+		text: v.string(),
+		// Message type: "user" for regular messages, "system" for automated messages
+		type: v.optional(v.string()), // "user" | "system" | "offer_activity"
+		// Reference to offer (for offer activity messages)
+		offerId: v.optional(v.id("offers")),
+		// Read status
+		isRead: v.boolean(),
+		// Timestamp
+		createdAt: v.number(),
+	})
+		.index("by_chat", ["chatId"])
+		.index("by_chat_and_createdAt", ["chatId", "createdAt"]),
+	offers: defineTable({
+		// Chat this offer belongs to
+		chatId: v.id("chats"),
+		// Listing being negotiated
+		listingId: v.id("listings"),
+		// Buyer making the offer
+		buyerId: v.string(),
+		// Seller receiving the offer
+		sellerId: v.string(),
+		// Offer amount
+		amount: v.number(),
+		// Optional message with the offer
+		message: v.optional(v.string()),
+		// Status: pending, accepted, declined, expired
+		status: v.string(),
+		// When accepted/declined
+		resolvedAt: v.optional(v.number()),
+		// Timestamps
+		createdAt: v.number(),
+		updatedAt: v.number(),
+	})
+		.index("by_chat", ["chatId"])
+		.index("by_listing", ["listingId"])
+		.index("by_buyer", ["buyerId"])
+		.index("by_seller", ["sellerId"])
+		.index("by_status", ["status"])
+		// Get the active offer for a chat (only one pending offer per chat)
+		.index("by_chat_and_status", ["chatId", "status"]),
 });

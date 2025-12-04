@@ -217,6 +217,7 @@ export default function Index() {
 								onChangeText={setBio}
 								autoCapitalize="none"
 								autoComplete="off"
+								multiline
 								// onBlur={() => handleBlur("email")}
 							/>
 							{/*<TextField.Description>We'll never share your email</TextField.Description>*/}
@@ -241,31 +242,15 @@ export default function Index() {
 
 					{/* Sign Out Section */}
 					<View className="mb-6 p-4 bg-card rounded-lg border border-border">
-						<TouchableOpacity
-							className="bg-destructive py-2 px-4 rounded-md self-start"
+						<Button
+							variant="ghost"
+							size="md"
 							onPress={() => {
 								authClient.signOut();
 							}}
 						>
-							<Text className="text-black font-medium">Sign Out</Text>
-						</TouchableOpacity>
-					</View>
-
-					{/* API Status */}
-					<View className="mb-6 rounded-lg border border-border p-4">
-						<Text className="mb-3 font-medium text-foreground">API Status</Text>
-						<View className="flex-row items-center gap-2">
-							<View
-								className={`h-3 w-3 rounded-full ${healthCheck ? "bg-green-500" : "bg-red-500"}`}
-							/>
-							<Text className="text-muted-foreground">
-								{healthCheck === undefined
-									? "Checking..."
-									: healthCheck === "OK"
-										? "Connected to API"
-										: "API Disconnected"}
-							</Text>
-						</View>
+							<Button.Label className="text-red-500">Sign Out</Button.Label>
+						</Button>
 					</View>
 				</View>
 			</ScrollView>

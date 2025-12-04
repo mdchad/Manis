@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
 	View,
 	Text,
 	ScrollView,
 	TouchableOpacity,
-	TextInput,
 	KeyboardAvoidingView,
 	Platform,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Send, ImageIcon, Smile, DollarSign } from "lucide-react-native";
+import { ArrowLeft, Send, DollarSign } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Avatar, Button, TextField } from "heroui-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,47 +18,79 @@ import type { Id } from "@manis/backend/convex/_generated/dataModel";
 import { OfferCard } from "@/components/offer-card";
 import { ChatMessage } from "@/components/chat-message";
 
-export default function ChatMessageScreen() {
-	const { id } = useLocalSearchParams();
+export default function NewChatScreen() {
+	const params = useLocalSearchParams<{ listingId?: string; id?: string }>();
 	const router = useRouter();
 	const [message, setMessage] = useState("");
 	const [showMakeOffer, setShowMakeOffer] = useState(false);
 	const [offerAmount, setOfferAmount] = useState("");
 	const [offerMessage, setOfferMessage] = useState("");
 	const insets = useSafeAreaInsets();
+	const scrollViewRef = useRef<ScrollView>(null);
 
-	// Get chat data
-	const chat = useQuery(api.chats.getChatById, { chatId: id as Id<"chats"> });
-	const messages = useQuery(api.messages.getMessages, { chatId: id as Id<"chats"> });
-	const activeOffer = useQuery(api.offers.getActiveOffer, { chatId: id as Id<"chats"> });
+	// Check if we already have a chat (after first message)
+	const chatId = params.id as Id<"chats"> | undefined;
+	const listingId = params.listingId as Id<"listings"> | undefined;
+
+	// Get chat data if chat exists
+	const chat = useQuery(api.chats.getChatById, chatId ? { chatId } : "skip");
+	const messages = useQuery(api.messages.getMessages, chatId ? { chatId } : "skip");
+	const activeOffer = useQuery(api.offers.getActiveOffer, chatId ? { chatId } : "skip");
+
+	// Get listing data if no chat yet
+	const listing = useQuery(api.listings.getById, !chatId && listingId ? { listingId } : "skip");
 
 	// Mutations
+	const startChatMutation = useMutation(api.chats.startChat);
 	const sendMessageMutation = useMutation(api.messages.sendMessage);
 	const makeOfferMutation = useMutation(api.offers.makeOffer);
 	const acceptOfferMutation = useMutation(api.offers.acceptOffer);
 	const declineOfferMutation = useMutation(api.offers.declineOffer);
 	const cancelOfferMutation = useMutation(api.offers.cancelOffer);
 
+	// Auto-scroll to bottom when messages change
+	useEffect(() => {
+		if (messages && messages.length > 0) {
+			setTimeout(() => {
+				scrollViewRef.current?.scrollToEnd({ animated: true });
+			}, 100);
+		}
+	}, [messages]);
+
 	const handleSend = async () => {
-		if (message.trim() && chat) {
-			try {
+		if (!message.trim()) return;
+
+		try {
+			if (!chatId && listingId) {
+				// First message - create chat and send message
+				const newChatId = await startChatMutation({ listingId });
 				await sendMessageMutation({
-					chatId: chat._id,
+					chatId: newChatId,
+					text: message.trim(),
+				});
+
+				// 🎯 Update URL without navigation
+				router.setParams({ id: newChatId });
+				setMessage("");
+			} else if (chatId) {
+				// Existing chat - just send message
+				await sendMessageMutation({
+					chatId,
 					text: message.trim(),
 				});
 				setMessage("");
-			} catch (error) {
-				console.error("Failed to send message:", error);
 			}
+		} catch (error) {
+			console.error("Failed to send message:", error);
 		}
 	};
 
 	const handleMakeOffer = async () => {
 		const amount = parseFloat(offerAmount);
-		if (!isNaN(amount) && amount > 0 && chat) {
+		if (!isNaN(amount) && amount > 0 && chatId) {
 			try {
 				await makeOfferMutation({
-					chatId: chat._id,
+					chatId,
 					amount,
 					message: offerMessage.trim() || undefined,
 				});
@@ -73,10 +104,10 @@ export default function ChatMessageScreen() {
 	};
 
 	const handleEditOffer = async (amount: number, msg?: string) => {
-		if (chat) {
+		if (chatId) {
 			try {
 				await makeOfferMutation({
-					chatId: chat._id,
+					chatId,
 					amount,
 					message: msg,
 				});
@@ -110,7 +141,22 @@ export default function ChatMessageScreen() {
 		}
 	};
 
-	if (!chat || !messages) {
+	// Determine display data (from chat or listing)
+	const displayData = chat
+		? {
+				otherUser: chat.otherUser,
+				listing: chat.listing,
+				isSeller: chat.isSeller,
+			}
+		: listing
+			? {
+					otherUser: listing.seller,
+					listing: listing,
+					isSeller: false, // Always buyer in new chat
+				}
+			: null;
+
+	if (!displayData) {
 		return (
 			<Container edges={["top"]}>
 				<View className="flex-1 bg-brand-background items-center justify-center">
@@ -129,37 +175,39 @@ export default function ChatMessageScreen() {
 						<ArrowLeft size={24} color="black" />
 					</TouchableOpacity>
 
-					<Avatar size="sm" alt={chat.otherUser.name} className="mr-3">
-						{chat.otherUser.avatarKey && (
-							<Avatar.Image source={{ uri: `your-r2-url/${chat.otherUser.avatarKey}` }} />
+					<Avatar size="sm" alt={displayData.otherUser.name} className="mr-3">
+						{displayData.otherUser.avatarKey && (
+							<Avatar.Image source={{ uri: `your-r2-url/${displayData.otherUser.avatarKey}` }} />
 						)}
 						<Avatar.Fallback />
 					</Avatar>
 
 					<View className="flex-1">
-						<Text className="text-lg font-semibold text-foreground">{chat.otherUser.name}</Text>
-						{chat.listing && (
+						<Text className="text-lg font-semibold text-foreground">
+							{displayData.otherUser.name}
+						</Text>
+						{displayData.listing && (
 							<Text className="text-xs text-gray-500" numberOfLines={1}>
-								{chat.listing.title}
+								{displayData.listing.title}
 							</Text>
 						)}
 					</View>
 				</View>
 
-				{/* Listing Preview (Optional - can add listing image and price here) */}
-				{chat.listing && (
+				{/* Listing Preview */}
+				{displayData.listing && (
 					<View className="px-4 py-2 bg-white border-b border-gray-200">
-						<Text className="text-sm font-medium text-foreground">{chat.listing.title}</Text>
-						{chat.listing.price && (
+						<Text className="text-sm font-medium text-foreground">{displayData.listing.title}</Text>
+						{displayData.listing.price && (
 							<Text className="text-sm text-primary font-semibold">
-								RM {chat.listing.price.toFixed(2)}
+								RM {displayData.listing.price.toFixed(2)}
 							</Text>
 						)}
 					</View>
 				)}
 
-				{/* Offer Card (Pinned below header) */}
-				{activeOffer && (
+				{/* Offer Card (Pinned below header) - only show if chat exists */}
+				{activeOffer && chatId && (
 					<OfferCard
 						offer={activeOffer}
 						onAccept={handleAcceptOffer}
@@ -171,33 +219,46 @@ export default function ChatMessageScreen() {
 
 				{/* Messages */}
 				<ScrollView
+					ref={scrollViewRef}
 					className="flex-1 py-4"
 					contentContainerStyle={{ paddingBottom: 20 }}
 					showsVerticalScrollIndicator={false}
 				>
-					{messages.map((msg) => (
-						<ChatMessage
-							key={msg._id}
-							message={{
-								id: msg._id,
-								text: msg.text,
-								type: msg.type,
-								isCurrentUser: msg.senderId === chat.otherUser.id ? false : true,
-								timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
-									hour: "2-digit",
-									minute: "2-digit",
-								}),
-							}}
-							userAvatarUrl={
-								chat.otherUser.avatarKey ? `your-r2-url/${chat.otherUser.avatarKey}` : undefined
-							}
-							username={chat.otherUser.name}
-						/>
-					))}
+					{!chatId && (
+						// Empty state for new chat
+						<View className="items-center justify-center py-12 px-6">
+							<Text className="text-gray-400 text-center text-sm">
+								Start a conversation about this item
+							</Text>
+						</View>
+					)}
+
+					{messages &&
+						messages.map((msg) => (
+							<ChatMessage
+								key={msg._id}
+								message={{
+									id: msg._id,
+									text: msg.text,
+									type: msg.type,
+									isCurrentUser: displayData.otherUser.id !== msg.senderId,
+									timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+									}),
+								}}
+								userAvatarUrl={
+									displayData.otherUser.avatarKey
+										? `your-r2-url/${displayData.otherUser.avatarKey}`
+										: undefined
+								}
+								username={displayData.otherUser.name}
+							/>
+						))}
 				</ScrollView>
 
 				{/* Make Offer Form (shown when showMakeOffer is true) */}
-				{showMakeOffer && (
+				{showMakeOffer && chatId && (
 					<View className="bg-white border-t border-gray-200 p-4">
 						<View className="flex-row items-center justify-between mb-3">
 							<Text className="text-lg font-semibold text-foreground">Make an Offer</Text>
@@ -245,8 +306,8 @@ export default function ChatMessageScreen() {
 						className="bg-white border-t flex flex-row items-center border-gray-200 px-4 py-3 w-full"
 						style={{ paddingBottom: insets.bottom + 12 }}
 					>
-						{/* Make Offer Button (only show for buyer when no active offer) */}
-						{!chat.isSeller && !activeOffer && (
+						{/* Make Offer Button (only show for buyer when chat exists and no active offer) */}
+						{!displayData.isSeller && chatId && !activeOffer && (
 							<TouchableOpacity onPress={() => setShowMakeOffer(!showMakeOffer)} className="mr-3">
 								<DollarSign size={24} color="#3b82f6" />
 							</TouchableOpacity>
@@ -263,6 +324,7 @@ export default function ChatMessageScreen() {
 									placeholder="Type your message..."
 									value={message}
 									onChangeText={setMessage}
+									onSubmitEditing={handleSend}
 								/>
 							</TextField>
 						</View>

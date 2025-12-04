@@ -89,7 +89,7 @@ export default function ListingDetail() {
 						<View className="flex-row items-center justify-between mt-8 mb-4">
 							<TouchableOpacity
 								className="flex-1 mr-2"
-								onPress={() => router.push({ pathname: "/chat/[id]", params: id })}
+								onPress={() => router.push(`/chat/new?listingId=${listing.id}`)}
 							>
 								<View className="bg-primary py-3 items-center rounded-lg">
 									<Text className="text-white font-semibold text-base">CHAT TO BUY</Text>

@@ -19,6 +19,7 @@ import { Button } from "heroui-native";
 import { useUploadFile } from "@convex-dev/r2/react";
 import { useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import * as ImagePicker from "expo-image-picker";
 
 const { width } = Dimensions.get("window");
 
@@ -149,8 +150,34 @@ export default function EditPostScreen() {
 		router.push("/post/add-location");
 	};
 
-	const handleAddTaggedListings = () => {
-		router.push("/post/tag-listings");
+	const handleAddTaggedListings = async () => {
+		// Request permission
+		// const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+		//
+		// if (permissionResult.granted === false) {
+		// 	Alert.alert("Permission Required", "Permission to access camera roll is required to add listings!");
+		// 	return;
+		// }
+		//
+		// // Launch image picker
+		// const result = await ImagePicker.launchImageLibraryAsync({
+		// 	mediaTypes: 'images',
+		// 	allowsEditing: true,
+		// 	aspect: [1, 1],
+		// 	quality: 0.8,
+		// });
+		// if (!result.canceled && result.assets && result.assets.length > 0) {
+		// 	const asset = result.assets[0];
+		//
+		// 	// Navigate to create listing screen with the selected image
+		// 	router.push({
+		// 		pathname: "/listing/create",
+		// 		params: {
+		// 			imageUri: asset.uri,
+		// 			fromPost: "true", // Flag to indicate this is from post tagging
+		// 		},
+		// 	});
+		// }
 	};
 
 	return (
