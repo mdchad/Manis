@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton, Button, Avatar } from "heroui-native";
-import { Pencil } from "lucide-react-native";
+import { Pencil, Plus } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { getUserPosts } from "@manis/backend/convex/posts";
+import { withUniwind } from "uniwind";
 
 const { width } = Dimensions.get("window");
 const imageSize = (width - 8) / 3; // 3 columns with 2px gaps
@@ -73,6 +74,7 @@ export default function ProfileScreen() {
 	};
 
 	const router = useRouter();
+	const StyledPlus = withUniwind(Plus);
 
 	return (
 		<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -155,6 +157,22 @@ export default function ProfileScreen() {
 
 			{/* Image Grid */}
 			<View className="flex-row flex-wrap gap-[2px]">
+				{/* Add Listing Button (only show in listings tab, always first) */}
+				{activeTab === "listings" && (
+					<TouchableOpacity
+						onPress={() => router.push("/listing/create")}
+						style={{
+							width: imageSize,
+							height: imageSize,
+						}}
+						className="bg-gray-200 items-center justify-center"
+					>
+						<View className="items-center">
+							<StyledPlus size={32} strokeWidth={2} className="text-primary " />
+						</View>
+					</TouchableOpacity>
+				)}
+
 				{images.map((image, index) => (
 					<TouchableOpacity key={index} onPress={() => handlePostPress(index)}>
 						<Image
