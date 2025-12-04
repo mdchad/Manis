@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { authComponent } from "./auth";
+import { r2 } from "./r2";
 
 /**
  * Get a listing by ID
@@ -33,6 +34,35 @@ export const getById = query({
 });
 
 /**
+ * Get all listings for a specific user
+ */
+export const getUserListings = query({
+	args: {
+		userId: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const listings = await ctx.db
+			.query("listings")
+			.withIndex("by_userId", (q) => q.eq("userId", args.userId))
+			.order("desc")
+			.collect();
+
+		const enrichedListings = await Promise.all(
+			listings.map(async (listing) => {
+				const imageUrl = listing.imageKey ? await r2.getUrl(listing.imageKey) : "";
+
+				return {
+					...listing,
+					imageUrl,
+				};
+			})
+		);
+
+		return enrichedListings;
+	},
+});
+
+/**
  * Create a new listing
  */
 export const createListing = mutation({
@@ -56,7 +86,7 @@ export const createListing = mutation({
 
 		const now = Date.now();
 		const listingId = await ctx.db.insert("listings", {
-			userId: user.id,
+			userId: user._id,
 			title: args.title,
 			description: args.description,
 			price: args.price,
@@ -102,7 +132,7 @@ export const updateListing = mutation({
 		const listing = await ctx.db.get(args.listingId);
 		if (!listing) throw new Error("Listing not found");
 
-		if (listing.userId !== user.id) {
+		if (listing.userId !== user._id) {
 			throw new Error("Unauthorized - not the listing owner");
 		}
 
