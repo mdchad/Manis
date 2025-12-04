@@ -106,7 +106,7 @@ export default function ProfileScreen() {
 
 				{/* Username and Bio */}
 				<View className="mb-4">
-					<View className="flex-row items-center justify-between mb-1">
+					<View className="flex-row items-center mb-1">
 						<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
 							<Text className="text-2xl font-bold text-foreground">{currentUser?.username}</Text>
 						</Skeleton>
@@ -120,7 +120,7 @@ export default function ProfileScreen() {
 						</Button>
 					</View>
 					<Skeleton isLoading={!currentUser?.username} className="h-4 w-32 rounded-md">
-						<Text className="text-sm text-blue-600">{profile?.bio}</Text>
+						<Text className="text-sm text-gray-700">{profile?.bio}</Text>
 					</Skeleton>
 				</View>
 			</View>
