@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -42,6 +42,14 @@ export default function ChatMessageScreen() {
 	const acceptOfferMutation = useMutation(api.offers.acceptOffer);
 	const declineOfferMutation = useMutation(api.offers.declineOffer);
 	const cancelOfferMutation = useMutation(api.offers.cancelOffer);
+	const markMessagesAsReadMutation = useMutation(api.messages.markMessagesAsRead);
+
+	// Mark messages as read when chat is opened
+	useEffect(() => {
+		if (chat && isAuthenticated) {
+			markMessagesAsReadMutation({ chatId: chat._id });
+		}
+	}, [chat?._id, isAuthenticated]);
 
 	const handleSend = async () => {
 		if (message.trim() && chat) {

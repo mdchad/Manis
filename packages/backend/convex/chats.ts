@@ -98,6 +98,15 @@ export const getUserChats = query({
 					? await r2.getUrl(otherUserProfile.avatarKey)
 					: "";
 
+				// Count unread messages from the other user
+				const unreadMessages = await ctx.db
+					.query("messages")
+					.withIndex("by_chat", (q) => q.eq("chatId", chat._id))
+					.filter((q) =>
+						q.and(q.eq(q.field("isRead"), false), q.neq(q.field("senderId"), user._id))
+					)
+					.collect();
+
 				return {
 					...chat,
 					listing,
@@ -107,6 +116,7 @@ export const getUserChats = query({
 						avatarUrl: avatarUrl,
 					},
 					isSeller: chat.sellerId === user._id,
+					unreadCount: unreadMessages.length,
 				};
 			})
 		);
