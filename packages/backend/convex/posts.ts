@@ -36,6 +36,7 @@ export const updatePost = mutation({
 	args: {
 		postId: v.id("posts"),
 		caption: v.optional(v.string()),
+		imageKeys: v.optional(v.array(v.string())),
 		tags: v.optional(v.array(v.string())),
 		location: v.optional(v.string()),
 		taggedListings: v.optional(v.array(v.id("listings"))),
@@ -54,6 +55,7 @@ export const updatePost = mutation({
 
 		await ctx.db.patch(args.postId, {
 			...(args.caption !== undefined && { caption: args.caption }),
+			...(args.imageKeys !== undefined && { imageKeys: args.imageKeys }),
 			...(args.tags !== undefined && { tags: args.tags }),
 			...(args.location !== undefined && { location: args.location }),
 			...(args.taggedListings !== undefined && { taggedListings: args.taggedListings }),

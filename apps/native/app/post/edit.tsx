@@ -33,7 +33,7 @@ interface Photo {
 export default function EditPostScreen() {
 	const params = useLocalSearchParams();
 	const photoUris = params.photoUris as string;
-	const selectedListingIds = params.selectedListingIds as string;
+	const draftPostId = params.draftPostId as Id<"posts">;
 
 	// Parse multiple photo URIs from comma-separated string
 	const [photos] = useState<Photo[]>(() => {
@@ -48,14 +48,17 @@ export default function EditPostScreen() {
 	const [caption, setCaption] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
 	const [location, setLocation] = useState("");
-	const [taggedListingIds, setTaggedListingIds] = useState<Id<"listings">[]>([]);
 	const [isPosting, setIsPosting] = useState(false);
+	const [isUploading, setIsUploading] = useState(false);
 
 	const scrollViewRef = useRef<ScrollView>(null);
 
 	// Convex hooks
 	const uploadFile = useUploadFile(api.r2);
-	const createPost = useMutation(api.posts.createPost);
+	const draftPost = useQuery(api.posts.getDraftPost, { postId: draftPostId });
+	const updatePost = useMutation(api.posts.updatePost);
+	const publishPost = useMutation(api.posts.publishPost);
+	const deletePost = useMutation(api.posts.deletePost);
 	const currentUser = useQuery(api.auth.getCurrentUser);
 
 	// Get listing details for tagged listings
@@ -64,21 +67,18 @@ export default function EditPostScreen() {
 		currentUser?._id ? { userId: currentUser._id } : "skip"
 	);
 
-	// Update tagged listings when selectedListingIds changes
+	// Load draft post data
 	useEffect(() => {
-		if (selectedListingIds) {
-			try {
-				const parsedIds = JSON.parse(selectedListingIds);
-				setTaggedListingIds(parsedIds);
-			} catch (error) {
-				console.error("Error parsing selected listing IDs:", error);
-			}
+		if (draftPost) {
+			setCaption(draftPost.caption || "");
+			setTags(draftPost.tags || []);
+			setLocation(draftPost.location || "");
 		}
-	}, [selectedListingIds]);
+	}, [draftPost]);
 
 	// Get the actual listing objects from IDs
 	const taggedListings =
-		userListings?.filter((listing) => taggedListingIds.includes(listing._id)) || [];
+		userListings?.filter((listing) => draftPost?.taggedListings?.includes(listing._id)) || [];
 
 	// Helper function to convert URI to File
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
@@ -88,18 +88,14 @@ export default function EditPostScreen() {
 	};
 
 	const handleClose = () => {
-		if (caption.trim() || tags.length > 0 || location.trim() || taggedListingIds.length > 0) {
-			Alert.alert("Save Draft?", "Do you want to save this post as a draft?", [
+		if (caption.trim() || tags.length > 0 || location.trim() || taggedListings.length > 0) {
+			Alert.alert("Discard Post?", "Are you sure you want to discard this post?", [
 				{
 					text: "Discard",
 					style: "destructive",
-					onPress: () => router.back(),
-				},
-				{
-					text: "Save Draft",
-					onPress: () => {
-						// TODO: Implement save draft functionality
-						console.log("Saving draft...");
+					onPress: async () => {
+						// Delete the draft post
+						await deletePost({ postId: draftPostId });
 						router.back();
 					},
 				},
@@ -109,6 +105,8 @@ export default function EditPostScreen() {
 				},
 			]);
 		} else {
+			// Delete draft and go back
+			// deletePost({ postId: draftPostId });
 			router.back();
 		}
 	};
@@ -127,37 +125,61 @@ export default function EditPostScreen() {
 		try {
 			setIsPosting(true);
 
-			// Upload all photos to R2 and get their keys
-			const imageKeys: string[] = [];
-			for (let i = 0; i < photos.length; i++) {
-				const photo = photos[i];
-				const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
-				console.log("Uploading photo:", file);
-				const key = await uploadFile(file);
-				imageKeys.push(key);
-				console.log(`Uploaded photo ${i + 1}/${photos.length} with key:`, key);
+			// First, upload photos if they haven't been uploaded yet
+			if (draftPost && draftPost.imageKeys.length === 0) {
+				setIsUploading(true);
+				const imageKeys: string[] = [];
+				for (let i = 0; i < photos.length; i++) {
+					const photo = photos[i];
+					const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
+					console.log("Uploading photo:", file);
+					const key = await uploadFile(file);
+					imageKeys.push(key);
+					console.log(`Uploaded photo ${i + 1}/${photos.length} with key:`, key);
+				}
+				setIsUploading(false);
+
+				// Update draft with image keys and other data
+				await updatePost({
+					postId: draftPostId,
+					imageKeys,
+					caption: caption.trim(),
+					tags: tags.length > 0 ? tags : undefined,
+					location: location.trim() || undefined,
+					taggedListings:
+						draftPost.taggedListings && draftPost.taggedListings.length > 0
+							? draftPost.taggedListings
+							: undefined,
+				});
+			} else {
+				// Just update the caption/tags/location
+				await updatePost({
+					postId: draftPostId,
+					caption: caption.trim(),
+					tags: tags.length > 0 ? tags : undefined,
+					location: location.trim() || undefined,
+					taggedListings:
+						draftPost?.taggedListings && draftPost.taggedListings.length > 0
+							? draftPost.taggedListings
+							: undefined,
+				});
 			}
 
-			// Create the post with the uploaded image keys
-			await createPost({
-				caption: caption.trim(),
-				imageKeys,
-				tags: tags.length > 0 ? tags : undefined,
-				location: location.trim() || undefined,
-				taggedListings: taggedListingIds.length > 0 ? taggedListingIds : undefined,
-			});
+			// Publish the draft
+			await publishPost({ postId: draftPostId });
 
-			Alert.alert("Success", "Post created successfully!", [
+			Alert.alert("Success", "Post published successfully!", [
 				{
 					text: "OK",
-					onPress: () => router.back(),
+					onPress: () => router.replace("/(tabs)/"),
 				},
 			]);
 		} catch (error) {
-			console.error("Post creation error:", error);
-			Alert.alert("Error", "Failed to create post. Please try again.");
+			console.error("Post publication error:", error);
+			Alert.alert("Error", "Failed to publish post. Please try again.");
 		} finally {
 			setIsPosting(false);
+			setIsUploading(false);
 		}
 	};
 
@@ -176,18 +198,25 @@ export default function EditPostScreen() {
 	};
 
 	const handleAddTaggedListings = () => {
-		// Navigate to the select listings modal
+		// Navigate to the select listings modal with draft post ID
 		router.push({
 			pathname: "/post/select-listings",
 			params: {
-				selectedIds: JSON.stringify(taggedListingIds),
-				photoUris: photoUris, // Pass photoUris so modal can return with it
+				draftPostId: draftPostId,
 			},
 		});
 	};
 
-	const handleRemoveListing = (listingId: Id<"listings">) => {
-		setTaggedListingIds((prev) => prev.filter((id) => id !== listingId));
+	const handleRemoveListing = async (listingId: Id<"listings">) => {
+		if (!draftPost) return;
+
+		// Remove listing from draft post
+		const updatedListings = draftPost.taggedListings?.filter((id) => id !== listingId) || [];
+
+		await updatePost({
+			postId: draftPostId,
+			taggedListings: updatedListings.length > 0 ? updatedListings : undefined,
+		});
 	};
 
 	return (
@@ -355,10 +384,18 @@ export default function EditPostScreen() {
 							onPress={handlePost}
 							variant="secondary"
 							className="bg-white"
-							isDisabled={isPosting}
+							isDisabled={isPosting || isUploading}
 						>
-							{isPosting ? (
-								<ActivityIndicator size="small" color="#000" />
+							{isUploading ? (
+								<View className="flex-row items-center gap-2">
+									<ActivityIndicator size="small" color="#000" />
+									<Button.Label className="text-primary">Uploading...</Button.Label>
+								</View>
+							) : isPosting ? (
+								<View className="flex-row items-center gap-2">
+									<ActivityIndicator size="small" color="#000" />
+									<Button.Label className="text-primary">Publishing...</Button.Label>
+								</View>
 							) : (
 								<Button.Label className="text-primary">POST</Button.Label>
 							)}

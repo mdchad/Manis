@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -12,7 +12,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import { X, Check } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Button } from "heroui-native";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import { Id } from "@manis/backend/convex/_generated/dataModel";
 
@@ -26,19 +26,13 @@ interface Listing {
 
 export default function SelectListingsModal() {
 	const params = useLocalSearchParams();
-	const preSelectedIds = params.selectedIds as string;
+	const draftPostId = params.draftPostId as Id<"posts">;
 
-	// Parse pre-selected listing IDs
-	const [selectedListings, setSelectedListings] = useState<Id<"listings">[]>(() => {
-		if (preSelectedIds) {
-			try {
-				return JSON.parse(preSelectedIds);
-			} catch {
-				return [];
-			}
-		}
-		return [];
-	});
+	// Get draft post to load current tagged listings
+	const draftPost = useQuery(api.posts.getDraftPost, { postId: draftPostId });
+
+	// Local state for selections
+	const [selectedListings, setSelectedListings] = useState<Id<"listings">[]>([]);
 
 	// Get current user's listings
 	const currentUser = useQuery(api.auth.getCurrentUser);
@@ -46,6 +40,16 @@ export default function SelectListingsModal() {
 		api.listings.getUserListings,
 		currentUser?._id ? { userId: currentUser._id } : "skip"
 	);
+
+	// Update post mutation
+	const updatePost = useMutation(api.posts.updatePost);
+
+	// Load existing tagged listings from draft
+	useEffect(() => {
+		if (draftPost && draftPost.taggedListings) {
+			setSelectedListings(draftPost.taggedListings);
+		}
+	}, [draftPost]);
 
 	const handleToggleListing = (listingId: Id<"listings">) => {
 		setSelectedListings((prev) => {
@@ -57,15 +61,15 @@ export default function SelectListingsModal() {
 		});
 	};
 
-	const handleDone = () => {
-		// Navigate back to edit screen with updated params
-		router.navigate({
-			pathname: "/post/edit",
-			params: {
-				photoUris: params.photoUris,
-				selectedListingIds: JSON.stringify(selectedListings),
-			},
+	const handleDone = async () => {
+		// Update the draft post with selected listings
+		await updatePost({
+			postId: draftPostId,
+			taggedListings: selectedListings.length > 0 ? selectedListings : undefined,
 		});
+
+		// Navigate back to edit screen
+		router.back();
 	};
 
 	const handleClose = () => {
