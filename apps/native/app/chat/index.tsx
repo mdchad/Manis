@@ -2,6 +2,8 @@ import { View, ScrollView, Text, TouchableOpacity } from "react-native";
 import { Container } from "@/components/container";
 import { Avatar } from "heroui-native";
 import { useRouter } from "expo-router";
+import { useQuery } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
 
 // Mock chat data
 const mockChats = [
@@ -63,10 +65,18 @@ const mockChats = [
 
 export default function Index() {
 	const router = useRouter();
+	const chats = useQuery(api.chats.getUserChats);
 
 	const handleChatPress = (chatId: string) => {
 		router.push(`/chat/${chatId}`);
 	};
+
+	if (!chats)
+		return (
+			<View>
+				<Text>...Loading</Text>
+			</View>
+		);
 
 	return (
 		<Container edges={["top"]}>
@@ -78,38 +88,40 @@ export default function Index() {
 
 				{/* Chat List */}
 				<ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-					{mockChats.map((chat) => (
+					{chats.map((chat) => (
 						<TouchableOpacity
-							key={chat.id}
-							onPress={() => handleChatPress(chat.id)}
+							key={chat._id}
+							onPress={() => handleChatPress(chat._id)}
 							className="flex-row items-center px-4 py-3 border-b border-gray-100 active:bg-gray-50"
 						>
 							{/* Avatar */}
-							<Avatar size="md" alt={chat.username}>
-								<Avatar.Image source={{ uri: chat.avatarUrl }} />
+							<Avatar size="md" alt={chat.otherUser.name}>
+								<Avatar.Image source={{ uri: chat.otherUser.avatarUrl }} />
 								<Avatar.Fallback />
 							</Avatar>
 
 							{/* Chat Info */}
 							<View className="flex-1 ml-3">
-								<Text className="text-base font-semibold text-foreground">{chat.username}</Text>
+								<Text className="text-base font-semibold text-foreground">
+									{chat.otherUser.name}
+								</Text>
 								<Text
 									className={`text-sm mt-0.5 ${
-										chat.unreadCount > 0 ? "font-medium text-foreground" : "text-gray-500"
+										chat?.unreadCount > 0 ? "font-medium text-foreground" : "text-gray-500"
 									}`}
 									numberOfLines={1}
 								>
-									{chat.lastMessage}
+									{chat.lastMessageText}
 								</Text>
 							</View>
 
 							{/* Right Side - Timestamp and Unread Badge */}
 							<View className="items-end ml-2">
-								<Text className="text-xs text-gray-400 mb-1">{chat.timestamp}</Text>
-								{chat.unreadCount > 0 && (
+								<Text className="text-xs text-gray-400 mb-1">{chat.lastMessageAt}</Text>
+								{chat?.unreadCount > 0 && (
 									<View className="bg-red-500 rounded-full min-w-[20px] h-5 items-center justify-center px-1.5">
 										<Text className="text-white text-xs font-bold">
-											{chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+											{chat?.unreadCount > 99 ? "99+" : chat.unreadCount}
 										</Text>
 									</View>
 								)}

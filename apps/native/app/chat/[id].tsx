@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
 	View,
 	Text,
@@ -19,6 +19,16 @@ import type { Id } from "@manis/backend/convex/_generated/dataModel";
 import { OfferCard } from "@/components/offer-card";
 import { ChatMessage } from "@/components/chat-message";
 
+type OptimisticMessage = {
+	_id: string;
+	text: string;
+	type?: string;
+	senderId: string;
+	createdAt: number;
+	status?: "sending" | "sent" | "error";
+	isOptimistic?: boolean;
+};
+
 export default function ChatMessageScreen() {
 	const { id } = useLocalSearchParams();
 	const router = useRouter();
@@ -26,12 +36,14 @@ export default function ChatMessageScreen() {
 	const [showMakeOffer, setShowMakeOffer] = useState(false);
 	const [offerAmount, setOfferAmount] = useState("");
 	const [offerMessage, setOfferMessage] = useState("");
+	const [optimisticMessages, setOptimisticMessages] = useState<OptimisticMessage[]>([]);
 	const insets = useSafeAreaInsets();
 
 	// Get chat data
 	const chat = useQuery(api.chats.getChatById, { chatId: id as Id<"chats"> });
 	const messages = useQuery(api.messages.getMessages, { chatId: id as Id<"chats"> });
 	const activeOffer = useQuery(api.offers.getActiveOffer, { chatId: id as Id<"chats"> });
+	console.log(messages);
 
 	// Mutations
 	const sendMessageMutation = useMutation(api.messages.sendMessage);
@@ -182,7 +194,7 @@ export default function ChatMessageScreen() {
 								id: msg._id,
 								text: msg.text,
 								type: msg.type,
-								isCurrentUser: msg.senderId === chat.otherUser.id ? false : true,
+								isCurrentUser: msg.senderId === chat.otherUser.id,
 								timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
 									hour: "2-digit",
 									minute: "2-digit",

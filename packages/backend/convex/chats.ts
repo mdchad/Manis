@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { authComponent, getUserById } from "./auth";
+import { r2 } from "./r2";
 
 /**
  * Start or get existing chat for a listing
@@ -93,6 +94,9 @@ export const getUserChats = query({
 
 				// Get other user from auth component
 				const otherUser = await authComponent.getAnyUserById(ctx, otherUserId);
+				const avatarUrl = otherUserProfile?.avatarKey
+					? await r2.getUrl(otherUserProfile.avatarKey)
+					: null;
 
 				return {
 					...chat,
@@ -100,7 +104,7 @@ export const getUserChats = query({
 					otherUser: {
 						id: otherUserId,
 						name: otherUserProfile?.displayName || otherUser?.name || "Unknown",
-						avatarKey: otherUserProfile?.avatarKey,
+						avatarUrl: avatarUrl,
 					},
 					isSeller: chat.sellerId === user._id,
 				};
