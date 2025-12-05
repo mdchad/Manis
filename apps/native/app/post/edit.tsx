@@ -181,6 +181,7 @@ export default function EditPostScreen() {
 			pathname: "/post/select-listings",
 			params: {
 				selectedIds: JSON.stringify(taggedListingIds),
+				photoUris: photoUris, // Pass photoUris so modal can return with it
 			},
 		});
 	};

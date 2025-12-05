@@ -58,12 +58,13 @@ export default function SelectListingsModal() {
 	};
 
 	const handleDone = () => {
-		// Navigate back with selected listing IDs
-		router.back();
-		// Pass data back via navigation params
-		// Note: You'll need to handle this in the edit.tsx screen
-		router.setParams({
-			selectedListingIds: JSON.stringify(selectedListings),
+		// Navigate back to edit screen with updated params
+		router.navigate({
+			pathname: "/post/edit",
+			params: {
+				photoUris: params.photoUris,
+				selectedListingIds: JSON.stringify(selectedListings),
+			},
 		});
 	};
 
