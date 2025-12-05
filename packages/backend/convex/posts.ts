@@ -332,7 +332,6 @@ export const getUserPosts = query({
 					imageUrls,
 					likeCount: likes.length,
 					commentCount: comments.length,
-					taggedListings: validTaggedListings,
 				};
 			})
 		);
