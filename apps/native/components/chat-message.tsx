@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text } from "react-native";
 import { Avatar } from "heroui-native";
+import { Check, CheckCheck, Clock, AlertCircle } from "lucide-react-native";
 
 interface Message {
 	id: string;
@@ -8,6 +9,7 @@ interface Message {
 	type?: string;
 	isCurrentUser: boolean;
 	timestamp: string;
+	status?: "sending" | "sent" | "error";
 }
 
 interface ChatMessageProps {
@@ -29,6 +31,21 @@ export function ChatMessage({ message, userAvatarUrl, username }: ChatMessagePro
 		);
 	}
 
+	// Render status icon for current user messages
+	const renderStatusIcon = () => {
+		if (!message.isCurrentUser) return null;
+
+		switch (message.status) {
+			case "sending":
+				return <Clock size={14} color="#9ca3af" className="ml-1" />;
+			case "error":
+				return <AlertCircle size={14} color="#ef4444" className="ml-1" />;
+			case "sent":
+			default:
+				return <Check size={14} color="#9ca3af" className="ml-1" />;
+		}
+	};
+
 	// Regular User Message
 	return (
 		<View
@@ -47,19 +64,20 @@ export function ChatMessage({ message, userAvatarUrl, username }: ChatMessagePro
 						message.isCurrentUser
 							? "bg-primary rounded-br-sm"
 							: "bg-white rounded-bl-sm border border-gray-200"
-					}`}
+					} ${message.status === "error" ? "opacity-70" : ""}`}
 				>
 					<Text className={`text-sm ${message.isCurrentUser ? "text-white" : "text-foreground"}`}>
 						{message.text}
 					</Text>
 				</View>
-				<Text
-					className={`text-xs mt-1 ${
-						message.isCurrentUser ? "text-gray-400 text-right" : "text-gray-400"
+				<View
+					className={`flex-row items-center mt-1 ${
+						message.isCurrentUser ? "justify-end" : "justify-start"
 					}`}
 				>
-					{message.timestamp}
-				</Text>
+					<Text className="text-xs text-gray-400">{message.timestamp}</Text>
+					{renderStatusIcon()}
+				</View>
 			</View>
 		</View>
 	);

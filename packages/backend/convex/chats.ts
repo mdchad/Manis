@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { authComponent } from "./auth";
+import { authComponent, getUserById } from "./auth";
+import { r2 } from "./r2";
 
 /**
  * Start or get existing chat for a listing
@@ -19,7 +20,7 @@ export const startChat = mutation({
 		if (!listing) throw new Error("Listing not found");
 
 		// Prevent seller from chatting with themselves
-		if (listing.userId === user.id) {
+		if (listing.userId === user._id) {
 			throw new Error("Cannot start a chat with your own listing");
 		}
 
@@ -27,7 +28,7 @@ export const startChat = mutation({
 		const existingChat = await ctx.db
 			.query("chats")
 			.withIndex("by_listing_and_buyer", (q) =>
-				q.eq("listingId", args.listingId).eq("buyerId", user.id)
+				q.eq("listingId", args.listingId).eq("buyerId", user._id)
 			)
 			.first();
 
@@ -39,7 +40,7 @@ export const startChat = mutation({
 		const now = Date.now();
 		const chatId = await ctx.db.insert("chats", {
 			listingId: args.listingId,
-			buyerId: user.id,
+			buyerId: user._id,
 			sellerId: listing.userId,
 			lastMessageAt: now,
 			createdAt: now,
@@ -63,14 +64,14 @@ export const getUserChats = query({
 		// Get chats where user is buyer
 		const buyerChats = await ctx.db
 			.query("chats")
-			.withIndex("by_buyer_and_lastMessage", (q) => q.eq("buyerId", user.id))
+			.withIndex("by_buyer_and_lastMessage", (q) => q.eq("buyerId", user._id))
 			.order("desc")
 			.collect();
 
 		// Get chats where user is seller
 		const sellerChats = await ctx.db
 			.query("chats")
-			.withIndex("by_seller_and_lastMessage", (q) => q.eq("sellerId", user.id))
+			.withIndex("by_seller_and_lastMessage", (q) => q.eq("sellerId", user._id))
 			.order("desc")
 			.collect();
 
@@ -83,7 +84,7 @@ export const getUserChats = query({
 		const enrichedChats = await Promise.all(
 			allChats.map(async (chat) => {
 				const listing = await ctx.db.get(chat.listingId);
-				const otherUserId = chat.buyerId === user.id ? chat.sellerId : chat.buyerId;
+				const otherUserId = chat.buyerId === user._id ? chat.sellerId : chat.buyerId;
 
 				// Get other user's profile
 				const otherUserProfile = await ctx.db
@@ -92,9 +93,10 @@ export const getUserChats = query({
 					.first();
 
 				// Get other user from auth component
-				const otherUser = await authComponent.getUserById(ctx, {
-					userId: otherUserId,
-				});
+				const otherUser = await authComponent.getAnyUserById(ctx, otherUserId);
+				const avatarUrl = otherUserProfile?.avatarKey
+					? await r2.getUrl(otherUserProfile.avatarKey)
+					: "";
 
 				return {
 					...chat,
@@ -102,9 +104,9 @@ export const getUserChats = query({
 					otherUser: {
 						id: otherUserId,
 						name: otherUserProfile?.displayName || otherUser?.name || "Unknown",
-						avatarKey: otherUserProfile?.avatarKey,
+						avatarUrl: avatarUrl,
 					},
-					isSeller: chat.sellerId === user.id,
+					isSeller: chat.sellerId === user._id,
 				};
 			})
 		);
@@ -128,7 +130,7 @@ export const getChatById = query({
 		if (!chat) throw new Error("Chat not found");
 
 		// Verify user is part of this chat
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -136,15 +138,16 @@ export const getChatById = query({
 		const listing = await ctx.db.get(chat.listingId);
 
 		// Get other user details
-		const otherUserId = chat.buyerId === user.id ? chat.sellerId : chat.buyerId;
+		const otherUserId = chat.buyerId === user._id ? chat.sellerId : chat.buyerId;
 		const otherUserProfile = await ctx.db
 			.query("userProfiles")
 			.withIndex("by_userId", (q) => q.eq("userId", otherUserId))
 			.first();
 
-		const otherUser = await authComponent.getUserById(ctx, {
-			userId: otherUserId,
-		});
+		const otherUser = await authComponent.getAnyUserById(ctx, otherUserId);
+		const avatarUrl = otherUserProfile?.avatarKey
+			? await r2.getUrl(otherUserProfile.avatarKey)
+			: "";
 
 		return {
 			...chat,
@@ -152,9 +155,9 @@ export const getChatById = query({
 			otherUser: {
 				id: otherUserId,
 				name: otherUserProfile?.displayName || otherUser?.name || "Unknown",
-				avatarKey: otherUserProfile?.avatarKey,
+				avatarUrl: avatarUrl,
 			},
-			isSeller: chat.sellerId === user.id,
+			isSeller: chat.sellerId === user._id,
 		};
 	},
 });

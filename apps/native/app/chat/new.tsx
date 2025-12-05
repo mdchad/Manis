@@ -36,6 +36,7 @@ export default function NewChatScreen() {
 	const chat = useQuery(api.chats.getChatById, chatId ? { chatId } : "skip");
 	const messages = useQuery(api.messages.getMessages, chatId ? { chatId } : "skip");
 	const activeOffer = useQuery(api.offers.getActiveOffer, chatId ? { chatId } : "skip");
+	console.log(chat);
 
 	// Get listing data if no chat yet
 	const listing = useQuery(api.listings.getById, !chatId && listingId ? { listingId } : "skip");

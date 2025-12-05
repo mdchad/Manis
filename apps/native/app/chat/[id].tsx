@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
 	View,
 	Text,
@@ -13,7 +13,7 @@ import { ArrowLeft, Send, ImageIcon, Smile, DollarSign } from "lucide-react-nati
 import { Container } from "@/components/container";
 import { Avatar, Button, TextField } from "heroui-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import type { Id } from "@manis/backend/convex/_generated/dataModel";
 import { OfferCard } from "@/components/offer-card";
@@ -28,10 +28,13 @@ export default function ChatMessageScreen() {
 	const [offerMessage, setOfferMessage] = useState("");
 	const insets = useSafeAreaInsets();
 
+	const { isAuthenticated } = useConvexAuth();
+
 	// Get chat data
 	const chat = useQuery(api.chats.getChatById, { chatId: id as Id<"chats"> });
 	const messages = useQuery(api.messages.getMessages, { chatId: id as Id<"chats"> });
 	const activeOffer = useQuery(api.offers.getActiveOffer, { chatId: id as Id<"chats"> });
+	const user = useQuery(api.auth.getCurrentUser, isAuthenticated ? {} : "skip");
 
 	// Mutations
 	const sendMessageMutation = useMutation(api.messages.sendMessage);
@@ -130,8 +133,8 @@ export default function ChatMessageScreen() {
 					</TouchableOpacity>
 
 					<Avatar size="sm" alt={chat.otherUser.name} className="mr-3">
-						{chat.otherUser.avatarKey && (
-							<Avatar.Image source={{ uri: `your-r2-url/${chat.otherUser.avatarKey}` }} />
+						{chat.otherUser.avatarUrl && (
+							<Avatar.Image source={{ uri: chat.otherUser.avatarUrl }} />
 						)}
 						<Avatar.Fallback />
 					</Avatar>
@@ -182,15 +185,13 @@ export default function ChatMessageScreen() {
 								id: msg._id,
 								text: msg.text,
 								type: msg.type,
-								isCurrentUser: msg.senderId === chat.otherUser.id ? false : true,
+								isCurrentUser: msg.senderId === user?._id,
 								timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
 									hour: "2-digit",
 									minute: "2-digit",
 								}),
 							}}
-							userAvatarUrl={
-								chat.otherUser.avatarKey ? `your-r2-url/${chat.otherUser.avatarKey}` : undefined
-							}
+							userAvatarUrl={chat.otherUser.avatarUrl ? chat.otherUser.avatarUrl : undefined}
 							username={chat.otherUser.name}
 						/>
 					))}
