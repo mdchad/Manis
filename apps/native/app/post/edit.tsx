@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -17,8 +17,9 @@ import { X, ChevronRight, Paperclip } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Button } from "heroui-native";
 import { useUploadFile } from "@convex-dev/r2/react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import { Id } from "@manis/backend/convex/_generated/dataModel";
 import * as ImagePicker from "expo-image-picker";
 
 const { width } = Dimensions.get("window");
@@ -32,6 +33,7 @@ interface Photo {
 export default function EditPostScreen() {
 	const params = useLocalSearchParams();
 	const photoUris = params.photoUris as string;
+	const selectedListingIds = params.selectedListingIds as string;
 
 	// Parse multiple photo URIs from comma-separated string
 	const [photos] = useState<Photo[]>(() => {
@@ -46,7 +48,7 @@ export default function EditPostScreen() {
 	const [caption, setCaption] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
 	const [location, setLocation] = useState("");
-	const [taggedListings, setTaggedListings] = useState<any[]>([]);
+	const [taggedListingIds, setTaggedListingIds] = useState<Id<"listings">[]>([]);
 	const [isPosting, setIsPosting] = useState(false);
 
 	const scrollViewRef = useRef<ScrollView>(null);
@@ -54,6 +56,29 @@ export default function EditPostScreen() {
 	// Convex hooks
 	const uploadFile = useUploadFile(api.r2);
 	const createPost = useMutation(api.posts.createPost);
+	const currentUser = useQuery(api.auth.getCurrentUser);
+
+	// Get listing details for tagged listings
+	const userListings = useQuery(
+		api.listings.getUserListings,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
+
+	// Update tagged listings when selectedListingIds changes
+	useEffect(() => {
+		if (selectedListingIds) {
+			try {
+				const parsedIds = JSON.parse(selectedListingIds);
+				setTaggedListingIds(parsedIds);
+			} catch (error) {
+				console.error("Error parsing selected listing IDs:", error);
+			}
+		}
+	}, [selectedListingIds]);
+
+	// Get the actual listing objects from IDs
+	const taggedListings =
+		userListings?.filter((listing) => taggedListingIds.includes(listing._id)) || [];
 
 	// Helper function to convert URI to File
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
@@ -63,7 +88,7 @@ export default function EditPostScreen() {
 	};
 
 	const handleClose = () => {
-		if (caption.trim() || tags.length > 0 || location.trim() || taggedListings.length > 0) {
+		if (caption.trim() || tags.length > 0 || location.trim() || taggedListingIds.length > 0) {
 			Alert.alert("Save Draft?", "Do you want to save this post as a draft?", [
 				{
 					text: "Discard",
@@ -119,7 +144,7 @@ export default function EditPostScreen() {
 				imageKeys,
 				tags: tags.length > 0 ? tags : undefined,
 				location: location.trim() || undefined,
-				taggedListings: taggedListings.length > 0 ? taggedListings.map((l) => l._id) : undefined,
+				taggedListings: taggedListingIds.length > 0 ? taggedListingIds : undefined,
 			});
 
 			Alert.alert("Success", "Post created successfully!", [
@@ -150,34 +175,18 @@ export default function EditPostScreen() {
 		router.push("/post/add-location");
 	};
 
-	const handleAddTaggedListings = async () => {
-		// Request permission
-		// const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-		//
-		// if (permissionResult.granted === false) {
-		// 	Alert.alert("Permission Required", "Permission to access camera roll is required to add listings!");
-		// 	return;
-		// }
-		//
-		// // Launch image picker
-		// const result = await ImagePicker.launchImageLibraryAsync({
-		// 	mediaTypes: 'images',
-		// 	allowsEditing: true,
-		// 	aspect: [1, 1],
-		// 	quality: 0.8,
-		// });
-		// if (!result.canceled && result.assets && result.assets.length > 0) {
-		// 	const asset = result.assets[0];
-		//
-		// 	// Navigate to create listing screen with the selected image
-		// 	router.push({
-		// 		pathname: "/listing/create",
-		// 		params: {
-		// 			imageUri: asset.uri,
-		// 			fromPost: "true", // Flag to indicate this is from post tagging
-		// 		},
-		// 	});
-		// }
+	const handleAddTaggedListings = () => {
+		// Navigate to the select listings modal
+		router.push({
+			pathname: "/post/select-listings",
+			params: {
+				selectedIds: JSON.stringify(taggedListingIds),
+			},
+		});
+	};
+
+	const handleRemoveListing = (listingId: Id<"listings">) => {
+		setTaggedListingIds((prev) => prev.filter((id) => id !== listingId));
 	};
 
 	return (
@@ -273,30 +282,61 @@ export default function EditPostScreen() {
 						</TouchableOpacity>
 
 						{/* Tagged Listings Section */}
-						<View className="px-4 py-4">
-							<Text className="text-xs font-semibold text-foreground mb-3 tracking-wide">
-								TAGGED LISTINGS
-							</Text>
+						<View className="px-4 py-4 border-b border-border">
+							<View className="flex-row items-center justify-between mb-3">
+								<Text className="text-xs font-semibold text-foreground tracking-wide">
+									TAGGED LISTINGS
+								</Text>
+								{taggedListings.length > 0 && (
+									<TouchableOpacity onPress={handleAddTaggedListings}>
+										<Text className="text-xs text-primary font-medium">Edit</Text>
+									</TouchableOpacity>
+								)}
+							</View>
 
-							<TouchableOpacity
-								onPress={handleAddTaggedListings}
-								className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
-							>
-								<View className="items-center justify-center">
-									<Text className="text-3xl text-muted-foreground mb-1">+</Text>
-								</View>
-							</TouchableOpacity>
+							<View className="flex-row flex-wrap gap-2">
+								{/* Add Listing Button */}
+								<TouchableOpacity
+									onPress={handleAddTaggedListings}
+									className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
+								>
+									<View className="items-center justify-center">
+										<Text className="text-3xl text-muted-foreground mb-1">+</Text>
+									</View>
+								</TouchableOpacity>
 
-							{/* Display Tagged Listings */}
-							{taggedListings.length > 0 && (
-								<View className="flex-row flex-wrap gap-2 mt-3">
-									{taggedListings.map((listing, index) => (
-										<View key={index} className="w-20 h-20 bg-muted rounded-lg">
-											{/* Tagged listing preview */}
-										</View>
-									))}
-								</View>
-							)}
+								{/* Display Tagged Listings */}
+								{taggedListings.map((listing) => (
+									<View key={listing._id} className="relative">
+										<TouchableOpacity
+											onPress={handleAddTaggedListings}
+											className="w-20 h-20 rounded-lg overflow-hidden"
+										>
+											{listing.imageUrl ? (
+												<Image
+													source={{ uri: listing.imageUrl }}
+													className="w-full h-full"
+													resizeMode="cover"
+												/>
+											) : (
+												<View className="w-full h-full bg-muted items-center justify-center">
+													<Text className="text-xs text-muted-foreground text-center px-1">
+														{listing.title}
+													</Text>
+												</View>
+											)}
+										</TouchableOpacity>
+
+										{/* Remove Button */}
+										<TouchableOpacity
+											onPress={() => handleRemoveListing(listing._id)}
+											className="absolute -top-1 -right-1 w-5 h-5 bg-black/70 rounded-full items-center justify-center"
+										>
+											<X size={12} color="white" strokeWidth={3} />
+										</TouchableOpacity>
+									</View>
+								))}
+							</View>
 						</View>
 
 						{/* Caption Drafting Note */}

@@ -17,7 +17,7 @@ const mockChats = [
 	{
 		id: "2",
 		userId: "user2",
-		username: "aishah.mz",
+		username: "john.doe",
 		avatarUrl: "https://i.pravatar.cc/150?img=5",
 		lastMessage: "Is this still available?",
 		timestamp: "1h ago",
@@ -26,7 +26,7 @@ const mockChats = [
 	{
 		id: "3",
 		userId: "user3",
-		username: "nuralifah",
+		username: "jane doe",
 		avatarUrl: "https://i.pravatar.cc/150?img=9",
 		lastMessage: "Thank you! The item arrived perfectly",
 		timestamp: "3h ago",
@@ -35,16 +35,16 @@ const mockChats = [
 	{
 		id: "4",
 		userId: "user4",
-		username: "sarah.iman",
+		username: "irsyad",
 		avatarUrl: "https://i.pravatar.cc/150?img=10",
-		lastMessage: "Can you do RM80 for this?",
+		lastMessage: "Can you do $80 for this?",
 		timestamp: "5h ago",
 		unreadCount: 0,
 	},
 	{
 		id: "5",
 		userId: "user5",
-		username: "liyana.ros",
+		username: "nur",
 		avatarUrl: "https://i.pravatar.cc/150?img=16",
 		lastMessage: "Okay, I'll take it!",
 		timestamp: "1d ago",
@@ -53,7 +53,7 @@ const mockChats = [
 	{
 		id: "6",
 		userId: "user6",
-		username: "zara.malik",
+		username: "aleena",
 		avatarUrl: "https://i.pravatar.cc/150?img=20",
 		lastMessage: "Do you have this in size M?",
 		timestamp: "2d ago",
