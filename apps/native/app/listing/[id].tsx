@@ -20,7 +20,6 @@ const { width } = Dimensions.get("window");
 export default function ListingDetail() {
 	const { id } = useLocalSearchParams();
 	const router = useRouter();
-	console.log(id);
 
 	const listing = useQuery(api.listings.getById, {
 		listingId: id as Id<"listings">,
