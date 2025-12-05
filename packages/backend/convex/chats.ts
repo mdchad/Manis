@@ -96,7 +96,7 @@ export const getUserChats = query({
 				const otherUser = await authComponent.getAnyUserById(ctx, otherUserId);
 				const avatarUrl = otherUserProfile?.avatarKey
 					? await r2.getUrl(otherUserProfile.avatarKey)
-					: null;
+					: "";
 
 				return {
 					...chat,
@@ -145,6 +145,9 @@ export const getChatById = query({
 			.first();
 
 		const otherUser = await authComponent.getAnyUserById(ctx, otherUserId);
+		const avatarUrl = otherUserProfile?.avatarKey
+			? await r2.getUrl(otherUserProfile.avatarKey)
+			: "";
 
 		return {
 			...chat,
@@ -152,7 +155,7 @@ export const getChatById = query({
 			otherUser: {
 				id: otherUserId,
 				name: otherUserProfile?.displayName || otherUser?.name || "Unknown",
-				avatarKey: otherUserProfile?.avatarKey,
+				avatarUrl: avatarUrl,
 			},
 			isSeller: chat.sellerId === user._id,
 		};
