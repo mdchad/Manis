@@ -16,6 +16,8 @@ import { X, ChevronRight, ArrowRightIcon, CheckIcon } from "lucide-react-native"
 import { router } from "expo-router";
 import { Container } from "@/components/container";
 import { Checkbox } from "heroui-native";
+import { useMutation } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
 
 const { width } = Dimensions.get("window");
 const GRID_COLUMNS = 4;
@@ -35,6 +37,10 @@ export default function AddScreen() {
 	const [primaryPhoto, setPrimaryPhoto] = useState<Photo | null>(null);
 	const [hasPermission, setHasPermission] = useState<boolean | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [isCreatingDraft, setIsCreatingDraft] = useState(false);
+
+	// Convex hooks
+	const createDraftPost = useMutation(api.posts.createDraftPost);
 
 	useEffect(() => {
 		requestPermissionAndLoadPhotos();
@@ -137,15 +143,29 @@ export default function AddScreen() {
 		setPrimaryPhoto(photo);
 	};
 
-	const handleNext = () => {
-		if (selectedPhotos.length > 0) {
+	const handleNext = async () => {
+		if (selectedPhotos.length === 0) return;
+
+		try {
+			setIsCreatingDraft(true);
+
+			// Create draft post (without uploading images yet)
+			const draftPostId = await createDraftPost({});
+
+			// Pass photo URIs and draft post ID to edit screen
 			const photoUris = selectedPhotos.map((p) => p.uri).join(",");
 			router.push({
 				pathname: "/post/edit",
 				params: {
 					photoUris: photoUris,
+					draftPostId: draftPostId,
 				},
 			});
+		} catch (error) {
+			console.error("Error creating draft:", error);
+			Alert.alert("Error", "Failed to create draft post. Please try again.");
+		} finally {
+			setIsCreatingDraft(false);
 		}
 	};
 
@@ -250,10 +270,14 @@ export default function AddScreen() {
 							<Text className="text-lg font-semibold text-white">NEW POST</Text>
 							<Pressable
 								onPress={handleNext}
-								disabled={selectedPhotos.length === 0}
+								disabled={selectedPhotos.length === 0 || isCreatingDraft}
 								className="bg-black/30 rounded-full p-1"
 							>
-								<ArrowRightIcon size={28} color="white" />
+								{isCreatingDraft ? (
+									<ActivityIndicator size="small" color="white" />
+								) : (
+									<ArrowRightIcon size={28} color="white" />
+								)}
 							</Pressable>
 						</View>
 

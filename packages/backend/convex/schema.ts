@@ -37,7 +37,7 @@ export default defineSchema({
 		// Author of the post (Better-Auth user ID)
 		userId: v.string(),
 		// Caption/description
-		caption: v.string(),
+		caption: v.optional(v.string()),
 		// Array of image keys stored in R2 (supports multiple images per post)
 		imageKeys: v.array(v.string()),
 		// Tags (e.g., fashion, style, etc.)
@@ -48,6 +48,8 @@ export default defineSchema({
 		taggedListings: v.optional(v.array(v.id("listings"))),
 		// Archive status (hidden from public feed but visible in profile archive)
 		isArchived: v.boolean(),
+		// Draft status (true = draft, false = published)
+		isDraft: v.boolean(),
 		// Timestamps
 		createdAt: v.number(),
 		updatedAt: v.number(),
@@ -55,7 +57,8 @@ export default defineSchema({
 		.index("by_userId", ["userId"])
 		.index("by_userId_and_archived", ["userId", "isArchived"])
 		.index("by_createdAt", ["createdAt"])
-		.index("by_archived_and_createdAt", ["isArchived", "createdAt"]),
+		.index("by_archived_and_createdAt", ["isArchived", "createdAt"])
+		.index("by_userId_and_draft", ["userId", "isDraft"]),
 	postLikes: defineTable({
 		// Post being liked
 		postId: v.id("posts"),
