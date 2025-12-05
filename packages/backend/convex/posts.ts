@@ -170,7 +170,28 @@ export const getFeedPosts = query({
 					.collect();
 
 				// Get avatar URL
-				const avatarUrl = profile?.avatarKey ? await r2.getUrl(profile.avatarKey, ctx) : null;
+				const avatarUrl = profile?.avatarKey ? await r2.getUrl(profile.avatarKey) : null;
+
+				// Get tagged listings with their details
+				const taggedListingsData = post.taggedListings
+					? await Promise.all(
+							post.taggedListings.map(async (listingId) => {
+								const listing = await ctx.db.get(listingId);
+								if (!listing) return null;
+
+								// Get listing image URL from R2
+								const imageUrl = listing.imageKey ? await r2.getUrl(listing.imageKey) : null;
+
+								return {
+									...listing,
+									imageUrl,
+								};
+							})
+						)
+					: [];
+
+				// Filter out any null listings (in case they were deleted)
+				const validTaggedListings = taggedListingsData.filter((listing) => listing !== null);
 
 				return {
 					...post,
@@ -178,6 +199,7 @@ export const getFeedPosts = query({
 					displayName: profile?.displayName,
 					avatarUrl,
 					imageUrls,
+					taggedListings: validTaggedListings,
 					likeCount: likes.length,
 					commentCount: comments.length,
 				};
@@ -310,6 +332,7 @@ export const getUserPosts = query({
 					imageUrls,
 					likeCount: likes.length,
 					commentCount: comments.length,
+					taggedListings: validTaggedListings,
 				};
 			})
 		);

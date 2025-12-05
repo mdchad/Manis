@@ -22,9 +22,9 @@ interface FeedPostProps {
 	userAvatar: string;
 	username: string;
 	images: string[];
-	caption: string;
+	caption?: string;
 	likes?: number;
-	listingImages?: string[];
+	listingImages?: any[];
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
@@ -112,7 +112,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 						{listingImages.slice(0, 3).map((image, index) => (
 							<TouchableOpacity key={index} onPress={() => handleListingPress(index)}>
 								<Image
-									source={{ uri: image }}
+									source={{ uri: image.imageUrl }}
 									style={{
 										width: 70,
 										height: 70,

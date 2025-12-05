@@ -41,7 +41,7 @@ export default function PostScreen() {
 					images={post.imageUrls}
 					caption={post.caption}
 					likes={post.likeCount}
-					listingImages={[]}
+					listingImages={post.taggedListings || []}
 				/>
 			</ScrollView>
 		</Container>

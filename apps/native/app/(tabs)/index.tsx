@@ -29,7 +29,7 @@ export default function TabOne() {
 					images: post.imageUrls,
 					caption: post.caption,
 					likes: post.likeCount,
-					listingImages: [],
+					taggedListings: post.taggedListings || [],
 					isRealPost: true,
 				}))
 			);
@@ -97,7 +97,7 @@ export default function TabOne() {
 						images={item.images}
 						caption={item.caption}
 						likes={item.likes}
-						listingImages={item.listingImages}
+						listingImages={item.taggedListings || []}
 					/>
 				)}
 				contentContainerClassName="bg-brand-background"
