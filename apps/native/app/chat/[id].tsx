@@ -132,7 +132,13 @@ export default function ChatMessageScreen() {
 						<ArrowLeft size={24} color="black" />
 					</TouchableOpacity>
 
-					<Avatar size="sm" alt={chat.otherUser.name} className="mr-3">
+					<Avatar
+						size="sm"
+						alt={chat.otherUser.name}
+						className="mr-3"
+						variant="soft"
+						color="success"
+					>
 						{chat.otherUser.avatarUrl && (
 							<Avatar.Image source={{ uri: chat.otherUser.avatarUrl }} />
 						)}
