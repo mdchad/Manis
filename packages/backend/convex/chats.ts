@@ -165,7 +165,7 @@ export const getChatById = query({
 			otherUser: {
 				id: otherUserId,
 				name: otherUserProfile?.displayName || otherUser?.name || "Unknown",
-				avatarUrl: avatarUrl,
+				avatarUrl,
 			},
 			isSeller: chat.sellerId === user._id,
 		};

@@ -205,7 +205,7 @@ export default function ChatMessageScreen() {
 									minute: "2-digit",
 								}),
 							}}
-							userAvatarUrl={chat.otherUser.avatarUrl ? chat.otherUser.avatarUrl : undefined}
+							userAvatarUrl={chat.otherUser.avatarUrl ? chat.otherUser.avatarUrl : ""}
 							username={chat.otherUser.name}
 						/>
 					))}

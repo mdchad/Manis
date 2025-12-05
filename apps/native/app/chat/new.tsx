@@ -177,8 +177,8 @@ export default function NewChatScreen() {
 					</TouchableOpacity>
 
 					<Avatar size="sm" alt={displayData.otherUser.name} className="mr-3">
-						{displayData.otherUser.avatarKey && (
-							<Avatar.Image source={{ uri: `your-r2-url/${displayData.otherUser.avatarKey}` }} />
+						{displayData.otherUser.avatarUrl && (
+							<Avatar.Image source={{ uri: displayData.otherUser.avatarUrl }} />
 						)}
 						<Avatar.Fallback />
 					</Avatar>
@@ -249,9 +249,7 @@ export default function NewChatScreen() {
 									}),
 								}}
 								userAvatarUrl={
-									displayData.otherUser.avatarKey
-										? `your-r2-url/${displayData.otherUser.avatarKey}`
-										: undefined
+									displayData.otherUser.avatarUrl ? displayData.otherUser.avatarUrl : ""
 								}
 								username={displayData.otherUser.name}
 							/>
@@ -269,7 +267,7 @@ export default function NewChatScreen() {
 						</View>
 
 						<View className="mb-3">
-							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (RM)</Text>
+							<Text className="text-sm font-medium text-gray-700 mb-1">Amount</Text>
 							<TextField>
 								<TextField.Input
 									keyboardType="numeric"
