@@ -21,7 +21,7 @@ export const makeOffer = mutation({
 		if (!chat) throw new Error("Chat not found");
 
 		// Only buyer can make offers
-		if (chat.buyerId !== user.id) {
+		if (chat.buyerId !== user._id) {
 			throw new Error("Only the buyer can make offers");
 		}
 
@@ -45,7 +45,7 @@ export const makeOffer = mutation({
 			// Send system message: "Buyer edited the offer"
 			await ctx.db.insert("messages", {
 				chatId: args.chatId,
-				senderId: user.id,
+				senderId: user._id,
 				text: "Buyer edited the offer",
 				type: "offer_activity",
 				offerId: existingOffer._id,
@@ -66,7 +66,7 @@ export const makeOffer = mutation({
 			const offerId = await ctx.db.insert("offers", {
 				chatId: args.chatId,
 				listingId: chat.listingId,
-				buyerId: user.id,
+				buyerId: user._id,
 				sellerId: chat.sellerId,
 				amount: args.amount,
 				message: args.message,
@@ -78,7 +78,7 @@ export const makeOffer = mutation({
 			// Send system message: "Buyer made an offer"
 			await ctx.db.insert("messages", {
 				chatId: args.chatId,
-				senderId: user.id,
+				senderId: user._id,
 				text: "Buyer made an offer",
 				type: "offer_activity",
 				offerId,
@@ -113,7 +113,7 @@ export const acceptOffer = mutation({
 		if (!offer) throw new Error("Offer not found");
 
 		// Only seller can accept
-		if (offer.sellerId !== user.id) {
+		if (offer.sellerId !== user._id) {
 			throw new Error("Only the seller can accept offers");
 		}
 
@@ -140,7 +140,7 @@ export const acceptOffer = mutation({
 		// Send system message: "Seller accepted the offer"
 		await ctx.db.insert("messages", {
 			chatId: offer.chatId,
-			senderId: user.id,
+			senderId: user._id,
 			text: "Seller accepted the offer",
 			type: "offer_activity",
 			offerId: args.offerId,
@@ -172,7 +172,7 @@ export const declineOffer = mutation({
 		if (!offer) throw new Error("Offer not found");
 
 		// Only seller can decline
-		if (offer.sellerId !== user.id) {
+		if (offer.sellerId !== user._id) {
 			throw new Error("Only the seller can decline offers");
 		}
 
@@ -193,7 +193,7 @@ export const declineOffer = mutation({
 		// Send system message: "Seller declined the offer"
 		await ctx.db.insert("messages", {
 			chatId: offer.chatId,
-			senderId: user.id,
+			senderId: user._id,
 			text: "Seller declined the offer",
 			type: "offer_activity",
 			offerId: args.offerId,
@@ -226,7 +226,7 @@ export const cancelOffer = mutation({
 		if (!offer) throw new Error("Offer not found");
 
 		// Only buyer can cancel
-		if (offer.buyerId !== user.id) {
+		if (offer.buyerId !== user._id) {
 			throw new Error("Only the buyer can cancel offers");
 		}
 
@@ -247,7 +247,7 @@ export const cancelOffer = mutation({
 		// Send system message: "Buyer cancelled the offer"
 		await ctx.db.insert("messages", {
 			chatId: offer.chatId,
-			senderId: user.id,
+			senderId: user._id,
 			text: "Buyer cancelled the offer",
 			type: "offer_activity",
 			offerId: args.offerId,
@@ -280,7 +280,7 @@ export const getActiveOffer = query({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -299,8 +299,8 @@ export const getActiveOffer = query({
 
 		return {
 			...offer,
-			isBuyer: offer.buyerId === user.id,
-			isSeller: offer.sellerId === user.id,
+			isBuyer: offer.buyerId === user._id,
+			isSeller: offer.sellerId === user._id,
 		};
 	},
 });
@@ -320,7 +320,7 @@ export const getChatOffers = query({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -332,8 +332,8 @@ export const getChatOffers = query({
 
 		return offers.map((offer) => ({
 			...offer,
-			isBuyer: offer.buyerId === user.id,
-			isSeller: offer.sellerId === user.id,
+			isBuyer: offer.buyerId === user._id,
+			isSeller: offer.sellerId === user._id,
 		}));
 	},
 });

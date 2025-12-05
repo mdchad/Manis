@@ -18,7 +18,7 @@ export const sendMessage = mutation({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -26,7 +26,7 @@ export const sendMessage = mutation({
 		const now = Date.now();
 		const messageId = await ctx.db.insert("messages", {
 			chatId: args.chatId,
-			senderId: user.id,
+			senderId: user._id,
 			text: args.text,
 			type: "user",
 			isRead: false,
@@ -59,7 +59,7 @@ export const getMessages = query({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -89,7 +89,7 @@ export const markMessagesAsRead = mutation({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -101,7 +101,7 @@ export const markMessagesAsRead = mutation({
 
 		// Mark messages as read (only messages from other user)
 		for (const message of messages) {
-			if (message.senderId !== user.id && !message.isRead) {
+			if (message.senderId !== user._id && !message.isRead) {
 				await ctx.db.patch(message._id, { isRead: true });
 			}
 		}
@@ -124,7 +124,7 @@ export const sendSystemMessage = mutation({
 		const chat = await ctx.db.get(args.chatId);
 		if (!chat) throw new Error("Chat not found");
 
-		if (chat.buyerId !== user.id && chat.sellerId !== user.id) {
+		if (chat.buyerId !== user._id && chat.sellerId !== user._id) {
 			throw new Error("Unauthorized");
 		}
 
@@ -132,7 +132,7 @@ export const sendSystemMessage = mutation({
 		const now = Date.now();
 		const messageId = await ctx.db.insert("messages", {
 			chatId: args.chatId,
-			senderId: user.id,
+			senderId: user._id,
 			text: args.text,
 			type: "system",
 			isRead: true, // System messages are always marked as read
@@ -161,12 +161,12 @@ export const getUnreadCount = query({
 		// Get all chats where user is participant
 		const buyerChats = await ctx.db
 			.query("chats")
-			.withIndex("by_buyer", (q) => q.eq("buyerId", user.id))
+			.withIndex("by_buyer", (q) => q.eq("buyerId", user._id))
 			.collect();
 
 		const sellerChats = await ctx.db
 			.query("chats")
-			.withIndex("by_seller", (q) => q.eq("sellerId", user.id))
+			.withIndex("by_seller", (q) => q.eq("sellerId", user._id))
 			.collect();
 
 		const allChats = [...buyerChats, ...sellerChats];
@@ -177,7 +177,7 @@ export const getUnreadCount = query({
 			const unreadMessages = await ctx.db
 				.query("messages")
 				.withIndex("by_chat", (q) => q.eq("chatId", chat._id))
-				.filter((q) => q.and(q.eq(q.field("isRead"), false), q.neq(q.field("senderId"), user.id)))
+				.filter((q) => q.and(q.eq(q.field("isRead"), false), q.neq(q.field("senderId"), user._id)))
 				.collect();
 
 			unreadCount += unreadMessages.length;
