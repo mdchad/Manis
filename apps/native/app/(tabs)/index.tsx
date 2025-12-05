@@ -1,54 +1,15 @@
-import { FlatList, View, Text, RefreshControl, Image, Dimensions } from "react-native";
+import { FlatList, View, Text, RefreshControl } from "react-native";
 import { FeedPost } from "@/components/feed-post";
-import { mockPosts } from "@/data/mock-posts";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Skeleton } from "heroui-native";
 
 export default function TabOne() {
 	const [refreshing, setRefreshing] = useState(false);
 
-	// Fetch real posts from database
-	const realPosts = useQuery(api.posts.getFeedPosts, { limit: 20 });
-	// Fetch real users for mock posts
-	const users = useQuery(api.userProfiles.getAllUsers, { limit: 10 });
-
-	// Combine real posts with mock posts
-	const feedPosts = useMemo(() => {
-		const posts = [];
-
-		// Add real posts first
-		if (realPosts && realPosts.length > 0) {
-			posts.push(
-				...realPosts.map((post) => ({
-					id: post._id,
-					userId: post.userId,
-					userAvatar: post.avatarUrl || `https://i.pravatar.cc/150?u=${post.userId}`,
-					username: post.username,
-					images: post.imageUrls,
-					caption: post.caption,
-					likes: post.likeCount,
-					listingImages: [],
-					isRealPost: true,
-				}))
-			);
-		}
-
-		// Add mock posts if we have users
-		if (users && users.length > 0) {
-			const mockPostsToAdd = mockPosts.slice(0, users.length).map((mockPost, index) => ({
-				...mockPost,
-				userId: users[index].userId,
-				username: users[index].username || `user${index}`,
-				userAvatar: users[index].avatarUrl || `https://i.pravatar.cc/150?u=${users[index].userId}`,
-				isRealPost: false,
-			}));
-			posts.push(...mockPostsToAdd);
-		}
-
-		return posts;
-	}, [realPosts, users]);
+	// Fetch posts from database
+	const posts = useQuery(api.posts.getFeedPosts, { limit: 20 });
 
 	const onRefresh = async () => {
 		setRefreshing(true);
@@ -56,7 +17,7 @@ export default function TabOne() {
 		setTimeout(() => setRefreshing(false), 1000);
 	};
 
-	if (!realPosts && !users) {
+	if (!posts) {
 		return (
 			<View className="flex-1 bg-brand-background">
 				<View className="flex-row items-center px-4 py-3">
@@ -75,7 +36,7 @@ export default function TabOne() {
 		);
 	}
 
-	if (feedPosts.length === 0) {
+	if (posts.length === 0) {
 		return (
 			<View className="flex-1 bg-brand-background items-center justify-center px-6">
 				<Text className="text-foreground text-lg text-center mb-2">No posts yet</Text>
@@ -87,17 +48,17 @@ export default function TabOne() {
 	return (
 		<View className="flex-1 bg-brand-background">
 			<FlatList
-				data={feedPosts}
-				keyExtractor={(item) => item.id}
+				data={posts}
+				keyExtractor={(item) => item._id}
 				renderItem={({ item }) => (
 					<FeedPost
 						userId={item.userId}
-						userAvatar={item.userAvatar}
+						userAvatar={item.avatarUrl || `https://i.pravatar.cc/150?u=${item.userId}`}
 						username={item.username}
-						images={item.images}
+						images={item.imageUrls}
 						caption={item.caption}
-						likes={item.likes}
-						listingImages={item.listingImages}
+						likes={item.likeCount}
+						listingImages={item.taggedListings || []}
 					/>
 				)}
 				contentContainerClassName="bg-brand-background"

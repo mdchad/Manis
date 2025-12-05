@@ -22,9 +22,9 @@ interface FeedPostProps {
 	userAvatar: string;
 	username: string;
 	images: string[];
-	caption: string;
+	caption?: string;
 	likes?: number;
-	listingImages?: string[];
+	listingImages?: any[];
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
@@ -46,9 +46,9 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 	// Check if this post is from the current user
 	const isOwnPost = currentUser?._id === userId;
 
-	const handleListingPress = (index: number) => {
+	const handleListingPress = (id: string) => {
 		// Navigate to listing detail page
-		router.push(`/listing/${index + 1}`);
+		router.push(`/listing/${id}`);
 	};
 
 	const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -109,10 +109,10 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 			{listingImages.length > 0 && (
 				<View className="">
 					<View className="flex-row">
-						{listingImages.slice(0, 3).map((image, index) => (
-							<TouchableOpacity key={index} onPress={() => handleListingPress(index)}>
+						{listingImages.map((listing) => (
+							<TouchableOpacity key={listing._id} onPress={() => handleListingPress(listing._id)}>
 								<Image
-									source={{ uri: image }}
+									source={{ uri: listing.imageUrl }}
 									style={{
 										width: 70,
 										height: 70,

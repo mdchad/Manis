@@ -4,7 +4,100 @@ import { authComponent } from "./auth";
 import type { Id } from "./_generated/dataModel";
 import { r2 } from "./r2";
 
-// Create a new post
+// Create a draft post (with or without initial images)
+export const createDraftPost = mutation({
+	args: {
+		imageKeys: v.optional(v.array(v.string())),
+	},
+	handler: async (ctx, args) => {
+		const user = await authComponent.getAuthUser(ctx);
+		if (!user) throw new Error("Unauthorized");
+
+		const now = Date.now();
+		const postId = await ctx.db.insert("posts", {
+			userId: user._id,
+			caption: undefined,
+			imageKeys: args.imageKeys || [],
+			tags: undefined,
+			location: undefined,
+			taggedListings: undefined,
+			isArchived: false,
+			isDraft: true,
+			createdAt: now,
+			updatedAt: now,
+		});
+
+		return postId;
+	},
+});
+
+// Update a post (for editing drafts or published posts)
+export const updatePost = mutation({
+	args: {
+		postId: v.id("posts"),
+		caption: v.optional(v.string()),
+		imageKeys: v.optional(v.array(v.string())),
+		tags: v.optional(v.array(v.string())),
+		location: v.optional(v.string()),
+		taggedListings: v.optional(v.array(v.id("listings"))),
+	},
+	handler: async (ctx, args) => {
+		const user = await authComponent.getAuthUser(ctx);
+		if (!user) throw new Error("Unauthorized");
+
+		const post = await ctx.db.get(args.postId);
+		if (!post) throw new Error("Post not found");
+
+		// Only the post owner can update
+		if (post.userId !== user._id) {
+			throw new Error("Not authorized to modify this post");
+		}
+
+		await ctx.db.patch(args.postId, {
+			...(args.caption !== undefined && { caption: args.caption }),
+			...(args.imageKeys !== undefined && { imageKeys: args.imageKeys }),
+			...(args.tags !== undefined && { tags: args.tags }),
+			...(args.location !== undefined && { location: args.location }),
+			...(args.taggedListings !== undefined && { taggedListings: args.taggedListings }),
+			updatedAt: Date.now(),
+		});
+
+		return { success: true };
+	},
+});
+
+// Publish a draft post
+export const publishPost = mutation({
+	args: {
+		postId: v.id("posts"),
+	},
+	handler: async (ctx, args) => {
+		const user = await authComponent.getAuthUser(ctx);
+		if (!user) throw new Error("Unauthorized");
+
+		const post = await ctx.db.get(args.postId);
+		if (!post) throw new Error("Post not found");
+
+		// Only the post owner can publish
+		if (post.userId !== user._id) {
+			throw new Error("Not authorized to modify this post");
+		}
+
+		// Must have caption to publish
+		if (!post.caption || post.caption.trim() === "") {
+			throw new Error("Caption is required to publish post");
+		}
+
+		await ctx.db.patch(args.postId, {
+			isDraft: false,
+			updatedAt: Date.now(),
+		});
+
+		return { success: true };
+	},
+});
+
+// Create a new post (legacy - for direct publishing)
 export const createPost = mutation({
 	args: {
 		caption: v.string(),
@@ -25,6 +118,7 @@ export const createPost = mutation({
 			location: args.location,
 			taggedListings: args.taggedListings,
 			isArchived: false,
+			isDraft: false,
 			createdAt: Date.now(),
 			updatedAt: Date.now(),
 		});
@@ -41,11 +135,12 @@ export const getFeedPosts = query({
 	handler: async (ctx, args) => {
 		const limit = args.limit ?? 20;
 
-		// Get non-archived posts ordered by most recent
+		// Get non-archived, published posts ordered by most recent
 		const posts = await ctx.db
 			.query("posts")
 			.withIndex("by_archived_and_createdAt", (q) => q.eq("isArchived", false))
 			.order("desc")
+			.filter((q) => q.eq(q.field("isDraft"), false))
 			.take(limit);
 
 		// Enrich posts with user data, image URLs, and engagement counts
@@ -75,7 +170,28 @@ export const getFeedPosts = query({
 					.collect();
 
 				// Get avatar URL
-				const avatarUrl = profile?.avatarKey ? await r2.getUrl(profile.avatarKey, ctx) : null;
+				const avatarUrl = profile?.avatarKey ? await r2.getUrl(profile.avatarKey) : null;
+
+				// Get tagged listings with their details
+				const taggedListingsData = post.taggedListings
+					? await Promise.all(
+							post.taggedListings.map(async (listingId) => {
+								const listing = await ctx.db.get(listingId);
+								if (!listing) return null;
+
+								// Get listing image URL from R2
+								const imageUrl = listing.imageKey ? await r2.getUrl(listing.imageKey) : null;
+
+								return {
+									...listing,
+									imageUrl,
+								};
+							})
+						)
+					: [];
+
+				// Filter out any null listings (in case they were deleted)
+				const validTaggedListings = taggedListingsData.filter((listing) => listing !== null);
 
 				return {
 					...post,
@@ -83,6 +199,7 @@ export const getFeedPosts = query({
 					displayName: profile?.displayName,
 					avatarUrl,
 					imageUrls,
+					taggedListings: validTaggedListings,
 					likeCount: likes.length,
 					commentCount: comments.length,
 				};
@@ -90,6 +207,27 @@ export const getFeedPosts = query({
 		);
 
 		return enrichedPosts;
+	},
+});
+
+// Get a draft post by ID (for editing)
+export const getDraftPost = query({
+	args: {
+		postId: v.id("posts"),
+	},
+	handler: async (ctx, args) => {
+		const user = await authComponent.getAuthUser(ctx);
+		if (!user) throw new Error("Unauthorized");
+
+		const post = await ctx.db.get(args.postId);
+		if (!post) throw new Error("Post not found");
+
+		// Only the post owner can access their draft
+		if (post.userId !== user._id) {
+			throw new Error("Not authorized to access this post");
+		}
+
+		return post;
 	},
 });
 

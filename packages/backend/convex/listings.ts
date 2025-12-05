@@ -22,12 +22,23 @@ export const getById = query({
 			.withIndex("by_userId", (q) => q.eq("userId", listing.userId))
 			.first();
 
+		// Get seller info from auth
+		const sellerUser = await authComponent.getAnyUserById(ctx, listing.userId);
+
+		// Get image URLs
+		const imageUrl = listing.imageKey ? await r2.getUrl(listing.imageKey, ctx) : null;
+		const avatarUrl = sellerProfile?.avatarKey
+			? await r2.getUrl(sellerProfile.avatarKey, ctx)
+			: null;
+
 		return {
 			...listing,
+			imageUrl,
 			seller: {
 				id: listing.userId,
-				name: sellerProfile?.displayName || "Unknown",
-				avatarKey: sellerProfile?.avatarKey,
+				username: sellerUser?.username || "Unknown",
+				name: sellerProfile?.displayName || sellerUser?.username || "Unknown",
+				avatarUrl,
 			},
 		};
 	},

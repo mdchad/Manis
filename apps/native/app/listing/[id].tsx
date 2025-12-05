@@ -1,32 +1,53 @@
 import React from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity, Dimensions } from "react-native";
+import {
+	View,
+	Text,
+	Image,
+	ScrollView,
+	TouchableOpacity,
+	Dimensions,
+	ActivityIndicator,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ArrowLeft, Share2 } from "lucide-react-native";
 import { Container } from "@/components/container";
+import { useQuery } from "convex/react";
+import { api } from "@manis/backend/convex/_generated/api";
+import type { Id } from "@manis/backend/convex/_generated/dataModel";
 
 const { width } = Dimensions.get("window");
 
 export default function ListingDetail() {
 	const { id } = useLocalSearchParams();
 	const router = useRouter();
+	console.log(id);
 
-	// Mock data - in real app, fetch based on id
-	const listing = {
-		id,
-		image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800",
-		title: "Shirt Dress Eva Black, M",
-		brand: "KAIFIYYAH",
-		price: 60,
-		description:
-			"description here: selling my entire Kaifiyyah set. click for more details! add more words to show that description can be lengthy and share more details",
-		size: "M",
-		meetup: "BUONA VISTA",
-		condition: "BRAND NEW",
-		seller: {
-			name: "fadhilahyacob",
-			avatar: "https://i.pravatar.cc/150?img=1",
-		},
-	};
+	const listing = useQuery(api.listings.getById, {
+		listingId: id as Id<"listings">,
+	});
+
+	if (listing === undefined) {
+		return (
+			<Container edges={["top"]}>
+				<View className="flex-1 items-center justify-center">
+					<ActivityIndicator size="large" />
+				</View>
+			</Container>
+		);
+	}
+
+	if (listing === null) {
+		return (
+			<Container edges={["top"]}>
+				<View className="flex-1 items-center justify-center px-4">
+					<Text className="text-base text-gray-600">Listing not found</Text>
+					<TouchableOpacity onPress={() => router.back()} className="mt-4">
+						<Text className="text-primary font-semibold">Go Back</Text>
+					</TouchableOpacity>
+				</View>
+			</Container>
+		);
+	}
 
 	return (
 		<Container edges={["top"]}>
@@ -44,16 +65,32 @@ export default function ListingDetail() {
 				<ScrollView showsVerticalScrollIndicator={false}>
 					{/* Seller Info */}
 					<View className="flex-row items-center px-4 pb-3">
-						<Image source={{ uri: listing.seller.avatar }} className="w-10 h-10 rounded-full" />
+						{listing.seller.avatarUrl ? (
+							<Image
+								source={{ uri: listing.seller.avatarUrl }}
+								className="w-10 h-10 rounded-full"
+							/>
+						) : (
+							<View className="w-10 h-10 rounded-full bg-gray-200" />
+						)}
 						<Text className="ml-3 font-semibold text-base">{listing.seller.name}</Text>
 					</View>
 
 					{/* Main Image */}
-					<Image
-						source={{ uri: listing.image }}
-						style={{ width, height: width * 1.3 }}
-						resizeMode="cover"
-					/>
+					{listing.imageUrl ? (
+						<Image
+							source={{ uri: listing.imageUrl }}
+							style={{ width, height: width * 1.3 }}
+							resizeMode="cover"
+						/>
+					) : (
+						<View
+							style={{ width, height: width * 1.3 }}
+							className="bg-gray-200 items-center justify-center"
+						>
+							<Text className="text-gray-400">No image</Text>
+						</View>
+					)}
 
 					{/* Product Details */}
 					<View className="px-4 py-4">
@@ -61,27 +98,33 @@ export default function ListingDetail() {
 						<View className="flex-row justify-between items-start mb-2">
 							<View className="flex-1">
 								<Text className="text-base mb-1">{listing.title}</Text>
-								<Text className="text-sm font-semibold">{listing.brand}</Text>
+								{listing.brand && <Text className="text-sm font-semibold">{listing.brand}</Text>}
 							</View>
-							<Text className="text-3xl font-bold ml-4">${listing.price}</Text>
+							{listing.price && <Text className="text-3xl font-bold ml-4">${listing.price}</Text>}
 						</View>
 
 						{/* Description */}
-						<Text className="text-sm text-gray-700 mt-3 leading-5">{listing.description}</Text>
+						{listing.description && (
+							<Text className="text-sm text-gray-700 mt-3 leading-5">{listing.description}</Text>
+						)}
 
 						{/* Product Info */}
 						<View className="mt-4 space-y-2">
-							<View className="flex-row">
-								<Text className="text-sm font-semibold w-24">SIZE:</Text>
-								<Text className="text-sm">{listing.size}</Text>
-							</View>
+							{listing.size && (
+								<View className="flex-row">
+									<Text className="text-sm font-semibold w-24">SIZE:</Text>
+									<Text className="text-sm">{listing.size}</Text>
+								</View>
+							)}
+							{listing.category && (
+								<View className="flex-row mt-2">
+									<Text className="text-sm font-semibold w-24">CATEGORY:</Text>
+									<Text className="text-sm">{listing.category}</Text>
+								</View>
+							)}
 							<View className="flex-row mt-2">
-								<Text className="text-sm font-semibold w-24">MEETUP:</Text>
-								<Text className="text-sm">{listing.meetup}</Text>
-							</View>
-							<View className="flex-row mt-2">
-								<Text className="text-sm font-semibold w-24">CONDITION:</Text>
-								<Text className="text-sm">{listing.condition}</Text>
+								<Text className="text-sm font-semibold w-24">STATUS:</Text>
+								<Text className="text-sm uppercase">{listing.status}</Text>
 							</View>
 						</View>
 
@@ -89,7 +132,7 @@ export default function ListingDetail() {
 						<View className="flex-row items-center justify-between mt-8 mb-4">
 							<TouchableOpacity
 								className="flex-1 mr-2"
-								onPress={() => router.push(`/chat/new?listingId=${listing.id}`)}
+								onPress={() => router.push(`/chat/new?listingId=${listing._id.toString()}`)}
 							>
 								<View className="bg-primary py-3 items-center rounded-lg">
 									<Text className="text-white font-semibold text-base">CHAT TO BUY</Text>

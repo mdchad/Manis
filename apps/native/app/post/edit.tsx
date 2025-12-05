@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
 	View,
 	Text,
@@ -17,8 +17,9 @@ import { X, ChevronRight, Paperclip } from "lucide-react-native";
 import { Container } from "@/components/container";
 import { Button } from "heroui-native";
 import { useUploadFile } from "@convex-dev/r2/react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
+import { Id } from "@manis/backend/convex/_generated/dataModel";
 import * as ImagePicker from "expo-image-picker";
 
 const { width } = Dimensions.get("window");
@@ -32,6 +33,7 @@ interface Photo {
 export default function EditPostScreen() {
 	const params = useLocalSearchParams();
 	const photoUris = params.photoUris as string;
+	const draftPostId = params.draftPostId as Id<"posts">;
 
 	// Parse multiple photo URIs from comma-separated string
 	const [photos] = useState<Photo[]>(() => {
@@ -46,14 +48,37 @@ export default function EditPostScreen() {
 	const [caption, setCaption] = useState("");
 	const [tags, setTags] = useState<string[]>([]);
 	const [location, setLocation] = useState("");
-	const [taggedListings, setTaggedListings] = useState<any[]>([]);
 	const [isPosting, setIsPosting] = useState(false);
+	const [isUploading, setIsUploading] = useState(false);
 
 	const scrollViewRef = useRef<ScrollView>(null);
 
 	// Convex hooks
 	const uploadFile = useUploadFile(api.r2);
-	const createPost = useMutation(api.posts.createPost);
+	const draftPost = useQuery(api.posts.getDraftPost, { postId: draftPostId });
+	const updatePost = useMutation(api.posts.updatePost);
+	const publishPost = useMutation(api.posts.publishPost);
+	const deletePost = useMutation(api.posts.deletePost);
+	const currentUser = useQuery(api.auth.getCurrentUser);
+
+	// Get listing details for tagged listings
+	const userListings = useQuery(
+		api.listings.getUserListings,
+		currentUser?._id ? { userId: currentUser._id } : "skip"
+	);
+
+	// Load draft post data
+	useEffect(() => {
+		if (draftPost) {
+			setCaption(draftPost.caption || "");
+			setTags(draftPost.tags || []);
+			setLocation(draftPost.location || "");
+		}
+	}, [draftPost]);
+
+	// Get the actual listing objects from IDs
+	const taggedListings =
+		userListings?.filter((listing) => draftPost?.taggedListings?.includes(listing._id)) || [];
 
 	// Helper function to convert URI to File
 	const convertUriToFile = async (uri: string, fileName: string): Promise<File> => {
@@ -64,17 +89,13 @@ export default function EditPostScreen() {
 
 	const handleClose = () => {
 		if (caption.trim() || tags.length > 0 || location.trim() || taggedListings.length > 0) {
-			Alert.alert("Save Draft?", "Do you want to save this post as a draft?", [
+			Alert.alert("Discard Post?", "Are you sure you want to discard this post?", [
 				{
 					text: "Discard",
 					style: "destructive",
-					onPress: () => router.back(),
-				},
-				{
-					text: "Save Draft",
-					onPress: () => {
-						// TODO: Implement save draft functionality
-						console.log("Saving draft...");
+					onPress: async () => {
+						// Delete the draft post
+						await deletePost({ postId: draftPostId });
 						router.back();
 					},
 				},
@@ -84,6 +105,8 @@ export default function EditPostScreen() {
 				},
 			]);
 		} else {
+			// Delete draft and go back
+			// deletePost({ postId: draftPostId });
 			router.back();
 		}
 	};
@@ -102,37 +125,61 @@ export default function EditPostScreen() {
 		try {
 			setIsPosting(true);
 
-			// Upload all photos to R2 and get their keys
-			const imageKeys: string[] = [];
-			for (let i = 0; i < photos.length; i++) {
-				const photo = photos[i];
-				const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
-				console.log("Uploading photo:", file);
-				const key = await uploadFile(file);
-				imageKeys.push(key);
-				console.log(`Uploaded photo ${i + 1}/${photos.length} with key:`, key);
+			// First, upload photos if they haven't been uploaded yet
+			if (draftPost && draftPost.imageKeys.length === 0) {
+				setIsUploading(true);
+				const imageKeys: string[] = [];
+				for (let i = 0; i < photos.length; i++) {
+					const photo = photos[i];
+					const file = await convertUriToFile(photo.uri, `post-${Date.now()}-${i}.jpg`);
+					console.log("Uploading photo:", file);
+					const key = await uploadFile(file);
+					imageKeys.push(key);
+					console.log(`Uploaded photo ${i + 1}/${photos.length} with key:`, key);
+				}
+				setIsUploading(false);
+
+				// Update draft with image keys and other data
+				await updatePost({
+					postId: draftPostId,
+					imageKeys,
+					caption: caption.trim(),
+					tags: tags.length > 0 ? tags : undefined,
+					location: location.trim() || undefined,
+					taggedListings:
+						draftPost.taggedListings && draftPost.taggedListings.length > 0
+							? draftPost.taggedListings
+							: undefined,
+				});
+			} else {
+				// Just update the caption/tags/location
+				await updatePost({
+					postId: draftPostId,
+					caption: caption.trim(),
+					tags: tags.length > 0 ? tags : undefined,
+					location: location.trim() || undefined,
+					taggedListings:
+						draftPost?.taggedListings && draftPost.taggedListings.length > 0
+							? draftPost.taggedListings
+							: undefined,
+				});
 			}
 
-			// Create the post with the uploaded image keys
-			await createPost({
-				caption: caption.trim(),
-				imageKeys,
-				tags: tags.length > 0 ? tags : undefined,
-				location: location.trim() || undefined,
-				taggedListings: taggedListings.length > 0 ? taggedListings.map((l) => l._id) : undefined,
-			});
+			// Publish the draft
+			await publishPost({ postId: draftPostId });
 
-			Alert.alert("Success", "Post created successfully!", [
+			Alert.alert("Success", "Post published successfully!", [
 				{
 					text: "OK",
-					onPress: () => router.back(),
+					onPress: () => router.replace("/(tabs)/"),
 				},
 			]);
 		} catch (error) {
-			console.error("Post creation error:", error);
-			Alert.alert("Error", "Failed to create post. Please try again.");
+			console.error("Post publication error:", error);
+			Alert.alert("Error", "Failed to publish post. Please try again.");
 		} finally {
 			setIsPosting(false);
+			setIsUploading(false);
 		}
 	};
 
@@ -150,34 +197,26 @@ export default function EditPostScreen() {
 		router.push("/post/add-location");
 	};
 
-	const handleAddTaggedListings = async () => {
-		// Request permission
-		// const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-		//
-		// if (permissionResult.granted === false) {
-		// 	Alert.alert("Permission Required", "Permission to access camera roll is required to add listings!");
-		// 	return;
-		// }
-		//
-		// // Launch image picker
-		// const result = await ImagePicker.launchImageLibraryAsync({
-		// 	mediaTypes: 'images',
-		// 	allowsEditing: true,
-		// 	aspect: [1, 1],
-		// 	quality: 0.8,
-		// });
-		// if (!result.canceled && result.assets && result.assets.length > 0) {
-		// 	const asset = result.assets[0];
-		//
-		// 	// Navigate to create listing screen with the selected image
-		// 	router.push({
-		// 		pathname: "/listing/create",
-		// 		params: {
-		// 			imageUri: asset.uri,
-		// 			fromPost: "true", // Flag to indicate this is from post tagging
-		// 		},
-		// 	});
-		// }
+	const handleAddTaggedListings = () => {
+		// Navigate to the select listings modal with draft post ID
+		router.push({
+			pathname: "/post/select-listings",
+			params: {
+				draftPostId: draftPostId,
+			},
+		});
+	};
+
+	const handleRemoveListing = async (listingId: Id<"listings">) => {
+		if (!draftPost) return;
+
+		// Remove listing from draft post
+		const updatedListings = draftPost.taggedListings?.filter((id) => id !== listingId) || [];
+
+		await updatePost({
+			postId: draftPostId,
+			taggedListings: updatedListings.length > 0 ? updatedListings : undefined,
+		});
 	};
 
 	return (
@@ -273,30 +312,61 @@ export default function EditPostScreen() {
 						</TouchableOpacity>
 
 						{/* Tagged Listings Section */}
-						<View className="px-4 py-4">
-							<Text className="text-xs font-semibold text-foreground mb-3 tracking-wide">
-								TAGGED LISTINGS
-							</Text>
+						<View className="px-4 py-4 border-b border-border">
+							<View className="flex-row items-center justify-between mb-3">
+								<Text className="text-xs font-semibold text-foreground tracking-wide">
+									TAGGED LISTINGS
+								</Text>
+								{taggedListings.length > 0 && (
+									<TouchableOpacity onPress={handleAddTaggedListings}>
+										<Text className="text-xs text-primary font-medium">Edit</Text>
+									</TouchableOpacity>
+								)}
+							</View>
 
-							<TouchableOpacity
-								onPress={handleAddTaggedListings}
-								className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
-							>
-								<View className="items-center justify-center">
-									<Text className="text-3xl text-muted-foreground mb-1">+</Text>
-								</View>
-							</TouchableOpacity>
+							<View className="flex-row flex-wrap gap-2">
+								{/* Add Listing Button */}
+								<TouchableOpacity
+									onPress={handleAddTaggedListings}
+									className="w-20 h-20 border border-border items-center justify-center rounded-lg bg-[#E1DFDB]"
+								>
+									<View className="items-center justify-center">
+										<Text className="text-3xl text-muted-foreground mb-1">+</Text>
+									</View>
+								</TouchableOpacity>
 
-							{/* Display Tagged Listings */}
-							{taggedListings.length > 0 && (
-								<View className="flex-row flex-wrap gap-2 mt-3">
-									{taggedListings.map((listing, index) => (
-										<View key={index} className="w-20 h-20 bg-muted rounded-lg">
-											{/* Tagged listing preview */}
-										</View>
-									))}
-								</View>
-							)}
+								{/* Display Tagged Listings */}
+								{taggedListings.map((listing) => (
+									<View key={listing._id} className="relative">
+										<TouchableOpacity
+											onPress={handleAddTaggedListings}
+											className="w-20 h-20 rounded-lg overflow-hidden"
+										>
+											{listing.imageUrl ? (
+												<Image
+													source={{ uri: listing.imageUrl }}
+													className="w-full h-full"
+													resizeMode="cover"
+												/>
+											) : (
+												<View className="w-full h-full bg-muted items-center justify-center">
+													<Text className="text-xs text-muted-foreground text-center px-1">
+														{listing.title}
+													</Text>
+												</View>
+											)}
+										</TouchableOpacity>
+
+										{/* Remove Button */}
+										<TouchableOpacity
+											onPress={() => handleRemoveListing(listing._id)}
+											className="absolute -top-1 -right-1 w-5 h-5 bg-black/70 rounded-full items-center justify-center"
+										>
+											<X size={12} color="white" strokeWidth={3} />
+										</TouchableOpacity>
+									</View>
+								))}
+							</View>
 						</View>
 
 						{/* Caption Drafting Note */}
@@ -314,10 +384,18 @@ export default function EditPostScreen() {
 							onPress={handlePost}
 							variant="secondary"
 							className="bg-white"
-							isDisabled={isPosting}
+							isDisabled={isPosting || isUploading}
 						>
-							{isPosting ? (
-								<ActivityIndicator size="small" color="#000" />
+							{isUploading ? (
+								<View className="flex-row items-center gap-2">
+									<ActivityIndicator size="small" color="#000" />
+									<Button.Label className="text-primary">Uploading...</Button.Label>
+								</View>
+							) : isPosting ? (
+								<View className="flex-row items-center gap-2">
+									<ActivityIndicator size="small" color="#000" />
+									<Button.Label className="text-primary">Publishing...</Button.Label>
+								</View>
 							) : (
 								<Button.Label className="text-primary">POST</Button.Label>
 							)}
