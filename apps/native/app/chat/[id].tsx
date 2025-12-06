@@ -248,7 +248,7 @@ export default function ChatMessageScreen() {
 						</View>
 
 						<View className="mb-3">
-							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (RM)</Text>
+							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (SGD)</Text>
 							<TextField>
 								<TextField.Input
 									keyboardType="numeric"

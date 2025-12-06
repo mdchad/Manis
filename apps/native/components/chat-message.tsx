@@ -60,23 +60,28 @@ export function ChatMessage({ message, userAvatarUrl, username }: ChatMessagePro
 
 			<View className="max-w-[75%]">
 				<View
-					className={`px-4 py-3 rounded-2xl ${
+					className={`px-4 py-2 rounded-2xl ${
 						message.isCurrentUser
 							? "bg-primary rounded-br-sm"
 							: "bg-white rounded-bl-sm border border-gray-200"
 					} ${message.status === "error" ? "opacity-70" : ""}`}
 				>
-					<Text className={`text-sm ${message.isCurrentUser ? "text-white" : "text-foreground"}`}>
+					{/* Message text with padding on the right for timestamp */}
+					<Text
+						className={`text-sm ${message.isCurrentUser ? "text-white" : "text-foreground"} pr-14 pb-1`}
+					>
 						{message.text}
 					</Text>
-				</View>
-				<View
-					className={`flex-row items-center mt-1 ${
-						message.isCurrentUser ? "justify-end" : "justify-start"
-					}`}
-				>
-					<Text className="text-xs text-gray-400">{message.timestamp}</Text>
-					{renderStatusIcon()}
+
+					{/* Timestamp and status inside bubble - Telegram style */}
+					<View className="absolute bottom-1 right-2 flex-row items-center">
+						<Text
+							className={`text-xs ${message.isCurrentUser ? "text-white/70" : "text-gray-400"}`}
+						>
+							{message.timestamp}
+						</Text>
+						{renderStatusIcon()}
+					</View>
 				</View>
 			</View>
 		</View>
