@@ -40,10 +40,37 @@ export default function NewChatScreen() {
 
 	// Get listing data if no chat yet
 	const listing = useQuery(api.listings.getById, !chatId && listingId ? { listingId } : "skip");
+	const user = useQuery(api.auth.getCurrentUser, {});
 
 	// Mutations
 	const startChatMutation = useMutation(api.chats.startChat);
-	const sendMessageMutation = useMutation(api.messages.sendMessage);
+	const sendMessageMutation = useMutation(api.messages.sendMessage).withOptimisticUpdate(
+		(localStore, args) => {
+			const { chatId, text } = args;
+			const existingMessages = localStore.getQuery(api.messages.getMessages, { chatId });
+
+			// If we've loaded the messages query, push an optimistic message onto the list
+			if (existingMessages !== undefined && user) {
+				const now = Date.now();
+				// Generate a temporary ID (will be replaced when server responds)
+				const tempId = `temp_${now}_${Math.random().toString(36).substr(2, 9)}`;
+				const newMessage = {
+					_id: tempId as Id<"messages">,
+					_creationTime: now,
+					chatId,
+					senderId: user._id,
+					text,
+					type: "user" as const,
+					isRead: false,
+					createdAt: now,
+				};
+				localStore.setQuery(api.messages.getMessages, { chatId }, [
+					...existingMessages,
+					newMessage,
+				]);
+			}
+		}
+	);
 	const makeOfferMutation = useMutation(api.offers.makeOffer);
 	const acceptOfferMutation = useMutation(api.offers.acceptOffer);
 	const declineOfferMutation = useMutation(api.offers.declineOffer);
@@ -201,7 +228,7 @@ export default function NewChatScreen() {
 						<Text className="text-sm font-medium text-foreground">{displayData.listing.title}</Text>
 						{displayData.listing.price && (
 							<Text className="text-sm text-primary font-semibold">
-								RM {displayData.listing.price.toFixed(2)}
+								SGD {displayData.listing.price.toFixed(2)}
 							</Text>
 						)}
 					</View>

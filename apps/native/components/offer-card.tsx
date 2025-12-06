@@ -53,7 +53,7 @@ export function OfferCard({ offer, onAccept, onDecline, onEdit, onCancel }: Offe
 						</View>
 
 						<View className="mb-3">
-							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (RM)</Text>
+							<Text className="text-sm font-medium text-gray-700 mb-1">Amount</Text>
 							<TextField>
 								<TextField.Input
 									keyboardType="numeric"
@@ -109,7 +109,7 @@ export function OfferCard({ offer, onAccept, onDecline, onEdit, onCancel }: Offe
 
 						<View className="mb-3">
 							<Text className="text-3xl font-bold text-amber-900">
-								RM {offer.amount.toFixed(2)}
+								SGD {offer.amount.toFixed(2)}
 							</Text>
 							{offer.message && (
 								<Text className="text-sm text-gray-600 mt-2">"{offer.message}"</Text>
@@ -172,7 +172,7 @@ export function OfferCard({ offer, onAccept, onDecline, onEdit, onCancel }: Offe
 
 				<View>
 					<Text className="text-sm text-gray-600 mb-1">Final Price</Text>
-					<Text className="text-3xl font-bold text-green-900">RM {offer.amount.toFixed(2)}</Text>
+					<Text className="text-3xl font-bold text-green-900">SGD {offer.amount.toFixed(2)}</Text>
 					<Text className="text-sm text-gray-600 mt-2">
 						{offer.isBuyer ? "Item reserved for you" : "Item reserved for buyer"}
 					</Text>
@@ -192,7 +192,7 @@ export function OfferCard({ offer, onAccept, onDecline, onEdit, onCancel }: Offe
 
 				<View>
 					<Text className="text-sm text-gray-600 mb-1">Amount</Text>
-					<Text className="text-2xl font-bold text-gray-700">RM {offer.amount.toFixed(2)}</Text>
+					<Text className="text-2xl font-bold text-gray-700">SGD {offer.amount.toFixed(2)}</Text>
 					{offer.message && <Text className="text-sm text-gray-500 mt-2">"{offer.message}"</Text>}
 				</View>
 			</View>
