@@ -14,6 +14,7 @@ import { Container } from "@/components/container";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
 import type { Id } from "@manis/backend/convex/_generated/dataModel";
+import { Avatar } from "heroui-native";
 
 const { width } = Dimensions.get("window");
 
@@ -64,14 +65,10 @@ export default function ListingDetail() {
 				<ScrollView showsVerticalScrollIndicator={false}>
 					{/* Seller Info */}
 					<View className="flex-row items-center px-4 pb-3">
-						{listing.seller.avatarUrl ? (
-							<Image
-								source={{ uri: listing.seller.avatarUrl }}
-								className="w-10 h-10 rounded-full"
-							/>
-						) : (
-							<View className="w-10 h-10 rounded-full bg-gray-200" />
-						)}
+						<Avatar size="sm" alt={"avatar"} variant="soft" color="success">
+							<Avatar.Image source={{ uri: listing.seller.avatarUrl || "" }} />
+							<Avatar.Fallback />
+						</Avatar>
 						<Text className="ml-3 font-semibold text-base">{listing.seller.name}</Text>
 					</View>
 

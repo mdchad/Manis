@@ -1,5 +1,6 @@
 import { View, ScrollView, Text, TouchableOpacity, Image } from "react-native";
 import { Container } from "@/components/container";
+import { Skeleton } from "heroui-native";
 import { useRouter } from "expo-router";
 import { useQuery } from "convex/react";
 import { api } from "@manis/backend/convex/_generated/api";
@@ -12,12 +13,36 @@ export default function Index() {
 		router.push(`/chat/${chatId}`);
 	};
 
-	if (!chats)
+	if (chats === undefined) {
 		return (
-			<View>
-				<Text>...Loading</Text>
-			</View>
+			<Container edges={["top"]}>
+				<View className="flex-1 bg-brand-background">
+					{/* Header */}
+					<View className="px-4 py-4 border-b border-gray-200">
+						<Text className="text-2xl font-bold text-foreground">Messages</Text>
+					</View>
+
+					{/* Skeleton Loading */}
+					<View className="px-4 py-3">
+						{[1, 2, 3].map((i) => (
+							<View key={i} className="flex-row items-start mb-4">
+								<View className="flex-1 flex-row items-start">
+									<View className="flex-1">
+										<Skeleton className="h-5 w-32 rounded-md" />
+										<Skeleton className="h-4 w-48 rounded-md mt-2" />
+									</View>
+									<View className="items-end ml-2">
+										<Skeleton className="h-3 w-12 rounded-md" />
+									</View>
+								</View>
+								<Skeleton className="w-16 h-16 rounded-lg ml-3" />
+							</View>
+						))}
+					</View>
+				</View>
+			</Container>
 		);
+	}
 
 	return (
 		<Container edges={["top"]}>
