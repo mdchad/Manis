@@ -14,7 +14,10 @@
         "tinted": "./assets/images/ios-tinted.png"
       },
       "supportsTablet": true,
-      "bundleIdentifier": "com.forimanizzati.manis"
+      "bundleIdentifier": "com.forimanizzati.manis",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +26,10 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.forimanizzati.manis"
+      "package": "com.forimanizzati.manis",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "static",
@@ -62,11 +68,19 @@
           "photosPermission": "This app needs access to your photo library to let you select images.",
           "cameraPermission": "This app needs access to your camera to let you take photos."
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7cbb3786-fe6e-49fb-b3bd-050502cb5151"
+      }
     }
   }
 }

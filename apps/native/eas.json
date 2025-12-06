@@ -1,0 +1,25 @@
+{
+  "cli": {
+    "version": ">= 16.20.4",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_CONVEX_URL": "https://hardy-badger-671.convex.cloud",
+        "EXPO_PUBLIC_CONVEX_SITE_URL": "https://hardy-badger-671.convex.site"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

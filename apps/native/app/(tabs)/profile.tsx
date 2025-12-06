@@ -5,7 +5,6 @@ import { api } from "@manis/backend/convex/_generated/api";
 import { Skeleton, Button, Avatar } from "heroui-native";
 import { Pencil, Plus } from "lucide-react-native";
 import { useRouter } from "expo-router";
-import { getUserPosts } from "@manis/backend/convex/posts";
 import { withUniwind } from "uniwind";
 
 const { width } = Dimensions.get("window");

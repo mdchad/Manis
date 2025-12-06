@@ -24,7 +24,6 @@ export default function TabOne() {
 					<Skeleton className="h-10 w-10 rounded-full" />
 					<Skeleton className="ml-3 h-5 w-32 rounded-md" />
 				</View>
-				{/*<Text className="text-foreground">Loading...</Text>*/}
 				<View className="mt-4">
 					<Skeleton className="h-100 w-full rounded-md" />
 				</View>
