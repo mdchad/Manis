@@ -98,6 +98,9 @@ export const getUserChats = query({
 					? await r2.getUrl(otherUserProfile.avatarKey)
 					: "";
 
+				// Get listing image URL
+				const listingImageUrl = listing?.imageKey ? await r2.getUrl(listing.imageKey) : "";
+
 				// Count unread messages from the other user
 				const unreadMessages = await ctx.db
 					.query("messages")
@@ -109,7 +112,7 @@ export const getUserChats = query({
 
 				return {
 					...chat,
-					listing,
+					listing: listing ? { ...listing, imageUrl: listingImageUrl } : null,
 					otherUser: {
 						id: otherUserId,
 						name: otherUserProfile?.displayName || otherUser?.name || "Unknown",

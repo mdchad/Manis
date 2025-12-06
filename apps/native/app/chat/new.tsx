@@ -274,6 +274,7 @@ export default function NewChatScreen() {
 										hour: "2-digit",
 										minute: "2-digit",
 									}),
+									isRead: msg.isRead,
 								}}
 								userAvatarUrl={
 									displayData.otherUser.avatarUrl ? displayData.otherUser.avatarUrl : ""
