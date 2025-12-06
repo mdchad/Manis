@@ -230,6 +230,7 @@ export default function ChatMessageScreen() {
 									hour: "2-digit",
 									minute: "2-digit",
 								}),
+								isRead: msg.isRead,
 							}}
 							userAvatarUrl={chat.otherUser.avatarUrl ? chat.otherUser.avatarUrl : ""}
 							username={chat.otherUser.name}
