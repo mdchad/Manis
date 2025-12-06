@@ -62,9 +62,9 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 			{/* Header */}
 			<View className="flex-row items-center justify-between px-4 py-3 bg-brand-background">
 				<View className="flex-row items-center flex-1">
-					<Avatar size="sm" alt={"avatar"}>
+					<Avatar size="sm" alt={"avatar"} variant="soft" color="success">
 						<Avatar.Image source={{ uri: userAvatar as string }} />
-						<Avatar.Fallback>IR</Avatar.Fallback>
+						<Avatar.Fallback />
 					</Avatar>
 					<Text className="ml-3 font-semibold text-base">{username}</Text>
 				</View>

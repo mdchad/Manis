@@ -56,7 +56,7 @@ export default function ProfileScreen() {
 			<View className="px-6 pt-6">
 				{/* Avatar and Stats */}
 				<View className="flex-row items-center mb-6">
-					<Avatar size="lg" alt={"avatar"} color="success">
+					<Avatar size="lg" alt={"avatar"} variant="soft" color="success">
 						<Avatar.Image source={{ uri: profile?.avatarUrl as string }} />
 						<Avatar.Fallback />
 					</Avatar>

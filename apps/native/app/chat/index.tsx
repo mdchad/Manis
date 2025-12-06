@@ -37,7 +37,7 @@ export default function Index() {
 							className="flex-row items-center px-4 py-3 border-b border-gray-100 active:bg-gray-50"
 						>
 							{/* Avatar */}
-							<Avatar size="md" alt={chat.otherUser.name}>
+							<Avatar size="md" alt={chat.otherUser.name} variant="soft" color="success">
 								<Avatar.Image source={{ uri: chat.otherUser.avatarUrl }} />
 								<Avatar.Fallback />
 							</Avatar>

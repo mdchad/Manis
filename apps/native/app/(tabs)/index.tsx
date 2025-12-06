@@ -53,7 +53,7 @@ export default function TabOne() {
 				renderItem={({ item }) => (
 					<FeedPost
 						userId={item.userId}
-						userAvatar={item.avatarUrl || `https://i.pravatar.cc/150?u=${item.userId}`}
+						userAvatar={item.avatarUrl || ""}
 						username={item.username}
 						images={item.imageUrls}
 						caption={item.caption}

@@ -40,10 +40,37 @@ export default function NewChatScreen() {
 
 	// Get listing data if no chat yet
 	const listing = useQuery(api.listings.getById, !chatId && listingId ? { listingId } : "skip");
+	const user = useQuery(api.auth.getCurrentUser, {});
 
 	// Mutations
 	const startChatMutation = useMutation(api.chats.startChat);
-	const sendMessageMutation = useMutation(api.messages.sendMessage);
+	const sendMessageMutation = useMutation(api.messages.sendMessage).withOptimisticUpdate(
+		(localStore, args) => {
+			const { chatId, text } = args;
+			const existingMessages = localStore.getQuery(api.messages.getMessages, { chatId });
+
+			// If we've loaded the messages query, push an optimistic message onto the list
+			if (existingMessages !== undefined && user) {
+				const now = Date.now();
+				// Generate a temporary ID (will be replaced when server responds)
+				const tempId = `temp_${now}_${Math.random().toString(36).substr(2, 9)}`;
+				const newMessage = {
+					_id: tempId as Id<"messages">,
+					_creationTime: now,
+					chatId,
+					senderId: user._id,
+					text,
+					type: "user" as const,
+					isRead: false,
+					createdAt: now,
+				};
+				localStore.setQuery(api.messages.getMessages, { chatId }, [
+					...existingMessages,
+					newMessage,
+				]);
+			}
+		}
+	);
 	const makeOfferMutation = useMutation(api.offers.makeOffer);
 	const acceptOfferMutation = useMutation(api.offers.acceptOffer);
 	const declineOfferMutation = useMutation(api.offers.declineOffer);
@@ -177,8 +204,8 @@ export default function NewChatScreen() {
 					</TouchableOpacity>
 
 					<Avatar size="sm" alt={displayData.otherUser.name} className="mr-3">
-						{displayData.otherUser.avatarKey && (
-							<Avatar.Image source={{ uri: `your-r2-url/${displayData.otherUser.avatarKey}` }} />
+						{displayData.otherUser.avatarUrl && (
+							<Avatar.Image source={{ uri: displayData.otherUser.avatarUrl }} />
 						)}
 						<Avatar.Fallback />
 					</Avatar>
@@ -201,7 +228,7 @@ export default function NewChatScreen() {
 						<Text className="text-sm font-medium text-foreground">{displayData.listing.title}</Text>
 						{displayData.listing.price && (
 							<Text className="text-sm text-primary font-semibold">
-								RM {displayData.listing.price.toFixed(2)}
+								SGD {displayData.listing.price.toFixed(2)}
 							</Text>
 						)}
 					</View>
@@ -249,9 +276,7 @@ export default function NewChatScreen() {
 									}),
 								}}
 								userAvatarUrl={
-									displayData.otherUser.avatarKey
-										? `your-r2-url/${displayData.otherUser.avatarKey}`
-										: undefined
+									displayData.otherUser.avatarUrl ? displayData.otherUser.avatarUrl : ""
 								}
 								username={displayData.otherUser.name}
 							/>
@@ -269,7 +294,7 @@ export default function NewChatScreen() {
 						</View>
 
 						<View className="mb-3">
-							<Text className="text-sm font-medium text-gray-700 mb-1">Amount (RM)</Text>
+							<Text className="text-sm font-medium text-gray-700 mb-1">Amount</Text>
 							<TextField>
 								<TextField.Input
 									keyboardType="numeric"
