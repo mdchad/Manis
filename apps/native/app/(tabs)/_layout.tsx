@@ -1,6 +1,6 @@
 import { TabBarIcon } from "@/components/tabbar-icon";
 // import { useColorScheme } from "@/lib/use-color-scheme";
-import { Tabs, useRouter } from "expo-router";
+import { Link, Tabs, useRouter } from "expo-router";
 import {
 	BubblesIcon,
 	ContactIcon,
@@ -38,9 +38,11 @@ export default function TabLayout() {
 					borderColor: "transparent",
 				},
 				headerRight: () => (
-					<Button isIconOnly variant="ghost" className="pr-4" onPress={() => router.push("/chat")}>
-						<MessageCircleIcon />
-					</Button>
+					<Link asChild href={{ pathname: "/chat" }} prefetch>
+						<Button isIconOnly variant="ghost" className="pr-4">
+							<MessageCircleIcon />
+						</Button>
+					</Link>
 				),
 				headerTitle: () => (
 					<Image
