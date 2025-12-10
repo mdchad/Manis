@@ -202,7 +202,7 @@ export default function EditListingScreen() {
 							<Pressable onPress={handleClose} className="bg-black/30 rounded-full p-1">
 								<X size={28} color="white" />
 							</Pressable>
-							<Text className="text-lg text-white">EDIT POST</Text>
+							<Text className="text-lg text-white">EDIT LISTING</Text>
 						</View>
 
 						{/* Dots Indicator */}
