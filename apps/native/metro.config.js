@@ -4,7 +4,7 @@ const { withUniwindConfig } = require("uniwind/metro");
 
 const config = getDefaultConfig(__dirname);
 
-config.resolver.unstable_enablePackageExports = true;
+// config.resolver.unstable_enablePackageExports = true;
 
 module.exports = withUniwindConfig(config, {
 	// relative path to your global.css file (from previous step)
