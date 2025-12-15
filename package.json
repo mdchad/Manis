@@ -35,5 +35,6 @@
       "prettier --write",
       "oxlint"
     ]
-  }
+  },
+  "packageManager": "bun@1.2.16"
 }
